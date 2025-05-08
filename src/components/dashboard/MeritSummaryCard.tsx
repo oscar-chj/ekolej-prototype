@@ -2,15 +2,25 @@
 
 import { EmojiEvents } from '@mui/icons-material';
 import { Avatar, Box, LinearProgress, Paper, Typography } from '@mui/material';
+import { memo } from 'react';
 
+/**
+ * Props for the MeritSummaryCard component
+ */
 interface MeritSummaryCardProps {
   totalPoints: number;
   targetPoints: number;
 }
 
-export default function MeritSummaryCard({ totalPoints, targetPoints }: MeritSummaryCardProps) {
-  // Calculate percentage of target achieved
-  const progressPercentage = (totalPoints / targetPoints) * 100;
+/**
+ * Card component that displays a student's merit points summary with a progress bar
+ */
+const MeritSummaryCard = memo(function MeritSummaryCard({ 
+  totalPoints, 
+  targetPoints 
+}: MeritSummaryCardProps) {
+  // Calculate percentage of target achieved (capped at 100%)
+  const progressPercentage = Math.min((totalPoints / targetPoints) * 100, 100);
   
   return (
     <Paper 
@@ -27,10 +37,10 @@ export default function MeritSummaryCard({ totalPoints, targetPoints }: MeritSum
             Total Merit Points
           </Typography>
           <Typography variant="h3" component="div" sx={{ fontWeight: 700 }}>
-            {totalPoints}
+            {totalPoints.toLocaleString()}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Target: {targetPoints} points
+            Target: {targetPoints.toLocaleString()} points
           </Typography>
         </Box>
         <Avatar 
@@ -47,15 +57,23 @@ export default function MeritSummaryCard({ totalPoints, targetPoints }: MeritSum
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Typography variant="body2">Progress</Typography>
           <Typography variant="body2" fontWeight="medium">
-            {progressPercentage.toFixed(0)}%
+            {Math.round(progressPercentage)}%
           </Typography>
         </Box>
         <LinearProgress 
           variant="determinate" 
           value={progressPercentage} 
-          sx={{ height: 8, borderRadius: 4 }} 
+          sx={{ 
+            height: 8, 
+            borderRadius: 4,
+            '& .MuiLinearProgress-bar': {
+              borderRadius: 4
+            }
+          }} 
         />
       </Box>
     </Paper>
   );
-}
+});
+
+export default MeritSummaryCard;

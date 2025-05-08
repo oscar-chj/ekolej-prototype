@@ -1,53 +1,131 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Public routes that don't require authentication
-const publicRoutes = [
-  '/auth/login',
-  '/auth/forgot-password',
-  '/auth/reset-password',
-];
+/**
+ * Route configuration for the application
+ */
+const ROUTES = {
+  // Public routes that don't require authentication
+  public: [
+    '/auth/login',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+  ],
+  
+  // Routes that should bypass middleware entirely
+  bypass: [
+    '/_next',
+    '/api',
+    '/favicon.ico',
+    '/public',
+    '/assets',
+    '/images',
+  ],
+  
+  // Default routes for redirection
+  default: {
+    authenticated: '/dashboard',
+    unauthenticated: '/auth/login'
+  }
+};
 
-// Static assets and API routes
-const bypassRoutes = [
-  '/_next',
-  '/api',
-  '/favicon.ico',
-  '/public',
-];
+/**
+ * Check if the requested path is included in a list of route patterns
+ * @param path - The path to check
+ * @param routes - Array of route patterns
+ * @returns True if the path matches any pattern
+ */
+const matchesRoutePattern = (path: string, routes: string[]): boolean => {
+  return routes.some(route => path === route || path.startsWith(`${route}/`));
+};
 
 /**
  * Check if the requested route is a public route
+ * @param path - The path to check
+ * @returns True if the path is public
  */
 const isPublicRoute = (path: string): boolean => {
-  return publicRoutes.some(route => path === route || path.startsWith(`${route}/`));
+  return matchesRoutePattern(path, ROUTES.public);
 };
 
 /**
  * Check if the route should bypass the middleware
+ * @param path - The path to check
+ * @returns True if the path should bypass middleware
  */
 const shouldBypass = (path: string): boolean => {
-  return bypassRoutes.some(route => path.startsWith(route));
+  return matchesRoutePattern(path, ROUTES.bypass);
 };
 
 /**
- * Check if the user is authenticated
- * This is a simplified version - in a real app, you would check an auth token or cookie
+ * Check if the user is authenticated based on request cookies
+ * @param request - The Next.js request object
+ * @returns True if the user is authenticated
  */
 const isAuthenticated = (request: NextRequest): boolean => {
   // For development purposes, we'll check for an auth cookie
   // In a real app, you would verify the session token with your auth provider
   const authCookie = request.cookies.get('auth_token')?.value;
+  
+  // Implement additional validation logic here in a real app
+  // e.g. check token expiration, validate signature, etc.
   return !!authCookie;
 };
 
 /**
- * Middleware function that executes on every request
+ * Handle root path navigation based on authentication status
+ * @param request - The Next.js request object
+ * @param isUserAuthenticated - Whether the user is authenticated
+ * @returns The appropriate redirect response
  */
-export function middleware(request: NextRequest) {
+const handleRootPath = (request: NextRequest, isUserAuthenticated: boolean): NextResponse => {
+  const redirectUrl = isUserAuthenticated 
+    ? ROUTES.default.authenticated 
+    : ROUTES.default.unauthenticated;
+  
+  return NextResponse.redirect(new URL(redirectUrl, request.url));
+};
+
+/**
+ * Handle protected route access for unauthenticated users
+ * @param request - The Next.js request object
+ * @param pathname - The current path
+ * @returns Redirect to login with return URL
+ */
+const handleUnauthenticatedAccess = (request: NextRequest, pathname: string): NextResponse => {
+  const loginUrl = new URL(ROUTES.default.unauthenticated, request.url);
+  // Add a ?from= parameter to redirect back after login
+  loginUrl.searchParams.set('from', pathname);
+  return NextResponse.redirect(loginUrl);
+};
+
+/**
+ * Handle public route access for already authenticated users
+ * @param request - The Next.js request object
+ * @param pathname - The current path
+ * @returns Appropriate redirect or next response
+ */
+const handleAuthenticatedOnPublicRoute = (
+  request: NextRequest, 
+  pathname: string
+): NextResponse => {
+  // Allow the /auth/logout path even when authenticated
+  if (pathname === '/auth/logout') {
+    return NextResponse.next();
+  }
+  
+  // If user is already logged in, redirect them to the dashboard
+  return NextResponse.redirect(new URL(ROUTES.default.authenticated, request.url));
+};
+
+/**
+ * Middleware function that executes on every request
+ * Handles authentication, redirects, and route protection
+ */
+export function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   
-  // Skip middleware for static assets and API routes
+  // Skip middleware for static assets and bypass routes
   if (shouldBypass(pathname)) {
     return NextResponse.next();
   }
@@ -57,31 +135,17 @@ export function middleware(request: NextRequest) {
 
   // Handle root path special case
   if (pathname === '/') {
-    // If user is logged in, redirect to dashboard
-    if (isUserAuthenticated) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-    // If not logged in, redirect to login page
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    return handleRootPath(request, isUserAuthenticated);
   }
 
   // Handle protected routes - redirect to login if not authenticated
   if (!isPublicRoute(pathname) && !isUserAuthenticated) {
-    const loginUrl = new URL('/auth/login', request.url);
-    // Add a ?from= parameter to redirect back after login
-    loginUrl.searchParams.set('from', pathname);
-    return NextResponse.redirect(loginUrl);
+    return handleUnauthenticatedAccess(request, pathname);
   }
 
   // Handle public routes when user is already authenticated (like login page)
   if (isPublicRoute(pathname) && isUserAuthenticated) {
-    // Allow the /auth/logout path even when authenticated
-    if (pathname === '/auth/logout') {
-      return NextResponse.next();
-    }
-    
-    // If user is already logged in, redirect them to the dashboard
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return handleAuthenticatedOnPublicRoute(request, pathname);
   }
 
   // Otherwise, continue to the requested page
@@ -93,5 +157,5 @@ export function middleware(request: NextRequest) {
  */
 export const config = {
   // Apply middleware to all routes in the app except static assets
-  matcher: ['/((?!_next/static|_next/image|images|public|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|images|public|favicon.ico|assets).*)'],
 };

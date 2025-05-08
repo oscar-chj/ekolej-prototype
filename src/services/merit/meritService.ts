@@ -1,198 +1,296 @@
 "use client";
 
-// This is a sample merit service that handles merit points and activities
-// In a real application, this would fetch data from an API or database
+import { meritRecords } from '../../data/meritRecords';
+import { students } from '../../data/students';
+import { ApiResponse, MeritRecord, PaginatedResponse, PaginationParams } from '../../types/api.types';
 
-// Merit data types
-export interface MeritActivity {
-  id: number;
-  title: string;
-  category: 'Academic' | 'Co-curricular' | 'Community Service';
-  points: number;
-  date: string;
-  description?: string;
-  verified?: boolean;
-  verifiedBy?: string;
-}
-
-export interface MeritEvent {
-  id: number;
-  title: string;
-  date: string;
-  points: number;
-  location: string;
-  description?: string;
-  capacity?: number;
-  registeredCount?: number;
-  category: 'Academic' | 'Co-curricular' | 'Community Service';
-}
-
-export interface MeritSummary {
-  totalPoints: number;
-  targetPoints: number;
-  academicPoints: number;
-  cocurricularPoints: number;
-  communityPoints: number;
-  recentActivities: MeritActivity[];
-  upcomingEvents: MeritEvent[];
-}
-
-// Sample merit data
-const sampleMeritData: MeritSummary = {
-  totalPoints: 450,
-  targetPoints: 600,
-  academicPoints: 250,
-  cocurricularPoints: 125,
-  communityPoints: 75,
-  recentActivities: [
-    {
-      id: 1,
-      title: 'Programming Competition',
-      category: 'Academic',
-      points: 50,
-      date: '2025-04-28',
-      description: 'Participated in the university coding competition and secured 2nd position.',
-      verified: true,
-      verifiedBy: 'Prof. Smith'
-    },
-    {
-      id: 2,
-      title: 'Community Outreach',
-      category: 'Community Service',
-      points: 25,
-      date: '2025-04-15',
-      description: 'Volunteered at the local community center to teach basic computer skills.',
-      verified: true,
-      verifiedBy: 'Dr. Johnson'
-    },
-    {
-      id: 3,
-      title: 'Sports Day Participant',
-      category: 'Co-curricular',
-      points: 20,
-      date: '2025-04-10',
-      description: 'Represented the department in 100m sprint and relay race.',
-      verified: true,
-      verifiedBy: 'Coach Williams'
-    },
-    {
-      id: 4,
-      title: 'Library Helper',
-      category: 'Community Service',
-      points: 15,
-      date: '2025-04-05',
-      description: 'Assisted in organizing and cataloging new books in the university library.',
-      verified: true,
-      verifiedBy: 'Ms. Davis'
-    }
-  ],
-  upcomingEvents: [
-    {
-      id: 101,
-      title: 'Leadership Workshop',
-      date: '2025-05-15',
-      points: 30,
-      location: 'Main Hall',
-      description: 'A workshop focused on developing leadership skills for students.',
-      capacity: 50,
-      registeredCount: 32,
-      category: 'Co-curricular'
-    },
-    {
-      id: 102,
-      title: 'Hackathon',
-      date: '2025-05-22',
-      points: 50,
-      location: 'CS Building',
-      description: '24-hour coding event to develop innovative solutions for real-world problems.',
-      capacity: 100,
-      registeredCount: 75,
-      category: 'Academic'
-    },
-    {
-      id: 103,
-      title: 'Charity Run',
-      date: '2025-05-30',
-      points: 40,
-      location: 'University Stadium',
-      description: 'Annual charity run to raise funds for local orphanages.',
-      capacity: 200,
-      registeredCount: 120,
-      category: 'Community Service'
-    }
-  ]
-};
-
-// Merit Service class
+/**
+ * Service for merit-related operations
+ * This provides an abstraction layer for accessing merit data
+ * and can be easily replaced with a real API implementation later
+ */
 export class MeritService {
-  private static instance: MeritService;
-  private meritData: MeritSummary = sampleMeritData;
+  /**
+   * Get all merit records for a student with pagination
+   * @param studentId - ID of the student
+   * @param params - Optional pagination parameters
+   * @returns Paginated response of merit records
+   */
+  async getStudentMeritRecords(
+    studentId: string,
+    params?: PaginationParams
+  ): Promise<PaginatedResponse<MeritRecord[]>> {
+    try {
+      if (!studentId) {
+        return this.createErrorPaginatedResponse('Student ID is required', params);
+      }
 
-  private constructor() {}
-
-  public static async getInstance(): Promise<MeritService> {
-    if (!MeritService.instance) {
-      MeritService.instance = new MeritService();
+      // Filter records by student ID
+      const studentMeritRecords = meritRecords.filter(record => record.studentId === studentId);
+      
+      return this.paginateResults(studentMeritRecords, params);
+    } catch (error) {
+      console.error('Error getting student merit records:', error);
+      return this.createErrorPaginatedResponse('Failed to retrieve merit records', params);
     }
-    return MeritService.instance;
   }
-
+  
   /**
-   * Get merit summary for the current user
-   * In a real app, this would fetch data for the specific logged-in user
+   * Get merit records by event with pagination
+   * @param eventId - ID of the event
+   * @param params - Optional pagination parameters
+   * @returns Paginated response of merit records
    */
-  public async getMeritSummary(userId?: string): Promise<MeritSummary> {
-    // In a real app, fetch data for specific user
-    // For now, return sample data
-    return this.meritData;
-  }
+  async getEventMeritRecords(
+    eventId: string,
+    params?: PaginationParams
+  ): Promise<PaginatedResponse<MeritRecord[]>> {
+    try {
+      if (!eventId) {
+        return this.createErrorPaginatedResponse('Event ID is required', params);
+      }
 
-  /**
-   * Get list of all activities for the current user
-   */
-  public async getActivities(userId?: string): Promise<MeritActivity[]> {
-    return this.meritData.recentActivities;
-  }
-
-  /**
-   * Get list of upcoming events
-   */
-  public async getUpcomingEvents(): Promise<MeritEvent[]> {
-    return this.meritData.upcomingEvents;
-  }
-
-  /**
-   * Register user for an event
-   * In a real app, this would update a database
-   */
-  public async registerForEvent(eventId: number, userId: string): Promise<boolean> {
-    const event = this.meritData.upcomingEvents.find(e => e.id === eventId);
-    if (!event) return false;
-
-    // Check if there's space available
-    if (event.capacity && event.registeredCount && event.registeredCount >= event.capacity) {
-      return false;
+      // Filter records by event ID
+      const eventMeritRecords = meritRecords.filter(record => record.eventId === eventId);
+      
+      return this.paginateResults(eventMeritRecords, params);
+    } catch (error) {
+      console.error('Error getting event merit records:', error);
+      return this.createErrorPaginatedResponse('Failed to retrieve merit records', params);
     }
+  }
+  
+  /**
+   * Add a new merit record for a student
+   * @param record - Merit record data without ID
+   * @returns API response with the created merit record
+   */
+  async addMeritRecord(record: Omit<MeritRecord, 'id'>): Promise<ApiResponse<MeritRecord>> {
+    try {
+      // Validate input
+      if (!record.studentId || !record.category || record.points === undefined) {
+        return {
+          success: false,
+          error: 'Missing required fields'
+        };
+      }
 
-    // In a real app, we would update the registration in a database
-    if (event.registeredCount) {
-      event.registeredCount += 1;
-    } else {
-      event.registeredCount = 1;
+      // Check if student exists
+      const studentExists = students.some(s => s.id === record.studentId);
+      if (!studentExists) {
+        return {
+          success: false,
+          error: 'Student not found'
+        };
+      }
+      
+      // Create new merit record with a unique ID
+      const newRecord: MeritRecord = {
+        id: `mr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        ...record
+      };
+      
+      // Add to merit records (in a real app, this would be a database operation)
+      meritRecords.push(newRecord);
+      
+      // Update student's total merit points
+      const studentIndex = students.findIndex(s => s.id === record.studentId);
+      if (studentIndex !== -1) {
+        students[studentIndex].totalMeritPoints += record.points;
+      }
+      
+      return {
+        success: true,
+        data: newRecord,
+        message: 'Merit record added successfully'
+      };
+    } catch (error) {
+      console.error('Error adding merit record:', error);
+      return {
+        success: false,
+        error: 'Failed to add merit record'
+      };
     }
+  }
+  
+  /**
+   * Verify a merit record
+   * @param recordId - ID of the merit record to verify
+   * @param verifiedBy - ID or name of the person verifying the record
+   * @returns API response with the updated merit record
+   */
+  async verifyMeritRecord(
+    recordId: string, 
+    verifiedBy: string
+  ): Promise<ApiResponse<MeritRecord>> {
+    try {
+      if (!recordId || !verifiedBy) {
+        return {
+          success: false,
+          error: 'Record ID and verifier information are required'
+        };
+      }
+
+      // Find the merit record
+      const recordIndex = meritRecords.findIndex(r => r.id === recordId);
+      
+      if (recordIndex === -1) {
+        return {
+          success: false,
+          error: 'Merit record not found'
+        };
+      }
+      
+      // Update the record (in a real app, this would be a database operation)
+      meritRecords[recordIndex].isVerified = true;
+      meritRecords[recordIndex].verifiedBy = verifiedBy;
+      meritRecords[recordIndex].verificationDate = new Date().toISOString().split('T')[0];
+      
+      return {
+        success: true,
+        data: meritRecords[recordIndex],
+        message: 'Merit record verified successfully'
+      };
+    } catch (error) {
+      console.error('Error verifying merit record:', error);
+      return {
+        success: false,
+        error: 'Failed to verify merit record'
+      };
+    }
+  }
+  
+  /**
+   * Get a merit record by ID
+   * @param recordId - ID of the merit record
+   * @returns API response with the merit record
+   */
+  async getMeritRecordById(recordId: string): Promise<ApiResponse<MeritRecord>> {
+    try {
+      if (!recordId) {
+        return {
+          success: false,
+          error: 'Record ID is required'
+        };
+      }
+
+      const record = meritRecords.find(r => r.id === recordId);
+      
+      if (!record) {
+        return {
+          success: false,
+          error: 'Merit record not found'
+        };
+      }
+      
+      return {
+        success: true,
+        data: record
+      };
+    } catch (error) {
+      console.error('Error getting merit record by ID:', error);
+      return {
+        success: false,
+        error: 'Failed to retrieve merit record'
+      };
+    }
+  }
+  
+  /**
+   * Get merit summary by category for a student
+   * @param studentId - ID of the student
+   * @returns API response with merit points grouped by category
+   */
+  async getStudentMeritSummary(studentId: string): Promise<ApiResponse<Record<string, number>>> {
+    try {
+      if (!studentId) {
+        return {
+          success: false,
+          error: 'Student ID is required'
+        };
+      }
+
+      // Check if student exists
+      const studentExists = students.some(s => s.id === studentId);
+      if (!studentExists) {
+        return {
+          success: false,
+          error: 'Student not found'
+        };
+      }
+      
+      // Get all merit records for the student
+      const studentRecords = meritRecords.filter(r => r.studentId === studentId);
+      
+      // Calculate totals by category
+      const categorySummary = studentRecords.reduce((acc, record) => {
+        if (!acc[record.category]) {
+          acc[record.category] = 0;
+        }
+        acc[record.category] += record.points;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      return {
+        success: true,
+        data: categorySummary
+      };
+    } catch (error) {
+      console.error('Error getting student merit summary:', error);
+      return {
+        success: false,
+        error: 'Failed to retrieve merit summary'
+      };
+    }
+  }
+
+  /**
+   * Helper method to paginate results
+   * @private
+   */
+  private paginateResults<T>(
+    items: T[], 
+    params?: PaginationParams
+  ): PaginatedResponse<T[]> {
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedItems = items.slice(startIndex, endIndex);
     
-    return true;
+    return {
+      success: true,
+      data: paginatedItems,
+      pagination: {
+        totalItems: items.length,
+        totalPages: Math.ceil(items.length / limit),
+        currentPage: page,
+        itemsPerPage: limit
+      }
+    };
+  }
+
+  /**
+   * Helper method to create error response with pagination
+   * @private
+   */
+  private createErrorPaginatedResponse<T>(
+    error: string,
+    params?: PaginationParams
+  ): PaginatedResponse<T> {
+    return {
+      success: false,
+      error,
+      pagination: {
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: params?.page || 1,
+        itemsPerPage: params?.limit || 10
+      }
+    };
   }
 }
 
-// Create a singleton instance
-const meritServicePromise = MeritService.getInstance();
-let meritService: MeritService;
-
-// Export an async function to get the service
-export async function getMeritService(): Promise<MeritService> {
-  if (!meritService) {
-    meritService = await meritServicePromise;
-  }
-  return meritService;
-}
+// Export singleton instance
+const meritService = new MeritService();
+export default meritService;

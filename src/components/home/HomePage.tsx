@@ -1,105 +1,272 @@
 'use client';
 
+import { 
+  Box, 
+  Button, 
+  Container, 
+  Grid, 
+  Paper, 
+  Stack, 
+  Typography,
+  useTheme
+} from '@mui/material';
+import { ArrowForward, School, EmojiEvents, EventNote } from '@mui/icons-material';
 import Image from "next/image";
+import Link from 'next/link';
 
+/**
+ * Landing page component for the eKolej University Merit System
+ */
 export default function HomePage() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const theme = useTheme();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <Box sx={{ 
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      {/* Hero section */}
+      <Box 
+        sx={{ 
+          backgroundColor: 'primary.main', 
+          color: 'primary.contrastText',
+          pt: { xs: 8, md: 12 },
+          pb: { xs: 8, md: 12 }
+        }}
+      >
+        <Container maxWidth="lg">
+          <Grid container spacing={4} alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography 
+                variant="h2" 
+                component="h1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 700,
+                  fontSize: { xs: '2.5rem', md: '3.5rem' }
+                }}
+              >
+                eKolej University Merit System
+              </Typography>
+              
+              <Typography 
+                variant="h5"
+                sx={{ 
+                  mb: 4, 
+                  opacity: 0.9,
+                  maxWidth: '600px'
+                }}
+              >
+                Track your achievements, join events, and build your academic profile.
+              </Typography>
+              
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <Button 
+                  component={Link}
+                  href="/auth/login" 
+                  variant="contained" 
+                  size="large"
+                  color="secondary"
+                  sx={{ 
+                    py: 1.5,
+                    px: 4,
+                    fontWeight: 600
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  component={Link}
+                  href="/dashboard" 
+                  variant="outlined" 
+                  size="large"
+                  color="inherit"
+                  sx={{ 
+                    py: 1.5,
+                    px: 4,
+                    borderColor: 'primary.contrastText',
+                    '&:hover': {
+                      borderColor: 'primary.contrastText',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Dashboard
+                </Button>
+              </Stack>
+            </Grid>
+            
+            <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box 
+                sx={{ 
+                  position: 'relative',
+                  width: { xs: '280px', sm: '320px', md: '400px' },
+                  height: { xs: '280px', sm: '320px', md: '400px' }
+                }}
+              >
+                <Image
+                  src="/globe.svg"
+                  alt="eKolej Logo"
+                  fill
+                  style={{
+                    filter: 'brightness(0) invert(1)',
+                    opacity: 0.9
+                  }}
+                  priority
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features section */}
+      <Box sx={{ py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <Typography 
+            variant="h3" 
+            component="h2" 
+            align="center"
+            gutterBottom
+            sx={{ 
+              fontWeight: 700,
+              mb: { xs: 6, md: 8 }
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Why Use eKolej?
+          </Typography>
+          
+          <Grid container spacing={4}>
+            {[
+              {
+                icon: <School fontSize="large" color="primary" />,
+                title: 'Track Academic Progress',
+                description: 'Keep track of your academic achievements and merit points earned through your university journey.'
+              },
+              {
+                icon: <EventNote fontSize="large" color="primary" />,
+                title: 'Discover Events',
+                description: 'Find and register for university events, workshops, and activities that interest you.'
+              },
+              {
+                icon: <EmojiEvents fontSize="large" color="primary" />,
+                title: 'Earn Merit Points',
+                description: 'Earn merit points for your participation and achievements in academic and extracurricular activities.'
+              }
+            ].map((feature, index) => (
+              <Grid size={{ xs: 12, md: 4 }} key={index}>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 4,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider'
+                  }}
+                >
+                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                  <Typography variant="h5" component="h3" gutterBottom fontWeight={600}>
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    {feature.description}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Call to action */}
+      <Box 
+        sx={{ 
+          backgroundColor: 'background.default',
+          py: { xs: 6, md: 8 },
+          borderTop: '1px solid',
+          borderColor: 'divider'
+        }}
+      >
+        <Container maxWidth="md">
+          <Stack 
+            direction="column" 
+            spacing={3}
+            alignItems="center"
+            textAlign="center"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            <Typography variant="h4" component="h3" fontWeight={600}>
+              Ready to get started?
+            </Typography>
+            
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '600px' }}>
+              Sign in with your university credentials to access your dashboard, view events, and track your merit points.
+            </Typography>
+            
+            <Button 
+              component={Link}
+              href="/auth/login"
+              variant="contained" 
+              color="primary"
+              size="large"
+              endIcon={<ArrowForward />}
+              sx={{ 
+                mt: 2,
+                py: 1.5,
+                px: 4
+              }}
+            >
+              Sign In Now
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* Footer */}
+      <Box 
+        component="footer"
+        sx={{ 
+          py: 4,
+          backgroundColor: theme.palette.mode === 'light' ? 'grey.100' : 'grey.900',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          mt: 'auto'
+        }}
+      >
+        <Container maxWidth="lg">
+          <Grid container spacing={2} justifyContent="space-between" alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography variant="body2" color="text.secondary">
+                © {new Date().getFullYear()} eKolej University Merit System. All rights reserved.
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+              <Stack direction="row" spacing={3}>
+                <Link href="/help" passHref style={{ textDecoration: 'none' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Help
+                  </Typography>
+                </Link>
+                <Link href="/privacy" passHref style={{ textDecoration: 'none' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Privacy
+                  </Typography>
+                </Link>
+                <Link href="/terms" passHref style={{ textDecoration: 'none' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Terms
+                  </Typography>
+                </Link>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+    </Box>
   );
 }

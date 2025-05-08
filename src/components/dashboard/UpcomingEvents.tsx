@@ -1,10 +1,17 @@
 'use client';
 
-import { MeritEvent } from '@/services/merit/meritService';
-import { Event as EventIcon } from '@mui/icons-material';
+import { MeritEvent } from '@/types/merit.types';
+import { EventCategory } from '@/types/api.types';
+import { 
+  Event as EventIcon, 
+  LocationOn, 
+  ArrowForward, 
+  EventBusy 
+} from '@mui/icons-material';
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -13,60 +20,169 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Typography
+  Typography,
+  Stack
 } from '@mui/material';
-import React from 'react';
+import { memo } from 'react';
+import Link from 'next/link';
 
+/**
+ * Props for the UpcomingEvents component
+ */
 interface UpcomingEventsProps {
   events: MeritEvent[];
 }
 
-// Helper function for formatting dates
-const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+/**
+ * Format a date string to a more readable format
+ * @param dateString - ISO date string
+ * @returns Formatted date
+ */
+const formatDate = (dateString: string): string => {
+  const options: Intl.DateTimeFormatOptions = { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  };
   return new Date(dateString).toLocaleDateString('en-US', options);
 };
 
-export default function UpcomingEvents({ events }: UpcomingEventsProps) {
+/**
+ * Get a color for the event category
+ * @param category - Event category
+ * @returns MUI color name
+ */
+const getCategoryColor = (category: EventCategory): "primary" | "secondary" | "success" | "info" | "default" => {
+  switch(category) {
+    case EventCategory.ACADEMIC: return 'primary';
+    case EventCategory.COCURRICULAR: return 'secondary';
+    case EventCategory.COMMUNITY: return 'success';
+    default: return 'info';
+  }
+};
+
+/**
+ * Component that displays a list of upcoming events
+ */
+const UpcomingEvents = memo(function UpcomingEvents({ events }: UpcomingEventsProps) {
+  // Handle empty state
+  if (!events || events.length === 0) {
+    return (
+      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+        <CardContent sx={{ textAlign: 'center', py: 4 }}>
+          <EventBusy sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+          <Typography variant="h6" gutterBottom>
+            No Upcoming Events
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Check back later for new events or browse all available events.
+          </Typography>
+          <Button 
+            component={Link}
+            href="/dashboard/events" 
+            variant="outlined" 
+            endIcon={<ArrowForward />}
+          >
+            Browse Events
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Upcoming Events
-        </Typography>
-        <List>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6">
+            Upcoming Events
+          </Typography>
+          <Button 
+            component={Link}
+            href="/dashboard/events" 
+            endIcon={<ArrowForward fontSize="small" />}
+            size="small"
+          >
+            View All
+          </Button>
+        </Box>
+        
+        <List disablePadding>
           {events.map((event, index) => (
-            <React.Fragment key={event.id}>
-              <ListItem alignItems="flex-start" sx={{ py: 1.5 }}>
+            <Box key={event.id}>
+              <ListItem 
+                alignItems="flex-start"
+                component={Link}
+                href={`/dashboard/events/${event.id}`}
+                sx={{ 
+                  textDecoration: 'none', 
+                  color: 'inherit',
+                  py: 1.5, 
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                    borderRadius: 1
+                  }
+                }}
+              >
                 <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: 'info.light' }}>
+                  <Avatar sx={{ bgcolor: `${getCategoryColor(event.category)}.light` }}>
                     <EventIcon />
                   </Avatar>
                 </ListItemAvatar>
+                
                 <ListItemText
-                  primary={event.title}
+                  primary={
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                      {event.title}
+                    </Typography>
+                  }
                   secondary={
-                    <React.Fragment>
-                      <Typography variant="body2" component="span">
-                        {formatDate(event.date)} • {event.location}
-                      </Typography>
-                      <Box sx={{ mt: 0.5 }}>
+                    <>
+                      {/* Replace Box with Stack to avoid div inside p hydration error */}
+                      <Stack direction="row" alignItems="center" sx={{ color: 'text.secondary', mb: 0.5 }}>
+                        <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                        <Typography variant="caption" component="span">
+                          {formatDate(event.date)}
+                        </Typography>
+                        <Typography component="span" sx={{ mx: 0.5 }}>•</Typography>
+                        <LocationOn sx={{ fontSize: 14, mr: 0.5 }} />
+                        <Typography variant="caption" component="span">
+                          {event.location}
+                        </Typography>
+                      </Stack>
+                      
+                      {/* Replace Box with Stack for the second row as well */}
+                      <Stack direction="row" alignItems="center" sx={{ mt: 0.5 }}>
                         <Chip 
                           label={`${event.points} points`} 
-                          color="primary" 
+                          color={getCategoryColor(event.category)} 
                           size="small" 
                           variant="outlined"
+                          sx={{ fontSize: '0.7rem' }} 
                         />
-                      </Box>
-                    </React.Fragment>
+                        {event.capacity && event.registeredCount !== undefined && (
+                          <Typography variant="caption" component="span" sx={{ ml: 1, color: 
+                            event.registeredCount >= event.capacity 
+                              ? 'error.main' 
+                              : event.registeredCount >= event.capacity * 0.8 
+                                ? 'warning.main' 
+                                : 'success.main' 
+                          }}>
+                            {event.registeredCount}/{event.capacity} registered
+                          </Typography>
+                        )}
+                      </Stack>
+                    </>
                   }
                 />
               </ListItem>
-              {index < events.length - 1 && <Divider variant="inset" component="li" />}
-            </React.Fragment>
+              {index < events.length - 1 && <Divider variant="inset" />}
+            </Box>
           ))}
         </List>
       </CardContent>
     </Card>
   );
-}
+});
+
+export default UpcomingEvents;

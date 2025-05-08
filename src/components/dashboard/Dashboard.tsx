@@ -1,96 +1,73 @@
 'use client';
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { MeritSummary } from '@/services/merit/meritService';
+import { MeritSummary } from '@/types/merit.types';
 import { Box, CircularProgress, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import MeritSummaryCard from './MeritSummaryCard';
 import PointsBreakdown from './PointsBreakdown';
 import RecentActivities from './RecentActivities';
 import UpcomingEvents from './UpcomingEvents';
+import { EventCategory } from '@/types/api.types';
 
-// Use static data for now since we've moved everything to client components
+// Sample merit data for development and testing purposes
 const sampleMeritData: MeritSummary = {
-  totalPoints: 450,
-  targetPoints: 600,
-  academicPoints: 250,
-  cocurricularPoints: 125,
-  communityPoints: 75,
+  totalPoints: 1850,
+  targetPoints: 3000,
+  academicPoints: 800,
+  cocurricularPoints: 650,
+  communityPoints: 400,
   recentActivities: [
     {
-      id: 1,
-      title: 'Programming Competition',
-      category: 'Academic',
-      points: 50,
-      date: '2025-04-28',
-      description: 'Participated in the university coding competition and secured 2nd position.',
-      verified: true,
-      verifiedBy: 'Prof. Smith'
-    },
-    {
-      id: 2,
-      title: 'Community Outreach',
-      category: 'Community Service',
-      points: 25,
+      id: '1',
+      title: 'Research Paper Presentation',
+      category: EventCategory.ACADEMIC,
+      points: 100,
       date: '2025-04-15',
-      description: 'Volunteered at the local community center to teach basic computer skills.',
-      verified: true,
-      verifiedBy: 'Dr. Johnson'
+      description: 'Presented research paper at the annual symposium',
+      verified: true
     },
     {
-      id: 3,
-      title: 'Sports Day Participant',
-      category: 'Co-curricular',
-      points: 20,
+      id: '2',
+      title: 'Community Cleanup Drive',
+      category: EventCategory.COMMUNITY,
+      points: 75,
       date: '2025-04-10',
-      description: 'Represented the department in 100m sprint and relay race.',
-      verified: true,
-      verifiedBy: 'Coach Williams'
+      description: 'Participated in campus area cleanup initiative',
+      verified: true
     },
     {
-      id: 4,
-      title: 'Library Helper',
-      category: 'Community Service',
-      points: 15,
+      id: '3',
+      title: 'Debate Club Competition',
+      category: EventCategory.COCURRICULAR,
+      points: 50,
       date: '2025-04-05',
-      description: 'Assisted in organizing and cataloging new books in the university library.',
-      verified: true,
-      verifiedBy: 'Ms. Davis'
+      description: 'Participated in inter-university debate competition',
+      verified: true
     }
   ],
   upcomingEvents: [
     {
-      id: 101,
+      id: '101',
       title: 'Leadership Workshop',
       date: '2025-05-15',
-      points: 30,
-      location: 'Main Hall',
-      description: 'A workshop focused on developing leadership skills for students.',
-      capacity: 50,
-      registeredCount: 32,
-      category: 'Co-curricular'
+      points: 60,
+      location: 'Student Center Room 302',
+      description: 'Develop your leadership skills with industry experts',
+      capacity: 30,
+      registeredCount: 18,
+      category: EventCategory.COCURRICULAR
     },
     {
-      id: 102,
-      title: 'Hackathon',
+      id: '102',
+      title: 'Community Service Day',
       date: '2025-05-22',
-      points: 50,
-      location: 'CS Building',
-      description: '24-hour coding event to develop innovative solutions for real-world problems.',
-      capacity: 100,
-      registeredCount: 75,
-      category: 'Academic'
-    },
-    {
-      id: 103,
-      title: 'Charity Run',
-      date: '2025-05-30',
-      points: 40,
-      location: 'University Stadium',
-      description: 'Annual charity run to raise funds for local orphanages.',
-      capacity: 200,
-      registeredCount: 120,
-      category: 'Community Service'
+      points: 80,
+      location: 'Main Campus Courtyard',
+      description: 'Join us for a day of giving back to our community',
+      capacity: 50,
+      registeredCount: 35,
+      category: EventCategory.COMMUNITY
     }
   ]
 };
