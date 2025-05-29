@@ -1,5 +1,3 @@
-"use server";
-
 import * as serverAuth from '@/services/auth/serverAuthService';
 import { AuthResult, LoginCredentials, User, UserRole } from '@/types/auth.types';
 

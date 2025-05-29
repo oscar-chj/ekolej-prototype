@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography, Alert } from '@mui/material';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { logout } from '@/app/actions/auth';
+import { logout } from '@/services/auth/auth';
 
 /**
  * Component that handles the logout process and provides visual feedback

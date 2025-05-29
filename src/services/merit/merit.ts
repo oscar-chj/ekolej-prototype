@@ -1,5 +1,3 @@
-'use server';
-
 import meritService from '@/services/merit/meritService';
 import { ApiResponse, EventCategory } from '@/types/api.types';
 
