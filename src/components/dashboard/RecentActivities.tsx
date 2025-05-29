@@ -1,10 +1,12 @@
 'use client';
 
-import { MeritActivity } from '@/types/merit.types';
 import { EventCategory } from '@/types/api.types';
+import { MeritActivity } from '@/types/merit.types';
+import { ArrowForward, Assignment } from '@mui/icons-material';
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -13,14 +15,10 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Typography,
-  Button,
-  Stack
+  Typography
 } from '@mui/material';
-import { ArrowForward, Assignment } from '@mui/icons-material';
-import { memo } from 'react';
 import Link from 'next/link';
-
+import { memo } from 'react';
 /**
  * Props for the RecentActivities component
  */
@@ -129,20 +127,19 @@ const RecentActivities = memo(function RecentActivities({ activities }: RecentAc
                       {activity.title}
                     </Typography>
                   }
-                  // Fix: Change Box to Typography with display="block" to avoid div inside p
                   secondary={
                     <>
-                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
+                      <Typography variant="body2" component="span" display="block" sx={{ color: 'text.secondary' }}>
+                        {formatDate(activity.date)}
+                      </Typography>
+                      <Typography component="span" display="block" sx={{ mt: 0.5 }}>
                         <Chip 
                           label={getCategoryDisplayName(activity.category)} 
                           color={getCategoryColor(activity.category)}
                           size="small" 
                           sx={{ fontSize: '0.7rem' }} 
                         />
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(activity.date)}
-                        </Typography>
-                      </Stack>
+                      </Typography>
                     </>
                   }
                 />
