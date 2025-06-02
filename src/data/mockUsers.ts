@@ -31,12 +31,5 @@ export const mockUsers: User[] = [
     email: 'admin@university.edu',
     role: UserRole.ADMIN,
     profileImage: '/default-avatar.png',
-  },
-  {
-    id: '4',
-    name: 'Staff Member',
-    email: 'staff@university.edu',
-    role: UserRole.STAFF,
-    profileImage: '/default-avatar.png',
   }
 ];
