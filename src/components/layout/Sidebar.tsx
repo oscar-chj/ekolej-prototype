@@ -85,7 +85,7 @@ const mainNavigationItems: NavigationItem[] = [
     icon: <Settings />, 
     href: '/dashboard/settings',
     tooltip: 'Manage your account settings',
-    roles: [UserRole.ADMIN, UserRole.STUDENT, UserRole.STAFF]
+    roles: [UserRole.ADMIN, UserRole.STUDENT]
   },
 ];
 
