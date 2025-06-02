@@ -1,5 +1,6 @@
 'use client';
 
+import authService from '@/services/auth/authService';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Alert,
@@ -16,9 +17,8 @@ import {
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
-import authService from '@/services/auth/authService';
 
 /**
  * Form values interface for login
@@ -29,9 +29,16 @@ interface LoginFormValues {
 }
 
 /**
+ * Props for LoginForm component
+ */
+interface LoginFormProps {
+  redirectPath?: string;
+}
+
+/**
  * LoginForm component provides the UI and functionality for user authentication
  */
-export default function LoginForm() {
+export default function LoginForm({ redirectPath = '/dashboard' }: LoginFormProps) {
   // State for form handling
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,8 +50,6 @@ export default function LoginForm() {
 
   // Hooks for routing
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('from') || '/dashboard';
 
   /**
    * Toggle password visibility
