@@ -21,10 +21,10 @@ const geistMono = Geist_Mono({
 
 // Metadata for SEO and browser tab
 export const metadata: Metadata = {
-  title: "eKolej - University Merit System",
+  title: "Student's Merit Management System",
   description: "A comprehensive system for tracking university student merit points and activities",
-  keywords: ["university", "merit system", "student achievements", "eKolej"],
-  authors: [{ name: "eKolej Team" }],
+  keywords: ["university", "merit system", "student achievements", "student management"],
+  authors: [{ name: "Merit System Team" }],
 };
 
 /**

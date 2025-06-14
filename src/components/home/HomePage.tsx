@@ -47,7 +47,7 @@ export default function HomePage() {
                   fontSize: { xs: '2.5rem', md: '3.5rem' }
                 }}
               >
-                eKolej University Merit System
+                Student Merit Management System
               </Typography>
               
               <Typography 
@@ -134,7 +134,7 @@ export default function HomePage() {
               mb: { xs: 6, md: 8 }
             }}
           >
-            Why Use eKolej?
+            Why Use Our Merit System?
           </Typography>
           
           <Grid container spacing={4}>
