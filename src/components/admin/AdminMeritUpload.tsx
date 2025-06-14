@@ -1,9 +1,18 @@
 "use client";
 
-import DataService from "@/services/data/DataService";
-import { Event, EventCategory } from "@/types/api.types";
 import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
-import { Check, CloudUpload, Download, Error } from "@mui/icons-material";
+import DataService from "@/services/data/DataService";
+import { Event } from "@/types/api.types";
+import {
+  ArrowBack,
+  Check,
+  CheckCircle,
+  CloudUpload,
+  Download,
+  Error,
+  Event as EventIcon,
+  RadioButtonUnchecked,
+} from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -25,7 +34,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CSVMeritEntry {
   studentId: string;
@@ -57,6 +66,7 @@ export default function AdminMeritUpload({
   const [csvData, setCsvData] = useState<CSVMeritEntry[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [completedEvents, setCompletedEvents] = useState<Event[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Sample CSV data for demonstration
   const sampleCSVData: CSVMeritEntry[] = [
@@ -95,16 +105,19 @@ export default function AdminMeritUpload({
       errorMessage: "Student ID not found in system",
     },
   ];
-
   useEffect(() => {
-    // Get event data from DataService
+    // Get completed events for selection
+    const allEvents = DataService.getEvents();
+    const completed = allEvents.filter((event) => event.status === "Completed");
+    setCompletedEvents(completed);
+
+    // Initialize selected event
     if (eventId) {
       const event = DataService.getEventById(eventId);
       setSelectedEvent(event || null);
-    } else {
-      // Use first available event as default
-      const events = DataService.getEvents();
-      setSelectedEvent(events[0] || null);
+      if (event) {
+        setActiveStep(1); // Skip event selection if eventId is provided
+      }
     }
   }, [eventId]);
 
@@ -158,58 +171,128 @@ export default function AdminMeritUpload({
         return "default";
     }
   };
-
   const renderEventStep = () => (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Event Selected for Merit Upload
+        Select a Completed Event for Merit Upload
       </Typography>
-      <Card variant="outlined" sx={{ mb: 3 }}>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              mb: 2,
-            }}
-          >
-            <Typography variant="h6">{selectedEvent?.title}</Typography>
-            <Chip
-              label={getCategoryDisplayName(
-                selectedEvent?.category || EventCategory.UNIVERSITY
-              )}
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        Choose from the list of completed events to upload merit points for
+        participants.
+      </Typography>
+
+      {completedEvents.length === 0 ? (
+        <Alert severity="info">
+          No completed events available for merit upload.
+        </Alert>
+      ) : (
+        <Box sx={{ mb: 3 }}>
+          {completedEvents.map((event) => (
+            <Card
+              key={event.id}
+              variant="outlined"
               sx={{
-                backgroundColor: getCategoryColor(
-                  selectedEvent?.category || EventCategory.UNIVERSITY
-                ),
-                color: "white",
+                mb: 2,
+                cursor: "pointer",
+                border: selectedEvent?.id === event.id ? 2 : 1,
+                borderColor:
+                  selectedEvent?.id === event.id ? "primary.main" : "divider",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 1,
+                },
               }}
-            />
-          </Box>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Event Date: {selectedEvent?.date}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Maximum Points: {selectedEvent?.points}
-          </Typography>
-        </CardContent>
-      </Card>
-      <Button variant="contained" onClick={() => setActiveStep(1)} size="large">
+              onClick={() => setSelectedEvent(event)}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {selectedEvent?.id === event.id ? (
+                      <CheckCircle color="primary" />
+                    ) : (
+                      <RadioButtonUnchecked color="action" />
+                    )}
+                  </Box>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 1,
+                      }}
+                    >
+                      <Typography variant="h6">{event.title}</Typography>
+                      <Chip
+                        label={getCategoryDisplayName(event.category)}
+                        sx={{
+                          backgroundColor: getCategoryColor(event.category),
+                          color: "white",
+                        }}
+                        size="small"
+                      />
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {event.description}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        <EventIcon
+                          fontSize="small"
+                          sx={{ mr: 0.5, verticalAlign: "middle" }}
+                        />
+                        {event.date} • {event.location}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Max Points: {event.points}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Participants: {event.registeredCount}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      )}
+
+      <Button
+        variant="contained"
+        onClick={() => setActiveStep(1)}
+        size="large"
+        disabled={!selectedEvent}
+      >
         Proceed to Upload
       </Button>
     </Box>
   );
-
   const renderUploadStep = () => (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Upload Merit Data (CSV)
-      </Typography>
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Please upload a CSV file with columns: StudentID, StudentName, Points,
-        MeritType
-      </Alert>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => setActiveStep(0)}
+          sx={{ mr: 2 }}
+        >
+          Back to Event Selection
+        </Button>
+        <Typography variant="h6">Upload Merit Data (CSV)</Typography>
+      </Box>
+
+      {selectedEvent && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Uploading merit data for: <strong>{selectedEvent.title}</strong>
+          <br />
+          Please upload a CSV file with columns: StudentID, StudentName, Points,
+          MeritType
+        </Alert>
+      )}
 
       <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
         <Button
@@ -257,12 +340,26 @@ export default function AdminMeritUpload({
       )}
     </Box>
   );
-
   const renderReviewStep = () => (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        Review Merit Data
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => setActiveStep(1)}
+          sx={{ mr: 2 }}
+        >
+          Back to Upload
+        </Button>
+        <Typography variant="h6">
+          Review Merit Data
+        </Typography>
+      </Box>
+
+      {selectedEvent && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Reviewing merit data for: <strong>{selectedEvent.title}</strong>
+        </Alert>
+      )}
 
       <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
         <Chip
