@@ -10,6 +10,7 @@ import MeritSummaryCard from "./MeritSummaryCard";
 import PointsBreakdown from "./PointsBreakdown";
 import RecentActivities from "./RecentActivities";
 import UpcomingEvents from "./UpcomingEvents";
+import ProgressInsights from "./ProgressInsights";
 
 interface MeritSummary {
   totalPoints: number;
@@ -104,10 +105,8 @@ export default function Dashboard() {
           Track your merit points and upcoming activities
         </Typography>
       </Box>
-
       {/* Merit Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {" "}
         <Grid size={{ xs: 12, md: 6 }}>
           <MeritSummaryCard
             totalPoints={meritSummary.totalPoints}
@@ -119,15 +118,24 @@ export default function Dashboard() {
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <PointsBreakdown
-            academicPoints={meritSummary.universityMerit}
-            cocurricularPoints={meritSummary.facultyMerit}
-            communityPoints={meritSummary.collegeMerit}
-            associationPoints={meritSummary.associationMerit}
+          {/* Progress Insights and Action Buttons */}
+          <ProgressInsights
+            targetAchieved={meritSummary.targetAchieved}
+            remainingPoints={meritSummary.remainingPoints}
+            exceededPoints={meritSummary.exceededPoints}
+            progressPercentage={meritSummary.progressPercentage}
           />
         </Grid>
       </Grid>
-
+      {/* Points Breakdown */}
+      <Box sx={{ mb: 4 }}>
+        <PointsBreakdown
+          academicPoints={meritSummary.universityMerit}
+          cocurricularPoints={meritSummary.facultyMerit}
+          communityPoints={meritSummary.collegeMerit}
+          associationPoints={meritSummary.associationMerit}
+        />
+      </Box>
       {/* Recent Activities and Upcoming Events */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>

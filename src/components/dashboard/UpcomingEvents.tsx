@@ -139,7 +139,7 @@ const UpcomingEvents = memo(function UpcomingEvents({
                         alignItems="center"
                         sx={{ color: "text.secondary", mb: 0.5 }}
                       >
-                        <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />{" "}
+                        <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />
                         <Typography variant="caption" component="span">
                           {formatEventDate(event.date)}
                         </Typography>
@@ -181,7 +181,7 @@ const UpcomingEvents = memo(function UpcomingEvents({
                                     : "success.main",
                               }}
                             >
-                              {event.registeredCount}/{event.capacity}{" "}
+                              {event.registeredCount}/{event.capacity}
                               registered
                             </Typography>
                           )}

@@ -128,10 +128,6 @@ export default function MeritReports({
                 </Box>
               </Box>
 
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {record.description}
-              </Typography>
-
               <Box
                 sx={{
                   display: "flex",

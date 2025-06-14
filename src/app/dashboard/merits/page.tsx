@@ -40,11 +40,6 @@ export default function MeritsPage() {
     window.location.href = "/dashboard/reports";
   };
 
-  const handleViewLeaderboard = () => {
-    // In production, this would navigate to leaderboard page
-    window.location.href = "/dashboard/leaderboard";
-  };
-
   if (isLoading) {
     return (
       <DashboardLayout title="Merit Points">
@@ -78,11 +73,7 @@ export default function MeritsPage() {
 
   return (
     <DashboardLayout title="Merit Points">
-      <MeritSummary
-        meritData={meritData}
-        onViewReports={handleViewReports}
-        onViewLeaderboard={handleViewLeaderboard}
-      />
+      <MeritSummary meritData={meritData} onViewReports={handleViewReports} />
     </DashboardLayout>
   );
 }

@@ -218,7 +218,7 @@ export default function UseCasesOverviewPage() {
           </Typography>
           <Alert severity="success" sx={{ mt: 2 }}>
             <Typography variant="body1">
-              <strong>Implementation Complete!</strong> All {implementedCount}{" "}
+              <strong>Implementation Complete!</strong> All {implementedCount}
               use cases have been implemented with core logic and sample data.
             </Typography>
           </Alert>
@@ -229,7 +229,7 @@ export default function UseCasesOverviewPage() {
           <CardContent>
             <Typography variant="h6" gutterBottom>
               System Status
-            </Typography>{" "}
+            </Typography>
             <Box
               sx={{
                 display: "grid",

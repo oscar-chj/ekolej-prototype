@@ -264,7 +264,7 @@ export class DataService {
     const meritSummary = this.getStudentMeritSummary(studentId);
     const studentRegistrations = registrations.filter(
       (reg: EventRegistration) => reg.studentId === studentId
-    );    // Get upcoming events (all upcoming events, not just registered ones)
+    ); // Get upcoming events (all upcoming events, not just registered ones)
     const upcomingEvents = events
       .filter((event: Event) => event.status === "Upcoming")
       .slice(0, 5); // Show top 5 upcoming events
@@ -277,44 +277,138 @@ export class DataService {
       recentActivities: meritSummary.recentActivities,
     };
   }
+  /**
+   * Get recent activities for a student (events they attended in the last 30 days)
+   */
+  static getStudentRecentActivities(studentId: string) {
+    const meritRecords = this.getStudentMeritRecords(studentId);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    return meritRecords
+      .filter((record: MeritRecord) => new Date(record.date) > thirtyDaysAgo)
+      .map((record: MeritRecord) => {
+        const event = record.eventId ? this.getEventById(record.eventId) : null;
+        return {
+          id: record.id,
+          eventTitle: event?.title || record.description,
+          category: record.category,
+          points: record.points,
+          date: record.date,
+          completed: true,
+        };
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
 
   // ===== HELPER METHODS =====
   /**
    * Add sample merit records for demonstration
    */
   private static addSampleMeritRecords(meritRecords: MeritRecord[]): void {
+    // Get recent dates for realistic "recent activities"
+    const today = new Date();
+    const recentDates = [
+      new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 5 days ago
+      new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 10 days ago
+      new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 15 days ago
+      new Date(today.getTime() - 20 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 20 days ago
+      new Date(today.getTime() - 25 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 25 days ago
+      new Date(today.getTime() - 40 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0], // 40 days ago (older)
+    ];
+
     const sampleMerits: Omit<MeritRecord, "id">[] = [
       {
-        studentId: "1", // Ahmad
-        eventId: "sample_001",
+        studentId: "1", // Ahmad - Recent activities
+        eventId: "event_001",
         category: EventCategory.UNIVERSITY,
         points: 15,
         description: "International Programming Competition",
-        date: "2025-04-15",
+        date: recentDates[0], // 5 days ago
       },
       {
         studentId: "1",
-        eventId: "sample_002",
+        eventId: "event_002",
         category: EventCategory.FACULTY,
         points: 12,
         description: "AI Research Presentation",
-        date: "2025-04-20",
+        date: recentDates[1], // 10 days ago
+      },
+      {
+        studentId: "1",
+        eventId: "event_003",
+        category: EventCategory.COLLEGE,
+        points: 6,
+        description: "College Sports Tournament",
+        date: recentDates[2], // 15 days ago
+      },
+      {
+        studentId: "1",
+        eventId: "event_004",
+        category: EventCategory.UNIVERSITY,
+        points: 20,
+        description: "Hackathon Winner",
+        date: recentDates[3], // 20 days ago
+      },
+      {
+        studentId: "1",
+        eventId: "event_005",
+        category: EventCategory.FACULTY,
+        points: 5,
+        description: "Workshop Attendance",
+        date: recentDates[4], // 25 days ago
+      },
+      {
+        studentId: "1",
+        eventId: "event_006",
+        category: EventCategory.UNIVERSITY,
+        points: 15,
+        description: "Research Paper Publication",
+        date: recentDates[5], // 40 days ago (not recent)
       },
       {
         studentId: "2", // Sarah
-        eventId: "sample_003",
+        eventId: "event_007",
         category: EventCategory.UNIVERSITY,
         points: 20,
         description: "National Science Fair",
-        date: "2025-04-10",
+        date: recentDates[0],
+      },
+      {
+        studentId: "2",
+        eventId: "event_008",
+        category: EventCategory.FACULTY,
+        points: 10,
+        description: "Engineering Design Contest",
+        date: recentDates[2],
       },
       {
         studentId: "3", // Raj
-        eventId: "sample_004",
+        eventId: "event_009",
         category: EventCategory.FACULTY,
         points: 8,
         description: "IoT Innovation Workshop",
-        date: "2025-04-18",
+        date: recentDates[1],
+      },
+      {
+        studentId: "3",
+        eventId: "event_010",
+        category: EventCategory.COLLEGE,
+        points: 12,
+        description: "Debate Competition",
+        date: recentDates[3],
       },
     ];
 

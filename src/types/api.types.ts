@@ -33,7 +33,7 @@ export interface Student {
   totalMeritPoints: number;
   enrollmentDate: string;
   profileImage?: string;
-  role: import('./auth.types').UserRole;
+  role: import("./auth.types").UserRole;
 }
 
 export interface StudentFilters {

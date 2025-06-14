@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, Box, Paper, Typography, Avatar } from "@mui/material";
+import { Grid, Paper, Typography, Avatar } from "@mui/material";
 import { TrendingUp, School, Groups } from "@mui/icons-material";
 import { memo } from "react";
 
@@ -67,54 +67,67 @@ const PointsBreakdown = memo(function PointsBreakdown({
       <Typography variant="h6" gutterBottom>
         Points Breakdown
       </Typography>
-      <Grid container spacing={1.5} sx={{ mt: 0.5 }}>
+      <Grid container spacing={2} sx={{ mt: 0.5 }}>
         {pointsCategories.map((category) => (
-          <Grid size={{ xs: 3 }} key={category.type}>
-            <Box
+          <Grid size={{ xs: 6, md: 3 }} key={category.type}>
+            <Paper
+              elevation={0}
               sx={{
                 textAlign: "center",
                 backgroundColor: category.bgColor,
-                borderRadius: 2,
-                py: 1.5,
-                px: 1,
-                border: `1px solid ${category.color}20`,
+                borderRadius: 3,
+                py: 2.5,
+                px: 1.5,
+                border: `2px solid ${category.color}30`,
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: `0 4px 12px ${category.color}20`,
+                },
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
               <Avatar
                 sx={{
                   bgcolor: category.color,
                   mx: "auto",
-                  mb: 1,
-                  width: 36,
-                  height: 36,
+                  mb: 1.5,
+                  width: 44,
+                  height: 44,
                   color: "white",
+                  boxShadow: `0 2px 8px ${category.color}40`,
                 }}
               >
                 {category.icon}
               </Avatar>
               <Typography
-                variant="h5"
+                variant="h3"
                 sx={{
-                  fontWeight: 700,
-                  fontSize: "1.25rem",
+                  fontWeight: 800,
+                  fontSize: "2rem",
                   color: category.color,
-                  mb: 0.5,
+                  mb: 0.8,
+                  lineHeight: 1,
                 }}
               >
                 {category.points}
               </Typography>
               <Typography
-                variant="caption"
+                variant="body1"
                 sx={{
-                  fontSize: "0.7rem",
-                  fontWeight: 500,
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
                   color: "text.primary",
                   lineHeight: 1.2,
+                  textAlign: "center",
                 }}
               >
                 {category.type}
               </Typography>
-            </Box>
+            </Paper>
           </Grid>
         ))}
       </Grid>

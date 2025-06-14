@@ -138,11 +138,6 @@ function EventCardList({ events }: EventCardListProps) {
                   alignItems: "center",
                 }}
               >
-                <Chip
-                  label={event.category}
-                  color={getCategoryColor(event.category)}
-                  size="small"
-                />
                 {event.capacity && (
                   <Typography variant="caption" color="text.secondary">
                     {event.registeredCount}/{event.capacity} registered

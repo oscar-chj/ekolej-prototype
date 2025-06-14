@@ -352,7 +352,7 @@ export default function AdminMeritUpload({
         Merit Upload Complete!
       </Typography>
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        Successfully processed {validEntries.length} merit entries for{" "}
+        Successfully processed {validEntries.length} merit entries for
         {selectedEvent?.title}
       </Typography>
 
@@ -364,7 +364,7 @@ export default function AdminMeritUpload({
           • Valid entries processed: {validEntries.length}
         </Typography>
         <Typography variant="body2">
-          • Total points awarded:{" "}
+          • Total points awarded:
           {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
         </Typography>
         <Typography variant="body2">• Event: {selectedEvent?.title}</Typography>

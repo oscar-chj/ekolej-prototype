@@ -126,7 +126,6 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
                     },
                   }}
                 >
-                  {" "}
                   <ListItemIcon sx={{ minWidth: 40 }}>
                     {getIconComponent(item.iconName)}
                   </ListItemIcon>
