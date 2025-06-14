@@ -1,7 +1,8 @@
 'use client';
 
 import { MeritEvent } from '@/types/merit.types';
-import { EventCategory } from '@/types/api.types';
+import { formatDate as formatEventDate } from '@/lib/dateUtils';
+import { getCategoryColor } from '@/lib/categoryUtils';
 import { 
   Event as EventIcon, 
   LocationOn, 
@@ -33,33 +34,7 @@ interface UpcomingEventsProps {
   events: MeritEvent[];
 }
 
-/**
- * Format a date string to a more readable format
- * @param dateString - ISO date string
- * @returns Formatted date
- */
-const formatDate = (dateString: string): string => {
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
 
-/**
- * Get a color for the event category
- * @param category - Event category
- * @returns MUI color name
- */
-const getCategoryColor = (category: EventCategory): "primary" | "secondary" | "success" | "info" | "default" => {
-  switch(category) {
-    case EventCategory.ACADEMIC: return 'primary';
-    case EventCategory.COCURRICULAR: return 'secondary';
-    case EventCategory.COMMUNITY: return 'success';
-    default: return 'info';
-  }
-};
 
 /**
  * Component that displays a list of upcoming events
@@ -140,9 +115,8 @@ const UpcomingEvents = memo(function UpcomingEvents({ events }: UpcomingEventsPr
                     <>
                       {/* Replace Box with Stack to avoid div inside p hydration error */}
                       <Stack direction="row" alignItems="center" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                        <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />
-                        <Typography variant="caption" component="span">
-                          {formatDate(event.date)}
+                        <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />                        <Typography variant="caption" component="span">
+                          {formatEventDate(event.date)}
                         </Typography>
                         <Typography component="span" sx={{ mx: 0.5 }}>•</Typography>
                         <LocationOn sx={{ fontSize: 14, mr: 0.5 }} />

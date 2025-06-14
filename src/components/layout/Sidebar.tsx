@@ -1,13 +1,10 @@
 'use client';
 
 import { UserRole } from '@/types/auth.types';
+import { sampleUserProfile, mainNavigationItems } from '@/data/navigationData';
+import { getIconComponent } from '@/lib/iconUtils';
 import {
-  AssessmentOutlined,
-  Dashboard,
-  EventNote,
-  Logout,
-  Person,
-  Settings
+  Logout
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -27,73 +24,20 @@ import { usePathname } from 'next/navigation';
 import { memo } from 'react';
 
 /**
- * Navigation item structure
- */
-interface NavigationItem {
-  text: string;
-  icon: React.ReactNode;
-  href: string;
-  roles?: UserRole[];
-  tooltip?: string;
-}
-
-/**
  * Sidebar component props
  */
 interface SidebarProps {
   onItemClick?: () => void;
 }
 
-// Sample user profile data - in a real app this would come from context/state
-const userProfile = {
-  name: 'John Doe',
-  role: UserRole.STUDENT,
-  avatar: '/default-avatar.png',
-  studentId: 'S12345',
-  faculty: 'Computer Science',
-  year: '3'
-};
-
-// Main navigation menu items
-const mainNavigationItems: NavigationItem[] = [
-  { 
-    text: 'Dashboard', 
-    icon: <Dashboard />, 
-    href: '/dashboard',
-    tooltip: 'View your dashboard' 
-  },
-  { 
-    text: 'Merit Points', 
-    icon: <AssessmentOutlined />, 
-    href: '/dashboard/merits',
-    tooltip: 'View and manage your merit points' 
-  },
-  { 
-    text: 'Events', 
-    icon: <EventNote />, 
-    href: '/dashboard/events',
-    tooltip: 'Browse and register for events' 
-  },
-  { 
-    text: 'Profile', 
-    icon: <Person />, 
-    href: '/dashboard/profile',
-    tooltip: 'View and edit your profile' 
-  },
-  { 
-    text: 'Settings', 
-    icon: <Settings />, 
-    href: '/dashboard/settings',
-    tooltip: 'Manage your account settings',
-    roles: [UserRole.ADMIN, UserRole.STUDENT]
-  },
-];
-
 /**
  * Sidebar component providing navigation for the dashboard
  */
 const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
+  
+  // Use imported user profile and navigation items
+  const userProfile = sampleUserProfile;
   
   // Filter navigation items based on user role
   const visibleNavItems = mainNavigationItems.filter(item => 
@@ -176,9 +120,8 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
                       }
                     }
                   }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    {item.icon}
+                >                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    {getIconComponent(item.iconName)}
                   </ListItemIcon>
                   <ListItemText 
                     primary={item.text} 

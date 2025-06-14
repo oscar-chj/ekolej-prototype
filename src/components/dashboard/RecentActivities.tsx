@@ -1,7 +1,8 @@
 'use client';
 
-import { EventCategory } from '@/types/api.types';
 import { MeritActivity } from '@/types/merit.types';
+import { formatDate } from '@/lib/dateUtils';
+import { getCategoryColor, getCategoryDisplayName } from '@/lib/categoryUtils';
 import { ArrowForward, Assignment } from '@mui/icons-material';
 import {
   Avatar,
@@ -25,43 +26,6 @@ import { memo } from 'react';
 interface RecentActivitiesProps {
   activities: MeritActivity[];
 }
-
-/**
- * Format a date string to a more readable format
- * @param dateString - ISO date string
- * @returns Formatted date
- */
-const formatDate = (dateString: string): string => {
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
-
-/**
- * Get the material UI color for a category
- * @param category - Activity category
- * @returns MUI color name
- */
-const getCategoryColor = (category: EventCategory): "primary" | "secondary" | "success" | "default" => {
-  switch(category) {
-    case EventCategory.ACADEMIC: return 'primary';
-    case EventCategory.COCURRICULAR: return 'secondary';
-    case EventCategory.COMMUNITY: return 'success';
-    default: return 'default';
-  }
-};
-
-/**
- * Get a display name for a category
- * @param category - Activity category
- * @returns Display name
- */
-const getCategoryDisplayName = (category: EventCategory): string => {
-  return category; // The enum values are already the display names we want
-};
 
 /**
  * Component that displays a list of recent merit activities

@@ -1,5 +1,6 @@
 'use client';
 
+import { DRAWER_WIDTH } from '@/lib/constants';
 import { Menu as MenuIcon, NotificationsOutlined } from '@mui/icons-material';
 import {
   AppBar,
@@ -24,7 +25,7 @@ interface DashboardLayoutProps {
 }
 
 // Constants for layout dimensions
-const DRAWER_WIDTH = 280;
+// Imported from constants file
 
 /**
  * Dashboard layout component that provides the main application structure
