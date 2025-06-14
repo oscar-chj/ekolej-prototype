@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import AdminMeritUpload from '@/components/admin/AdminMeritUpload';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Event } from '@/types/api.types';
+import AdminMeritUpload from "@/components/admin/AdminMeritUpload";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { Event } from "@/types/api.types";
 
 interface CSVMeritEntry {
   studentId: string;
@@ -11,16 +11,19 @@ interface CSVMeritEntry {
   meritType?: string;
   remarks?: string;
   isValid: boolean;
-  status: 'valid' | 'invalid';
+  status: "valid" | "invalid";
   errors?: string[];
   errorMessage?: string;
 }
 
 export default function AdminMeritUploadPage() {
-  const handleUploadComplete = (uploadData: { validEntries: CSVMeritEntry[]; event: Event }) => {
+  const handleUploadComplete = (uploadData: {
+    validEntries: CSVMeritEntry[];
+    event: Event;
+  }) => {
     // In production, this would send data to the backend API
-    console.log('Merit upload completed:', uploadData);
-    
+    console.log("Merit upload completed:", uploadData);
+
     // Example of what would happen in production:
     // await fetch('/api/admin/merit-upload', {
     //   method: 'POST',

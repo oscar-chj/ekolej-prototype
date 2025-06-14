@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import authService from '@/services/auth/authService';
-import { User } from '@/types/auth.types';
-import { validateLoginForm } from '@/lib/validations';
-import { VALIDATION_MESSAGES } from '@/lib/constants';
+import { useState, useCallback } from "react";
+import authService from "@/services/auth/authService";
+import { User } from "@/types/auth.types";
+import { validateLoginForm } from "@/lib/validations";
+import { VALIDATION_MESSAGES } from "@/lib/constants";
 
 interface UseAuthReturn {
   user: User | null;
@@ -26,45 +26,48 @@ export function useAuth(): UseAuthReturn {
     setError(null);
   }, []);
 
-  const login = useCallback(async (email: string, password: string): Promise<User | null> => {
-    setIsLoading(true);
-    setError(null);
+  const login = useCallback(
+    async (email: string, password: string): Promise<User | null> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Validate form inputs
-      const validation = validateLoginForm(email, password);
-      if (!validation.isValid) {
-        const firstError = Object.values(validation.errors)[0];
-        setError(firstError || VALIDATION_MESSAGES.FILL_ALL_FIELDS);
+      try {
+        // Validate form inputs
+        const validation = validateLoginForm(email, password);
+        if (!validation.isValid) {
+          const firstError = Object.values(validation.errors)[0];
+          setError(firstError || VALIDATION_MESSAGES.FILL_ALL_FIELDS);
+          setIsLoading(false);
+          return null;
+        }
+
+        // Attempt authentication
+        const authenticatedUser = await authService.login(email, password);
+
+        if (authenticatedUser) {
+          setUser(authenticatedUser);
+          return authenticatedUser;
+        } else {
+          setError(VALIDATION_MESSAGES.LOGIN_FAILED);
+          return null;
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        setError("An unexpected error occurred. Please try again.");
+        return null;
+      } finally {
         setIsLoading(false);
-        return null;
       }
-
-      // Attempt authentication
-      const authenticatedUser = await authService.login(email, password);
-      
-      if (authenticatedUser) {
-        setUser(authenticatedUser);
-        return authenticatedUser;
-      } else {
-        setError(VALIDATION_MESSAGES.LOGIN_FAILED);
-        return null;
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('An unexpected error occurred. Please try again.');
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
       setUser(null);
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error("Logout error:", err);
     }
   }, []);
 
@@ -74,6 +77,6 @@ export function useAuth(): UseAuthReturn {
     error,
     login,
     logout,
-    clearError
+    clearError,
   };
 }

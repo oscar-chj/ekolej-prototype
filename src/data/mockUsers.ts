@@ -1,4 +1,4 @@
-import { User, UserRole } from '../types/auth.types';
+import { User, UserRole } from "../types/auth.types";
 
 /**
  * Mock users for development and testing
@@ -6,30 +6,30 @@ import { User, UserRole } from '../types/auth.types';
  */
 export const mockUsers: User[] = [
   {
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@university.edu',
+    id: "1",
+    name: "John Doe",
+    email: "john.doe@university.edu",
     role: UserRole.STUDENT,
-    profileImage: '/default-avatar.png',
-    studentId: 'S12345',
-    faculty: 'Computer Science',
-    year: '3',
+    profileImage: "/default-avatar.png",
+    studentId: "S12345",
+    faculty: "Computer Science",
+    year: "3",
   },
   {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'jane.smith@university.edu',
+    id: "2",
+    name: "Jane Smith",
+    email: "jane.smith@university.edu",
     role: UserRole.STUDENT,
-    profileImage: '/default-avatar.png',
-    studentId: 'S12346',
-    faculty: 'Engineering',
-    year: '2',
+    profileImage: "/default-avatar.png",
+    studentId: "S12346",
+    faculty: "Engineering",
+    year: "2",
   },
   {
-    id: '3',
-    name: 'Admin User',
-    email: 'admin@university.edu',
+    id: "3",
+    name: "Admin User",
+    email: "admin@university.edu",
     role: UserRole.ADMIN,
-    profileImage: '/default-avatar.png',
-  }
+    profileImage: "/default-avatar.png",
+  },
 ];

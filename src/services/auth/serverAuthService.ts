@@ -1,7 +1,7 @@
 "use server";
 
-import { mockUsers } from '@/data/mockUsers';
-import { type User, UserRole } from '@/types/auth.types';
+import { mockUsers } from "@/data/mockUsers";
+import { type User, UserRole } from "@/types/auth.types";
 
 // Server-side specific session storage
 let currentUser: User | null = null;
@@ -17,20 +17,23 @@ let currentUser: User | null = null;
  * @param password - User's password
  * @returns The authenticated user or null if authentication fails
  */
-export async function login(email: string, password: string): Promise<User | null> {
+export async function login(
+  email: string,
+  password: string
+): Promise<User | null> {
   if (!email || !password) {
     return null;
   }
-  
+
   // In a real app, this would validate credentials against a secure backend
   const normalizedEmail = email.toLowerCase().trim();
-  const user = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
-  
+  const user = mockUsers.find((u) => u.email.toLowerCase() === normalizedEmail);
+
   if (user) {
     currentUser = { ...user }; // Clone to avoid reference issues
     return { ...user };
   }
-  
+
   return null;
 }
 

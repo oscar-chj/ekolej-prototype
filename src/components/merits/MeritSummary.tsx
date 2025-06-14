@@ -26,6 +26,9 @@ interface MeritSummaryData {
   totalStudents: number;
   targetPoints: number;
   progressPercentage: number;
+  targetAchieved: boolean;
+  remainingPoints: number;
+  exceededPoints: number;
 }
 
 interface CategoryCardProps {
@@ -60,7 +63,6 @@ function CategoryCard({ category, points, targetPoints }: CategoryCardProps) {
             }}
           />
         </Box>
-
         <Box sx={{ position: "relative", display: "inline-flex", mb: 2 }}>
           <CircularProgress
             variant="determinate"
@@ -92,12 +94,13 @@ function CategoryCard({ category, points, targetPoints }: CategoryCardProps) {
             </Typography>
           </Box>
         </Box>
-
         <Typography variant="body2" color="text.secondary">
           Target: {targetPoints} points
-        </Typography>
+        </Typography>{" "}
         <Typography variant="body2" color="text.secondary">
-          Remaining: {Math.max(0, targetPoints - points)} points
+          {points >= targetPoints
+            ? `Target achieved! (${points - targetPoints} above target)`
+            : `Remaining: ${targetPoints - points} points`}
         </Typography>
       </CardContent>
     </Card>
@@ -146,9 +149,13 @@ export default function MeritSummary({
               </Typography>
               <Typography variant="h6" sx={{ opacity: 0.9 }}>
                 Total Merit Points
-              </Typography>
+              </Typography>{" "}
               <Typography variant="body1" sx={{ opacity: 0.8, mt: 1 }}>
-                {meritData.progressPercentage}% of target achieved
+                {meritData.targetAchieved
+                  ? meritData.exceededPoints > 0
+                    ? `Target exceeded by ${meritData.exceededPoints} points!`
+                    : "Target achieved! Congratulations!"
+                  : `${meritData.progressPercentage}% of target achieved`}
               </Typography>
             </Box>
 
@@ -158,22 +165,27 @@ export default function MeritSummary({
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
                 out of {meritData.totalStudents} students
-              </Typography>
+              </Typography>{" "}
               <Chip
-                label={`${
-                  meritData.targetPoints - meritData.totalPoints
-                } points to target`}
+                label={
+                  meritData.targetAchieved
+                    ? meritData.exceededPoints > 0
+                      ? `${meritData.exceededPoints} points above target`
+                      : "Target achieved!"
+                    : `${meritData.remainingPoints} points to target`
+                }
                 sx={{
                   mt: 1,
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  color: "white",
+                  backgroundColor: meritData.targetAchieved
+                    ? "rgba(76, 175, 80, 0.2)"
+                    : "rgba(255,255,255,0.2)",
+                  color: meritData.targetAchieved ? "success.main" : "white",
                 }}
               />
             </Box>
           </Box>
         </CardContent>
       </Card>
-
       {/* Merit Categories */}
       <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3 }}>
         Merit Categories Breakdown
@@ -207,7 +219,6 @@ export default function MeritSummary({
           targetPoints={20}
         />
       </Box>
-
       {/* Quick Stats */}
       <Box
         sx={{
@@ -236,7 +247,6 @@ export default function MeritSummary({
           </Typography>
         </Paper>
       </Box>
-
       {/* Action Buttons */}
       {(onViewReports || onViewLeaderboard) && (
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 4 }}>
@@ -264,19 +274,23 @@ export default function MeritSummary({
             </Button>
           )}
         </Box>
-      )}
-
+      )}{" "}
       {/* Progress Insight */}
-      <Alert severity="info">
+      <Alert severity={meritData.targetAchieved ? "success" : "info"}>
         <Typography variant="body1" gutterBottom>
-          <strong>Progress Insight:</strong> You&apos;re doing great! You need{" "}
-          {meritData.targetPoints - meritData.totalPoints} more points to reach
-          your target.
+          <strong>Progress Insight:</strong>{" "}
+          {meritData.targetAchieved
+            ? meritData.exceededPoints > 0
+              ? `Excellent work! You've exceeded your target by ${meritData.exceededPoints} points.`
+              : "Congratulations! You've achieved your merit target."
+            : `You need ${meritData.remainingPoints} more points to reach your target.`}
         </Typography>
-        <Typography variant="body2">
-          Consider participating in more International/National events or
-          Faculty activities to boost your score.
-        </Typography>
+        {!meritData.targetAchieved && (
+          <Typography variant="body2">
+            Consider participating in more International/National events or
+            Faculty activities to boost your score.
+          </Typography>
+        )}
       </Alert>
     </Box>
   );

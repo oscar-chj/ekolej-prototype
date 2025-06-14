@@ -16,19 +16,19 @@ export const isValidEmail = (email: string): boolean => {
  */
 export const validateLoginForm = (email: string, password: string) => {
   const errors: { email?: string; password?: string } = {};
-  
+
   if (!email.trim()) {
-    errors.email = 'Email is required';
+    errors.email = "Email is required";
   } else if (!isValidEmail(email)) {
-    errors.email = 'Please enter a valid email address';
+    errors.email = "Please enter a valid email address";
   }
-  
+
   if (!password) {
-    errors.password = 'Password is required';
+    errors.password = "Password is required";
   }
-  
+
   return {
     isValid: Object.keys(errors).length === 0,
-    errors
+    errors,
   };
 };

@@ -1,16 +1,18 @@
-import { useState, useCallback, ChangeEvent } from 'react';
+import { useState, useCallback, ChangeEvent } from "react";
 
 /**
  * Simple hook for handling form state
  */
-export function useFormState<T extends Record<string, string | number | boolean>>(initialValues: T) {
+export function useFormState<
+  T extends Record<string, string | number | boolean>
+>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
@@ -19,9 +21,9 @@ export function useFormState<T extends Record<string, string | number | boolean>
   }, [initialValues]);
 
   const setValue = useCallback((name: keyof T, value: T[keyof T]) => {
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
@@ -29,6 +31,6 @@ export function useFormState<T extends Record<string, string | number | boolean>
     values,
     handleChange,
     reset,
-    setValue
+    setValue,
   };
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { Suspense } from 'react';
-import LoginRedirectWrapper from '@/components/auth/LoginRedirectWrapper';
-import { Box, CircularProgress } from '@mui/material';
+import React, { Suspense } from "react";
+import LoginRedirectWrapper from "@/components/auth/LoginRedirectWrapper";
+import { Box, CircularProgress } from "@mui/material";
 
 /**
  * Fallback loading component for Suspense
@@ -11,10 +11,10 @@ function LoginFallback() {
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
       }}
     >
       <CircularProgress />

@@ -61,13 +61,13 @@ export interface Event {
 
 // Convert from type to enum object for EventCategory
 export enum EventCategory {
-  UNIVERSITY = 'University',
-  FACULTY = 'Faculty',
-  COLLEGE = 'College',
-  ASSOCIATION = 'Association'
+  UNIVERSITY = "University",
+  FACULTY = "Faculty",
+  COLLEGE = "College",
+  ASSOCIATION = "Association",
 }
 
-export type EventStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
+export type EventStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled";
 
 export interface EventFilters {
   category?: EventCategory;
@@ -90,7 +90,11 @@ export interface EventRegistration {
   pointsAwarded: number;
 }
 
-export type RegistrationStatus = 'Registered' | 'Waitlisted' | 'Cancelled' | 'Attended';
+export type RegistrationStatus =
+  | "Registered"
+  | "Waitlisted"
+  | "Cancelled"
+  | "Attended";
 
 // Merit Types
 export interface MeritRecord {

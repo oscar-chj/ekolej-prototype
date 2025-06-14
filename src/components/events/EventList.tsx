@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { ErrorDisplay, LoadingDisplay } from '@/components/ui/ErrorDisplay';
-import { getCategoryColor, getCategoryDisplayName } from '@/lib/categoryUtils';
-import { formatDate } from '@/lib/dateUtils';
-import EventListService from '@/services/event/eventListService';
-import { Event } from '@/types/api.types';
+import { ErrorDisplay, LoadingDisplay } from "@/components/ui/ErrorDisplay";
+import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
+import { formatDate } from "@/lib/dateUtils";
+import EventListService from "@/services/event/eventListService";
+import { Event } from "@/types/api.types";
 import {
   AccessTime,
   Event as EventIcon,
   LocationOn,
   Person,
-  Refresh
-} from '@mui/icons-material';
+  Refresh,
+} from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -23,9 +23,9 @@ import {
   Grid,
   Tab,
   Tabs,
-  Typography
-} from '@mui/material';
-import { useEffect, useState } from 'react';
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -35,7 +35,7 @@ interface TabPanelProps {
 
 function TabPanel({ children, value, index }: TabPanelProps) {
   return (
-    <div hidden={value !== index} style={{ paddingTop: '1rem' }}>
+    <div hidden={value !== index} style={{ paddingTop: "1rem" }}>
       {value === index && children}
     </div>
   );
@@ -48,8 +48,8 @@ interface EventCardListProps {
 function EventCardList({ events }: EventCardListProps) {
   if (events.length === 0) {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
-        <EventIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+      <Box sx={{ textAlign: "center", py: 8 }}>
+        <EventIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
         <Typography variant="h6" gutterBottom>
           No events found
         </Typography>
@@ -64,33 +64,35 @@ function EventCardList({ events }: EventCardListProps) {
     <Grid container spacing={3}>
       {events.map((event) => (
         <Grid size={{ xs: 12, md: 6, lg: 4 }} key={event.id}>
-          <Card 
+          <Card
             elevation={0}
-            sx={{ 
-              borderRadius: 2, 
-              border: '1px solid rgba(0, 0, 0, 0.08)',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column'
+            sx={{
+              borderRadius: 2,
+              border: "1px solid rgba(0, 0, 0, 0.08)",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <CardContent sx={{ flexGrow: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ bgcolor: getCategoryColor(event.category), mr: 2 }}>
-                  <EventIcon sx={{ color: 'white' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Avatar
+                  sx={{ bgcolor: getCategoryColor(event.category), mr: 2 }}
+                >
+                  <EventIcon sx={{ color: "white" }} />
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {event.title}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                  <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
                     <Chip
                       label={getCategoryDisplayName(event.category)}
                       size="small"
                       color={getCategoryColor(event.category)}
-                      sx={{ color: 'white', fontWeight: 600 }}
+                      sx={{ color: "white", fontWeight: 600 }}
                     />
-                    <Chip 
+                    <Chip
                       label={`${event.points} points`}
                       color="primary"
                       size="small"
@@ -104,29 +106,39 @@ function EventCardList({ events }: EventCardListProps) {
                 {event.description}
               </Typography>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <AccessTime sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                <AccessTime
+                  sx={{ fontSize: 16, mr: 1, color: "text.secondary" }}
+                />
                 <Typography variant="caption" color="text.secondary">
                   {formatDate(event.date)} at {event.time}
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <LocationOn sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                <LocationOn
+                  sx={{ fontSize: 16, mr: 1, color: "text.secondary" }}
+                />
                 <Typography variant="caption" color="text.secondary">
                   {event.location}
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Person sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Person sx={{ fontSize: 16, mr: 1, color: "text.secondary" }} />
                 <Typography variant="caption" color="text.secondary">
                   Organized by {event.organizer}
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Chip 
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Chip
                   label={event.category}
                   color={getCategoryColor(event.category)}
                   size="small"
@@ -139,9 +151,9 @@ function EventCardList({ events }: EventCardListProps) {
               </Box>
             </CardContent>
 
-            {event.status === 'Upcoming' && (
+            {event.status === "Upcoming" && (
               <Box sx={{ p: 2, pt: 0 }}>
-                <Button 
+                <Button
                   variant="contained"
                   fullWidth
                   disabled={event.registeredCount >= event.capacity}
@@ -150,7 +162,9 @@ function EventCardList({ events }: EventCardListProps) {
                     alert(`Register for ${event.title} (demo functionality)`);
                   }}
                 >
-                  {event.registeredCount >= event.capacity ? 'Event Full' : 'Register'}
+                  {event.registeredCount >= event.capacity
+                    ? "Event Full"
+                    : "Register"}
                 </Button>
               </Box>
             )}
@@ -166,7 +180,10 @@ interface EventListProps {
   showHeader?: boolean;
 }
 
-export default function EventList({ onRefresh, showHeader = true }: EventListProps) {
+export default function EventList({
+  onRefresh,
+  showHeader = true,
+}: EventListProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
@@ -178,16 +195,19 @@ export default function EventList({ onRefresh, showHeader = true }: EventListPro
       setIsLoading(!forceRefresh);
       setIsRefreshing(forceRefresh);
       setError(null);
-      
+
       // Use EventListService to fetch events (implements UC2)
-      const fetchedEvents = forceRefresh 
+      const fetchedEvents = forceRefresh
         ? await EventListService.refreshEventList()
         : await EventListService.fetchEventList();
-        
+
       setEvents(fetchedEvents);
     } catch (err) {
-      console.error('Error fetching events:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load events. Please try again later.';
+      console.error("Error fetching events:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to load events. Please try again later.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -211,29 +231,32 @@ export default function EventList({ onRefresh, showHeader = true }: EventListPro
   };
 
   // Filter events by status
-  const upcomingEvents = events.filter(event => event.status === 'Upcoming');
-  const ongoingEvents = events.filter(event => event.status === 'Ongoing');
-  const completedEvents = events.filter(event => event.status === 'Completed');
+  const upcomingEvents = events.filter((event) => event.status === "Upcoming");
+  const ongoingEvents = events.filter((event) => event.status === "Ongoing");
+  const completedEvents = events.filter(
+    (event) => event.status === "Completed"
+  );
 
   if (isLoading) {
     return <LoadingDisplay message="Loading events..." />;
   }
 
   if (error) {
-    return (
-      <ErrorDisplay 
-        message={error}
-        showRetry
-        onRetry={handleRefresh}
-      />
-    );
+    return <ErrorDisplay message={error} showRetry onRetry={handleRefresh} />;
   }
 
   return (
     <Box>
       {showHeader && (
         <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              mb: 2,
+            }}
+          >
             <Box>
               <Typography variant="h4" component="h1" gutterBottom>
                 Browse Events
@@ -248,20 +271,21 @@ export default function EventList({ onRefresh, showHeader = true }: EventListPro
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
-              {isRefreshing ? 'Refreshing...' : 'Refresh Events'}
+              {isRefreshing ? "Refreshing..." : "Refresh Events"}
             </Button>
           </Box>
 
           {/* Cache Status Indicator */}
           <Alert severity="info" sx={{ mb: 2 }}>
             <Typography variant="body2">
-              Events are cached for better performance. Data refreshes automatically every 15 minutes or when you click refresh.
+              Events are cached for better performance. Data refreshes
+              automatically every 15 minutes or when you click refresh.
             </Typography>
           </Alert>
         </Box>
       )}
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label={`Upcoming (${upcomingEvents.length})`} />
           <Tab label={`Ongoing (${ongoingEvents.length})`} />

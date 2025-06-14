@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import DataService from '@/services/data/DataService';
-import { Event, EventCategory } from '@/types/api.types';
-import { getCategoryColor, getCategoryDisplayName } from '@/lib/categoryUtils';
-import { Check, CloudUpload, Download, Error } from '@mui/icons-material';
+import DataService from "@/services/data/DataService";
+import { Event, EventCategory } from "@/types/api.types";
+import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
+import { Check, CloudUpload, Download, Error } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -23,9 +23,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
-} from '@mui/material';
-import { useRef, useState, useEffect } from 'react';
+  Typography,
+} from "@mui/material";
+import { useRef, useState, useEffect } from "react";
 
 interface CSVMeritEntry {
   studentId: string;
@@ -34,21 +34,24 @@ interface CSVMeritEntry {
   meritType?: string;
   remarks?: string;
   isValid: boolean;
-  status: 'valid' | 'invalid';
+  status: "valid" | "invalid";
   errors?: string[];
   errorMessage?: string;
 }
 
 interface AdminMeritUploadProps {
   eventId?: string;
-  onComplete?: (uploadData: { validEntries: CSVMeritEntry[]; event: Event }) => void;
+  onComplete?: (uploadData: {
+    validEntries: CSVMeritEntry[];
+    event: Event;
+  }) => void;
 }
 
-const steps = ['Select Event', 'Upload CSV', 'Review Data', 'Submit'];
+const steps = ["Select Event", "Upload CSV", "Review Data", "Submit"];
 
-export default function AdminMeritUpload({ 
+export default function AdminMeritUpload({
   eventId,
-  onComplete 
+  onComplete,
 }: AdminMeritUploadProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [csvData, setCsvData] = useState<CSVMeritEntry[]>([]);
@@ -57,40 +60,40 @@ export default function AdminMeritUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Sample CSV data for demonstration
   const sampleCSVData: CSVMeritEntry[] = [
-    { 
-      studentId: 'S12345', 
-      studentName: 'Ahmad Ibrahim', 
-      points: 15, 
-      meritType: 'Academic Excellence',
-      isValid: true, 
-      status: 'valid' 
+    {
+      studentId: "S12345",
+      studentName: "Ahmad Ibrahim",
+      points: 15,
+      meritType: "Academic Excellence",
+      isValid: true,
+      status: "valid",
     },
-    { 
-      studentId: 'S12346', 
-      studentName: 'Sarah Lee', 
-      points: 20, 
-      meritType: 'Research Presentation',
-      isValid: true, 
-      status: 'valid' 
+    {
+      studentId: "S12346",
+      studentName: "Sarah Lee",
+      points: 20,
+      meritType: "Research Presentation",
+      isValid: true,
+      status: "valid",
     },
-    { 
-      studentId: 'S12347', 
-      studentName: 'Raj Patel', 
-      points: 10, 
-      meritType: 'Community Service',
-      isValid: true, 
-      status: 'valid' 
+    {
+      studentId: "S12347",
+      studentName: "Raj Patel",
+      points: 10,
+      meritType: "Community Service",
+      isValid: true,
+      status: "valid",
     },
-    { 
-      studentId: 'INVALID', 
-      studentName: 'Invalid Student', 
-      points: 5, 
-      meritType: 'Unknown',
-      isValid: false, 
-      status: 'invalid',
-      errors: ['Student ID not found'],
-      errorMessage: 'Student ID not found in system'
-    }
+    {
+      studentId: "INVALID",
+      studentName: "Invalid Student",
+      points: 5,
+      meritType: "Unknown",
+      isValid: false,
+      status: "invalid",
+      errors: ["Student ID not found"],
+      errorMessage: "Student ID not found in system",
+    },
   ];
 
   useEffect(() => {
@@ -105,7 +108,9 @@ export default function AdminMeritUpload({
     }
   }, [eventId]);
 
-  const handleFileUpload = (uploadEvent: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (
+    uploadEvent: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = uploadEvent.target.files?.[0];
     if (file) {
       setIsProcessing(true);
@@ -121,32 +126,36 @@ export default function AdminMeritUpload({
   const handleSubmitMerit = () => {
     setIsProcessing(true);
     // Simulate submission
-    setTimeout(() => {      setIsProcessing(false);
+    setTimeout(() => {
+      setIsProcessing(false);
       setActiveStep(3);
-      
+
       // Call completion handler if provided
       if (onComplete && selectedEvent) {
         onComplete({
           validEntries: validEntries,
-          event: selectedEvent
+          event: selectedEvent,
         });
       }
     }, 1500);
   };
 
-  const validEntries = csvData.filter(entry => entry.status === 'valid');
-  const invalidEntries = csvData.filter(entry => entry.status === 'invalid');
+  const validEntries = csvData.filter((entry) => entry.status === "valid");
+  const invalidEntries = csvData.filter((entry) => entry.status === "invalid");
 
   const downloadTemplate = () => {
     // In a real app, this would download a CSV template
-    alert('CSV template download started (demo functionality)');
+    alert("CSV template download started (demo functionality)");
   };
 
-  const getStatusColor = (status: string): 'success' | 'error' | 'default' => {
+  const getStatusColor = (status: string): "success" | "error" | "default" => {
     switch (status) {
-      case 'valid': return 'success';
-      case 'invalid': return 'error';
-      default: return 'default';
+      case "valid":
+        return "success";
+      case "invalid":
+        return "error";
+      default:
+        return "default";
     }
   };
 
@@ -157,15 +166,24 @@ export default function AdminMeritUpload({
       </Typography>
       <Card variant="outlined" sx={{ mb: 3 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Typography variant="h6">
-              {selectedEvent?.title}
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6">{selectedEvent?.title}</Typography>
             <Chip
-              label={getCategoryDisplayName(selectedEvent?.category || EventCategory.UNIVERSITY)}
-              sx={{ 
-                backgroundColor: getCategoryColor(selectedEvent?.category || EventCategory.UNIVERSITY),
-                color: 'white'
+              label={getCategoryDisplayName(
+                selectedEvent?.category || EventCategory.UNIVERSITY
+              )}
+              sx={{
+                backgroundColor: getCategoryColor(
+                  selectedEvent?.category || EventCategory.UNIVERSITY
+                ),
+                color: "white",
               }}
             />
           </Box>
@@ -177,11 +195,7 @@ export default function AdminMeritUpload({
           </Typography>
         </CardContent>
       </Card>
-      <Button 
-        variant="contained" 
-        onClick={() => setActiveStep(1)}
-        size="large"
-      >
+      <Button variant="contained" onClick={() => setActiveStep(1)} size="large">
         Proceed to Upload
       </Button>
     </Box>
@@ -193,10 +207,11 @@ export default function AdminMeritUpload({
         Upload Merit Data (CSV)
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
-        Please upload a CSV file with columns: StudentID, StudentName, Points, MeritType
+        Please upload a CSV file with columns: StudentID, StudentName, Points,
+        MeritType
       </Alert>
-      
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
         <Button
           variant="outlined"
           startIcon={<Download />}
@@ -209,14 +224,14 @@ export default function AdminMeritUpload({
       <Paper
         sx={{
           p: 4,
-          textAlign: 'center',
-          border: '2px dashed #ccc',
-          cursor: 'pointer',
-          '&:hover': { borderColor: 'primary.main' }
+          textAlign: "center",
+          border: "2px dashed #ccc",
+          cursor: "pointer",
+          "&:hover": { borderColor: "primary.main" },
         }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <CloudUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+        <CloudUpload sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
         <Typography variant="h6" gutterBottom>
           Click to upload CSV file
         </Typography>
@@ -227,7 +242,7 @@ export default function AdminMeritUpload({
           ref={fileInputRef}
           type="file"
           accept=".csv"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           onChange={handleFileUpload}
         />
       </Paper>
@@ -248,23 +263,24 @@ export default function AdminMeritUpload({
       <Typography variant="h6" gutterBottom>
         Review Merit Data
       </Typography>
-      
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <Chip 
-          label={`${validEntries.length} Valid Entries`} 
-          color="success" 
+
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Chip
+          label={`${validEntries.length} Valid Entries`}
+          color="success"
           icon={<Check />}
         />
-        <Chip 
-          label={`${invalidEntries.length} Invalid Entries`} 
-          color="error" 
+        <Chip
+          label={`${invalidEntries.length} Invalid Entries`}
+          color="error"
           icon={<Error />}
         />
       </Box>
 
       {invalidEntries.length > 0 && (
         <Alert severity="warning" sx={{ mb: 3 }}>
-          {invalidEntries.length} entries have validation errors. Only valid entries will be processed.
+          {invalidEntries.length} entries have validation errors. Only valid
+          entries will be processed.
         </Alert>
       )}
 
@@ -287,7 +303,7 @@ export default function AdminMeritUpload({
                 <TableCell align="right">{entry.points}</TableCell>
                 <TableCell>{entry.meritType}</TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Chip
                       label={entry.status}
                       color={getStatusColor(entry.status)}
@@ -306,41 +322,41 @@ export default function AdminMeritUpload({
         </Table>
       </TableContainer>
 
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <Button 
-          variant="outlined" 
-          onClick={() => setActiveStep(1)}
-        >
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Button variant="outlined" onClick={() => setActiveStep(1)}>
           Upload Different File
         </Button>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSubmitMerit}
           disabled={validEntries.length === 0 || isProcessing}
         >
-          {isProcessing ? 'Processing...' : `Submit ${validEntries.length} Valid Entries`}
+          {isProcessing
+            ? "Processing..."
+            : `Submit ${validEntries.length} Valid Entries`}
         </Button>
       </Box>
     </Box>
   );
 
   const renderCompletionStep = () => (
-    <Box sx={{ textAlign: 'center' }}>
-      <Check 
-        sx={{ 
-          fontSize: 80, 
-          color: 'success.main', 
-          mb: 2 
-        }} 
+    <Box sx={{ textAlign: "center" }}>
+      <Check
+        sx={{
+          fontSize: 80,
+          color: "success.main",
+          mb: 2,
+        }}
       />
       <Typography variant="h5" gutterBottom>
         Merit Upload Complete!
       </Typography>
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        Successfully processed {validEntries.length} merit entries for {selectedEvent?.title}
+        Successfully processed {validEntries.length} merit entries for{" "}
+        {selectedEvent?.title}
       </Typography>
-      
-      <Box sx={{ mt: 3, p: 2, backgroundColor: 'grey.50', borderRadius: 1 }}>
+
+      <Box sx={{ mt: 3, p: 2, backgroundColor: "grey.50", borderRadius: 1 }}>
         <Typography variant="body2" gutterBottom>
           <strong>Summary:</strong>
         </Typography>
@@ -348,15 +364,14 @@ export default function AdminMeritUpload({
           • Valid entries processed: {validEntries.length}
         </Typography>
         <Typography variant="body2">
-          • Total points awarded: {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
+          • Total points awarded:{" "}
+          {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
         </Typography>
-        <Typography variant="body2">
-          • Event: {selectedEvent?.title}
-        </Typography>
+        <Typography variant="body2">• Event: {selectedEvent?.title}</Typography>
       </Box>
-      
-      <Button 
-        variant="contained" 
+
+      <Button
+        variant="contained"
         onClick={() => {
           setActiveStep(0);
           setCsvData([]);
@@ -384,10 +399,12 @@ export default function AdminMeritUpload({
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Admin Feature:</strong> This component allows merit administrators to upload and assign merit points to students based on event participation.
+          <strong>Admin Feature:</strong> This component allows merit
+          administrators to upload and assign merit points to students based on
+          event participation.
         </Typography>
       </Alert>
 

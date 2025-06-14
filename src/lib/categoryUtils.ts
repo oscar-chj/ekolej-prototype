@@ -1,21 +1,23 @@
-import { EventCategory } from '@/types/api.types';
+import { EventCategory } from "@/types/api.types";
 
 /**
  * Get theme color for event category
  * Returns Material-UI color names for consistency
  */
-export const getCategoryColor = (category: EventCategory): 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' => {
+export const getCategoryColor = (
+  category: EventCategory
+): "primary" | "secondary" | "success" | "info" | "warning" | "error" => {
   switch (category) {
     case EventCategory.UNIVERSITY:
-      return 'error';      // Red for high-level university events
+      return "error"; // Red for high-level university events
     case EventCategory.FACULTY:
-      return 'primary';    // Blue for faculty-level events  
+      return "primary"; // Blue for faculty-level events
     case EventCategory.COLLEGE:
-      return 'success';    // Green for college-level events
+      return "success"; // Green for college-level events
     case EventCategory.ASSOCIATION:
-      return 'warning';    // Orange for club/association events
+      return "warning"; // Orange for club/association events
     default:
-      return 'primary';
+      return "primary";
   }
 };
 
@@ -32,25 +34,28 @@ export const getCategoryDisplayName = (category: EventCategory): string => {
 export const getCategoryFullName = (category: EventCategory): string => {
   switch (category) {
     case EventCategory.UNIVERSITY:
-      return 'University/National/International Merit';
+      return "University/National/International Merit";
     case EventCategory.FACULTY:
-      return 'Faculty Merit';
+      return "Faculty Merit";
     case EventCategory.COLLEGE:
-      return 'College Merit';
+      return "College Merit";
     case EventCategory.ASSOCIATION:
-      return 'Association/Club Merit';
+      return "Association/Club Merit";
     default:
-      return 'Unknown Category';
+      return "Unknown Category";
   }
 };
 
 /**
  * Get capacity status color based on registration percentage
  */
-export const getCapacityStatusColor = (registered: number, capacity: number): 'success' | 'warning' | 'error' => {
+export const getCapacityStatusColor = (
+  registered: number,
+  capacity: number
+): "success" | "warning" | "error" => {
   const percentage = registered / capacity;
-  
-  if (percentage >= 1.0) return 'error';    // Full
-  if (percentage >= 0.8) return 'warning';  // Nearly full
-  return 'success';                         // Available
+
+  if (percentage >= 1.0) return "error"; // Full
+  if (percentage >= 0.8) return "warning"; // Nearly full
+  return "success"; // Available
 };

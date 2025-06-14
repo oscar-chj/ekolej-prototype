@@ -1,13 +1,13 @@
-import { 
-  Dashboard, 
-  AssessmentOutlined, 
-  EventNote, 
-  Person, 
+import {
+  Dashboard,
+  AssessmentOutlined,
+  EventNote,
+  Person,
   Settings,
   Description,
   Leaderboard,
-  Upload
-} from '@mui/icons-material';
+  Upload,
+} from "@mui/icons-material";
 
 /**
  * Get Material-UI icon component by name
@@ -22,9 +22,9 @@ export const getIconComponent = (iconName: string) => {
     Settings,
     Description,
     Leaderboard,
-    Upload
+    Upload,
   };
-  
+
   const IconComponent = icons[iconName];
   return IconComponent ? <IconComponent /> : <Dashboard />;
 };

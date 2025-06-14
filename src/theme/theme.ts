@@ -1,54 +1,58 @@
-'use client';
+"use client";
 
-import { createTheme, PaletteOptions, ThemeOptions } from '@mui/material/styles';
+import {
+  createTheme,
+  PaletteOptions,
+  ThemeOptions,
+} from "@mui/material/styles";
 
 /**
  * Color palette constants
  */
 const COLORS = {
   primary: {
-    main: '#1565c0',    // Deep blue - professional and institutional
-    light: '#5e92f3',
-    dark: '#003c8f',
-    contrastText: '#ffffff',
+    main: "#1565c0", // Deep blue - professional and institutional
+    light: "#5e92f3",
+    dark: "#003c8f",
+    contrastText: "#ffffff",
   },
   secondary: {
-    main: '#26a69a',    // Teal - fresh but professional
-    light: '#64d8cb',
-    dark: '#00766c',
-    contrastText: '#ffffff',
+    main: "#26a69a", // Teal - fresh but professional
+    light: "#64d8cb",
+    dark: "#00766c",
+    contrastText: "#ffffff",
   },
   error: {
-    main: '#d32f2f',
-    light: '#ef5350',
-    dark: '#c62828',
+    main: "#d32f2f",
+    light: "#ef5350",
+    dark: "#c62828",
   },
   warning: {
-    main: '#ff9800',
-    light: '#ffb74d',
-    dark: '#f57c00',
+    main: "#ff9800",
+    light: "#ffb74d",
+    dark: "#f57c00",
   },
   info: {
-    main: '#2196f3',
-    light: '#64b5f6',
-    dark: '#1976d2',
+    main: "#2196f3",
+    light: "#64b5f6",
+    dark: "#1976d2",
   },
   success: {
-    main: '#4caf50',
-    light: '#81c784',
-    dark: '#388e3c',
+    main: "#4caf50",
+    light: "#81c784",
+    dark: "#388e3c",
   },
   grey: {
-    50: '#fafafa',
-    100: '#f5f5f5',
-    200: '#eeeeee',
-    300: '#e0e0e0',
-    400: '#bdbdbd',
-    500: '#9e9e9e',
-    600: '#757575',
-    700: '#616161',
-    800: '#424242',
-    900: '#212121',
+    50: "#fafafa",
+    100: "#f5f5f5",
+    200: "#eeeeee",
+    300: "#e0e0e0",
+    400: "#bdbdbd",
+    500: "#9e9e9e",
+    600: "#757575",
+    700: "#616161",
+    800: "#424242",
+    900: "#212121",
   },
 };
 
@@ -64,7 +68,7 @@ const palette: PaletteOptions = {
   success: COLORS.success,
   background: {
     default: COLORS.grey[100],
-    paper: '#ffffff',
+    paper: "#ffffff",
   },
   text: {
     primary: COLORS.grey[900],
@@ -76,8 +80,8 @@ const palette: PaletteOptions = {
 /**
  * Typography configuration
  */
-const typography: ThemeOptions['typography'] = {
-  fontFamily: 'var(--font-geist-sans)',
+const typography: ThemeOptions["typography"] = {
+  fontFamily: "var(--font-geist-sans)",
   h1: { fontWeight: 600 },
   h2: { fontWeight: 600 },
   h3: { fontWeight: 500 },
@@ -85,7 +89,7 @@ const typography: ThemeOptions['typography'] = {
   h5: { fontWeight: 500 },
   h6: { fontWeight: 500 },
   button: {
-    textTransform: 'none', // Avoid all-caps buttons for a cleaner look
+    textTransform: "none", // Avoid all-caps buttons for a cleaner look
     fontWeight: 500,
   },
   subtitle1: {
@@ -99,22 +103,22 @@ const typography: ThemeOptions['typography'] = {
 /**
  * Component style overrides
  */
-const components: ThemeOptions['components'] = {
+const components: ThemeOptions["components"] = {
   MuiButton: {
     styleOverrides: {
       root: {
-        boxShadow: 'none',
-        '&:hover': {
-          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+        boxShadow: "none",
+        "&:hover": {
+          boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
         },
       },
       containedPrimary: {
-        '&:hover': {
+        "&:hover": {
           backgroundColor: COLORS.primary.dark,
         },
       },
       containedSecondary: {
-        '&:hover': {
+        "&:hover": {
           backgroundColor: COLORS.secondary.dark,
         },
       },
@@ -123,7 +127,7 @@ const components: ThemeOptions['components'] = {
   MuiCard: {
     styleOverrides: {
       root: {
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.08)',
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
         borderRadius: 12,
       },
     },
@@ -131,14 +135,14 @@ const components: ThemeOptions['components'] = {
   MuiPaper: {
     styleOverrides: {
       elevation1: {
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.05)",
       },
     },
   },
   MuiTextField: {
     styleOverrides: {
       root: {
-        '& .MuiOutlinedInput-root': {
+        "& .MuiOutlinedInput-root": {
           borderRadius: 8,
         },
       },
@@ -146,7 +150,7 @@ const components: ThemeOptions['components'] = {
   },
   MuiLink: {
     defaultProps: {
-      underline: 'hover',
+      underline: "hover",
     },
   },
 };

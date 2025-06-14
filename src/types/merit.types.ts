@@ -1,4 +1,4 @@
-import { EventCategory } from './api.types';
+import { EventCategory } from "./api.types";
 
 /**
  * Interface representing a merit activity
@@ -34,10 +34,10 @@ export interface MeritEvent {
 export interface MeritSummary {
   totalPoints: number;
   targetPoints: number;
-  academicPoints: number;      // International/National/University Merit
-  cocurricularPoints: number;  // Faculty Merit
-  communityPoints: number;     // College Merit
-  associationPoints: number;   // Association/Club Merit
+  academicPoints: number; // International/National/University Merit
+  cocurricularPoints: number; // Faculty Merit
+  communityPoints: number; // College Merit
+  associationPoints: number; // Association/Club Merit
   recentActivities: MeritActivity[];
   upcomingEvents: MeritEvent[];
 }

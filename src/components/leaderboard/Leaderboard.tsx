@@ -1,8 +1,24 @@
-'use client';
+"use client";
 
-import DataService from '@/services/data/DataService';
-import { Avatar, Box, Card, CardContent, Chip, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography } from '@mui/material';
-import { useState } from 'react';
+import DataService from "@/services/data/DataService";
+import {
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Paper,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -28,24 +44,32 @@ function TabPanel(props: TabPanelProps) {
 
 function getRankColor(rank: number): string {
   switch (rank) {
-    case 1: return '#FFD700'; // Gold
-    case 2: return '#C0C0C0'; // Silver  
-    case 3: return '#CD7F32'; // Bronze
-    default: return '#757575'; // Gray
+    case 1:
+      return "#FFD700"; // Gold
+    case 2:
+      return "#C0C0C0"; // Silver
+    case 3:
+      return "#CD7F32"; // Bronze
+    default:
+      return "#757575"; // Gray
   }
 }
 
 function getRankIcon(rank: number): string {
   switch (rank) {
-    case 1: return '🥇';
-    case 2: return '🥈';
-    case 3: return '🥉';
-    default: return `#${rank}`;
+    case 1:
+      return "🥇";
+    case 2:
+      return "🥈";
+    case 3:
+      return "🥉";
+    default:
+      return `#${rank}`;
   }
 }
 
 interface LeaderboardTableProps {
-  sortBy: 'total' | 'university' | 'faculty' | 'college' | 'association';
+  sortBy: "total" | "university" | "faculty" | "college" | "association";
 }
 
 function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
@@ -61,11 +85,11 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
             <TableCell sx={{ width: 150, minWidth: 150 }}>Faculty</TableCell>
             <TableCell sx={{ width: 100, minWidth: 100 }}>Year</TableCell>
             <TableCell align="right" sx={{ width: 140, minWidth: 140 }}>
-              {sortBy === 'total' && 'Total Points'}
-              {sortBy === 'university' && 'University Merit'}
-              {sortBy === 'faculty' && 'Faculty Merit'}
-              {sortBy === 'college' && 'College Merit'}
-              {sortBy === 'association' && 'Association Merit'}
+              {sortBy === "total" && "Total Points"}
+              {sortBy === "university" && "University Merit"}
+              {sortBy === "faculty" && "Faculty Merit"}
+              {sortBy === "college" && "College Merit"}
+              {sortBy === "association" && "Association Merit"}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -73,37 +97,40 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
           {sortedData.map((entry, index) => {
             const displayRank = index + 1;
             let points = entry.totalPoints;
-            
+
             switch (sortBy) {
-              case 'university':
+              case "university":
                 points = entry.universityMerit;
                 break;
-              case 'faculty':
+              case "faculty":
                 points = entry.facultyMerit;
                 break;
-              case 'college':
+              case "college":
                 points = entry.collegeMerit;
                 break;
-              case 'association':
+              case "association":
                 points = entry.associationMerit;
                 break;
             }
 
             return (
-              <TableRow 
+              <TableRow
                 key={entry.id}
-                sx={{ 
-                  '&:nth-of-type(odd)': { backgroundColor: 'action.hover' },
-                  ...(entry.studentId === 'S12345' && { backgroundColor: 'primary.light', color: 'primary.contrastText' })
+                sx={{
+                  "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
+                  ...(entry.studentId === "S12345" && {
+                    backgroundColor: "primary.light",
+                    color: "primary.contrastText",
+                  }),
                 }}
               >
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Typography
                       variant="h6"
-                      sx={{ 
+                      sx={{
                         color: getRankColor(displayRank),
-                        fontWeight: 'bold'
+                        fontWeight: "bold",
                       }}
                     >
                       {getRankIcon(displayRank)}
@@ -111,7 +138,7 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar sx={{ width: 32, height: 32 }}>
                       {entry.name.charAt(0)}
                     </Avatar>
@@ -127,9 +154,9 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
                 </TableCell>
                 <TableCell>{entry.faculty}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={`Year ${entry.year}`} 
-                    size="small" 
+                  <Chip
+                    label={`Year ${entry.year}`}
+                    size="small"
                     variant="outlined"
                   />
                 </TableCell>
@@ -148,37 +175,47 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
 }
 
 function TopThreePodium() {
-  const top3 = DataService.getLeaderboardData('total').slice(0, 3);
+  const top3 = DataService.getLeaderboardData("total").slice(0, 3);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h5" gutterBottom fontWeight="bold">
         🏆 Top Performers
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 2,
+          flexWrap: "wrap",
+        }}
+      >
         {top3.map((student, index) => (
-          <Card 
+          <Card
             key={student.id}
-            sx={{ 
+            sx={{
               minWidth: 200,
-              textAlign: 'center',
-              position: 'relative',
-              border: index === 0 ? '2px solid #FFD700' : '1px solid rgba(0, 0, 0, 0.12)'
+              textAlign: "center",
+              position: "relative",
+              border:
+                index === 0
+                  ? "2px solid #FFD700"
+                  : "1px solid rgba(0, 0, 0, 0.12)",
             }}
           >
             <CardContent>
               {index === 0 && (
-                <Box sx={{ position: 'absolute', top: -10, right: -10 }}>
+                <Box sx={{ position: "absolute", top: -10, right: -10 }}>
                   <Typography fontSize="2rem">👑</Typography>
                 </Box>
               )}
-              <Avatar 
-                sx={{ 
-                  width: 64, 
-                  height: 64, 
-                  mx: 'auto', 
+              <Avatar
+                sx={{
+                  width: 64,
+                  height: 64,
+                  mx: "auto",
                   mb: 2,
-                  bgcolor: getRankColor(index + 1)
+                  bgcolor: getRankColor(index + 1),
                 }}
               >
                 {student.name.charAt(0)}
@@ -223,10 +260,10 @@ export default function Leaderboard() {
 
       <TopThreePodium />
 
-      <Paper sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs 
-            value={selectedTab} 
+      <Paper sx={{ width: "100%" }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={selectedTab}
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"

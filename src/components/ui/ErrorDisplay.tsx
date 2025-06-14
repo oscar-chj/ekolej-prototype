@@ -1,6 +1,6 @@
-import { Alert, Box, Button, Typography } from '@mui/material';
-import { ErrorOutline, Refresh } from '@mui/icons-material';
-import { ReactNode } from 'react';
+import { Alert, Box, Button, Typography } from "@mui/material";
+import { ErrorOutline, Refresh } from "@mui/icons-material";
+import { ReactNode } from "react";
 
 interface ErrorDisplayProps {
   title?: string;
@@ -13,16 +13,16 @@ interface ErrorDisplayProps {
 /**
  * Reusable error display component
  */
-export function ErrorDisplay({ 
-  title = 'Something went wrong',
-  message, 
-  showRetry = false, 
+export function ErrorDisplay({
+  title = "Something went wrong",
+  message,
+  showRetry = false,
   onRetry,
-  children 
+  children,
 }: ErrorDisplayProps) {
   return (
-    <Box sx={{ textAlign: 'center', py: 4 }}>
-      <ErrorOutline sx={{ fontSize: 48, color: 'error.main', mb: 2 }} />
+    <Box sx={{ textAlign: "center", py: 4 }}>
+      <ErrorOutline sx={{ fontSize: 48, color: "error.main", mb: 2 }} />
       <Typography variant="h6" color="error" gutterBottom>
         {title}
       </Typography>
@@ -30,8 +30,8 @@ export function ErrorDisplay({
         {message}
       </Typography>
       {showRetry && onRetry && (
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           startIcon={<Refresh />}
           onClick={onRetry}
           sx={{ mb: 2 }}
@@ -51,15 +51,19 @@ interface LoadingDisplayProps {
 /**
  * Simple loading display component
  */
-export function LoadingDisplay({ message = 'Loading...' }: LoadingDisplayProps) {
+export function LoadingDisplay({
+  message = "Loading...",
+}: LoadingDisplayProps) {
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      py: 8 
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        py: 8,
+      }}
+    >
       <Typography variant="body1" color="text.secondary">
         {message}
       </Typography>
@@ -77,11 +81,7 @@ interface FormErrorProps {
  */
 export function FormError({ error, onDismiss }: FormErrorProps) {
   return (
-    <Alert 
-      severity="error" 
-      onClose={onDismiss}
-      sx={{ mb: 2 }}
-    >
+    <Alert severity="error" onClose={onDismiss} sx={{ mb: 2 }}>
       {error}
     </Alert>
   );

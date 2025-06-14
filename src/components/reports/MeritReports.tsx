@@ -62,7 +62,7 @@ export default function MeritReports({
   useEffect(() => {
     // Fetch data from DataService
     const meritRecords = DataService.getStudentMeritRecords(studentId);
-    
+
     setRecords(meritRecords);
   }, [studentId]);
 
