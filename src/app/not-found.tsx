@@ -46,7 +46,7 @@ export default function NotFound() {
             </Typography>
             <Image
               src="/globe.svg"
-              alt="eKolej Logo"
+              alt="Student Merit Management System Logo"
               width={60}
               height={60}
               priority

@@ -20,7 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 /**
- * Landing page component for the eKolej University Merit System
+ * Landing page component for the Student Merit Management System
  */
 export default function HomePage() {
   const theme = useTheme();
@@ -118,7 +118,7 @@ export default function HomePage() {
               >
                 <Image
                   src="/globe.svg"
-                  alt="eKolej Logo"
+                  alt="Student Merit Management System Logo"
                   fill
                   style={{
                     filter: "brightness(0) invert(1)",
@@ -272,8 +272,7 @@ export default function HomePage() {
           >
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
-                © {new Date().getFullYear()} eKolej University Merit System. All
-                rights reserved.
+                © {new Date().getFullYear()} Student Merit Management System
               </Typography>
             </Grid>
             <Grid

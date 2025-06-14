@@ -85,7 +85,7 @@ export default function LogoutComponent() {
       <Typography variant="body1" color="text.secondary">
         {error
           ? "Redirecting you to login page..."
-          : "Thank you for using eKolej University Merit System"}
+          : "Thank you for using the Student Merit Management System"}
       </Typography>
     </Box>
   );
