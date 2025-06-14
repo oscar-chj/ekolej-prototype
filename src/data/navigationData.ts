@@ -47,10 +47,29 @@ export const mainNavigationItems: NavigationItem[] = [
     tooltip: 'Browse and register for events' 
   },
   { 
+    text: 'Merit Reports', 
+    iconName: 'Description',
+    href: '/dashboard/reports',
+    tooltip: 'View detailed merit reports' 
+  },
+  { 
+    text: 'Leaderboard', 
+    iconName: 'Leaderboard',
+    href: '/dashboard/leaderboard',
+    tooltip: 'View merit leaderboard' 
+  },
+  { 
     text: 'Profile', 
     iconName: 'Person',
     href: '/dashboard/profile',
     tooltip: 'View and edit your profile' 
+  },
+  { 
+    text: 'Upload Merit', 
+    iconName: 'Upload',
+    href: '/dashboard/admin/merit-upload',
+    tooltip: 'Admin: Upload merit data via CSV',
+    roles: [UserRole.ADMIN]
   },
   { 
     text: 'Settings', 

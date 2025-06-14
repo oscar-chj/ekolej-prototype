@@ -64,7 +64,7 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
             {userProfile.name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {userProfile.role}
+            {userProfile.role.toUpperCase()}
           </Typography>
         </Box>
 

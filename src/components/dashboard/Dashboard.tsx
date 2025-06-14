@@ -71,13 +71,12 @@ export default function Dashboard() {
             totalPoints={meritData.totalPoints} 
             targetPoints={meritData.targetPoints} 
           />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
+        </Grid>        <Grid size={{ xs: 12, md: 6 }}>
           <PointsBreakdown 
             academicPoints={meritData.academicPoints}
             cocurricularPoints={meritData.cocurricularPoints}
             communityPoints={meritData.communityPoints}
+            associationPoints={meritData.associationPoints}
           />
         </Grid>
       </Grid>

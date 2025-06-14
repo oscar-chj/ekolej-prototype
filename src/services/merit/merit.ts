@@ -101,13 +101,12 @@ export async function addMeritRecord(formData: FormData) {
     }
     
     return await meritService.addMeritRecord({
-      studentId,
-      category, // Type assertion to match the expected EventCategory
+      studentId,      category, // Type assertion to match the expected EventCategory
       points,
       description,
       eventId,
-      date,
-      isVerified: false
+      date
+      // Note: isVerified field removed as verification is not required
     });
   } catch (error) {
     console.error('Error adding merit record:', error);

@@ -61,11 +61,10 @@ export interface Event {
 
 // Convert from type to enum object for EventCategory
 export enum EventCategory {
-  ACADEMIC = 'Academic',
-  COCURRICULAR = 'Co-curricular',
-  COMMUNITY = 'Community Service',
-  LEADERSHIP = 'Leadership',
-  SPORTS = 'Sports'
+  UNIVERSITY = 'University',
+  FACULTY = 'Faculty',
+  COLLEGE = 'College',
+  ASSOCIATION = 'Association'
 }
 
 export type EventStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
@@ -102,7 +101,6 @@ export interface MeritRecord {
   points: number;
   description: string;
   date: string;
-  isVerified: boolean;
-  verifiedBy?: string;
-  verificationDate?: string;
+  isVerified?: boolean; // Optional - verification not required
+  meritType?: string; // Type of merit entry (e.g., 'Event Participation', 'Achievement', 'Service')
 }

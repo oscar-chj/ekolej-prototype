@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFormState } from '@/hooks/useFormState';
 import { FormError } from '@/components/ui/ErrorDisplay';
 import { AUTH_COOKIE_NAME, AUTH_COOKIE_EXPIRES_DAYS } from '@/lib/constants';
+import EventListService from '@/services/event/eventListService';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
@@ -58,12 +59,9 @@ export default function LoginForm({ redirectPath = '/dashboard' }: LoginFormProp
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+
   /**
-   * Handle form input changes
-   */
-  // Removed - now using handleChange from useFormState hook
-  /**
-   * Handle form submission
+   * Handle form submission with event list fetching
    */
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,7 +69,7 @@ export default function LoginForm({ redirectPath = '/dashboard' }: LoginFormProp
 
     const { email, password } = formValues;
     
-    // Attempt to authenticate user
+    // Attempt to authenticate user (UC1)
     const user = await login(email, password);
     
     if (user) {
@@ -80,7 +78,16 @@ export default function LoginForm({ redirectPath = '/dashboard' }: LoginFormProp
       Cookies.set(AUTH_COOKIE_NAME, 'sample_auth_token', { 
         expires: AUTH_COOKIE_EXPIRES_DAYS,
         sameSite: 'strict'
-      });
+      });      // UC2: Provide Event List - Fetch latest events after successful login
+      try {
+        console.log('Fetching latest event list...');
+        await EventListService.fetchEventList();
+        console.log('Event list cached successfully');
+      } catch (eventError) {
+        console.warn('Failed to fetch event list, continuing with login...', eventError);
+        // Don't block login if event fetching fails
+        sessionStorage.setItem('eventListCached', 'false');
+      }
 
       // Redirect to the requested page or dashboard
       router.push(redirectPath);
@@ -112,7 +119,9 @@ export default function LoginForm({ redirectPath = '/dashboard' }: LoginFormProp
         }}
       >
         {/* Logo and Title */}
-        <AppLogo />        {/* Error message */}
+        <AppLogo />
+        
+        {/* Error message */}
         {error && (
           <FormError error={error} onDismiss={clearError} />
         )}
@@ -200,7 +209,7 @@ function AppLogo() {
   return (
     <Box sx={{ mb: 4, textAlign: 'center' }}>
       <Image
-        src="/globe.svg"
+        src="/globe.png"
         alt="Merit System Logo"
         width={80}
         height={80}

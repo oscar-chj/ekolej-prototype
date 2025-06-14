@@ -3,7 +3,10 @@ import {
   AssessmentOutlined, 
   EventNote, 
   Person, 
-  Settings 
+  Settings,
+  Description,
+  Leaderboard,
+  Upload
 } from '@mui/icons-material';
 
 /**
@@ -16,7 +19,10 @@ export const getIconComponent = (iconName: string) => {
     AssessmentOutlined,
     EventNote,
     Person,
-    Settings
+    Settings,
+    Description,
+    Leaderboard,
+    Upload
   };
   
   const IconComponent = icons[iconName];

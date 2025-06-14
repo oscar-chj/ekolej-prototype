@@ -6,62 +6,82 @@ import { EventCategory } from '@/types/api.types';
  * In production, this would come from an API
  */
 export const sampleMeritData: MeritSummary = {
-  totalPoints: 1850,
-  targetPoints: 3000,
-  academicPoints: 800,
-  cocurricularPoints: 650,
-  communityPoints: 400,
+  totalPoints: 95,
+  targetPoints: 150,
+  academicPoints: 35,  // University/National/International Merit
+  cocurricularPoints: 25,  // Faculty Merit  
+  communityPoints: 20,     // College Merit
+  associationPoints: 15,   // Association/Club Merit
   recentActivities: [
     {
       id: '1',
-      title: 'Research Paper Presentation',
-      category: EventCategory.ACADEMIC,
-      points: 100,
+      title: 'University Conference Paper Presentation',
+      category: EventCategory.UNIVERSITY,
+      points: 25,
       date: '2025-04-15',
-      description: 'Presented research paper at the annual symposium',
-      verified: true
+      description: 'Presented research paper at university conference'
     },
     {
       id: '2',
-      title: 'Community Cleanup Drive',
-      category: EventCategory.COMMUNITY,
-      points: 75,
+      title: 'Faculty Academic Competition',
+      category: EventCategory.FACULTY,
+      points: 15,
       date: '2025-04-10',
-      description: 'Participated in campus area cleanup initiative',
-      verified: true
+      description: 'Won first place in faculty-level programming contest'
     },
     {
       id: '3',
-      title: 'Debate Club Competition',
-      category: EventCategory.COCURRICULAR,
-      points: 50,
+      title: 'College Cultural Festival',
+      category: EventCategory.COLLEGE,
+      points: 10,
       date: '2025-04-05',
-      description: 'Participated in inter-university debate competition',
-      verified: true
+      description: 'Participated in college annual cultural festival'
     }
   ],
   upcomingEvents: [
     {
-      id: '101',
-      title: 'Leadership Workshop',
-      date: '2025-05-15',
-      points: 60,
-      location: 'Student Center Room 302',
-      description: 'Develop your leadership skills with industry experts',
-      capacity: 30,
-      registeredCount: 18,
-      category: EventCategory.COCURRICULAR
+      id: '1',
+      title: 'Coding Hackathon 2025',
+      date: '2025-06-20',
+      points: 100,
+      location: 'Computer Science Building, Lab 3',
+      description: 'A 48-hour coding challenge to build innovative solutions for campus problems.',
+      capacity: 50,
+      registeredCount: 32,
+      category: EventCategory.FACULTY
     },
     {
-      id: '102',
-      title: 'Community Service Day',
-      date: '2025-05-22',
+      id: '2',
+      title: 'Research Paper Presentation',
+      date: '2025-06-25',
       points: 80,
-      location: 'Main Campus Courtyard',
-      description: 'Join us for a day of giving back to our community',
-      capacity: 50,
-      registeredCount: 35,
-      category: EventCategory.COMMUNITY
+      location: 'Main Auditorium',
+      description: 'Present your research findings to faculty and peers in this academic symposium.',
+      capacity: 100,
+      registeredCount: 45,
+      category: EventCategory.UNIVERSITY
+    },
+    {
+      id: '3',
+      title: 'Sports Championship',
+      date: '2025-07-01',
+      points: 60,
+      location: 'University Sports Complex',
+      description: 'Annual inter-college sports championship featuring multiple sporting events.',
+      capacity: 200,
+      registeredCount: 120,
+      category: EventCategory.COLLEGE
+    },
+    {
+      id: '4',
+      title: 'Programming Club Workshop',
+      date: '2025-07-10',
+      points: 40,
+      location: 'CS Lab 2',
+      description: 'Learn advanced programming techniques and best practices from industry experts.',
+      capacity: 30,
+      registeredCount: 25,
+      category: EventCategory.ASSOCIATION
     }
   ]
 };

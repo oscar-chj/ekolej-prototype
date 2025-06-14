@@ -141,11 +141,6 @@ export class MeritService {
         };
       }
       
-      // Update the record (in a real app, this would be a database operation)
-      meritRecords[recordIndex].isVerified = true;
-      meritRecords[recordIndex].verifiedBy = verifiedBy;
-      meritRecords[recordIndex].verificationDate = new Date().toISOString().split('T')[0];
-      
       return {
         success: true,
         data: meritRecords[recordIndex],

@@ -9,8 +9,8 @@ export const DRAWER_WIDTH = 280;
 export const AUTH_COOKIE_NAME = 'auth_token';
 export const AUTH_COOKIE_EXPIRES_DAYS = 7;
 
-// Default target points for students
-export const DEFAULT_TARGET_POINTS = 3000;
+// Default target points for students (adjusted to common goal)
+export const DEFAULT_TARGET_POINTS = 150;
 
 // Event capacity warning threshold (80% full)
 export const EVENT_CAPACITY_WARNING_THRESHOLD = 0.8;
