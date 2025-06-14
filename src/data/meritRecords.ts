@@ -31,7 +31,8 @@ export const meritRecords: MeritRecord[] = [
     description: 'Participated in Campus Blood Donation Drive',
     date: '2025-05-10'
   },
-  {    id: '4',
+  {    
+    id: '4',
     studentId: '1',
     eventId: '14',
     category: EventCategory.ASSOCIATION,
@@ -47,7 +48,8 @@ export const meritRecords: MeritRecord[] = [
     description: 'Participated in International Student Exchange Program',
     date: '2025-05-15'
   },
-  {    id: '6',
+  {    
+    id: '6',
     studentId: '2',
     eventId: '13',
     category: EventCategory.FACULTY,
@@ -55,7 +57,8 @@ export const meritRecords: MeritRecord[] = [
     description: 'Won Faculty Innovation Challenge',
     date: '2025-05-20'
   },
-  {    id: '7',
+  {    
+    id: '7',
     studentId: '3',
     eventId: '11',
     category: EventCategory.COLLEGE,
@@ -63,7 +66,8 @@ export const meritRecords: MeritRecord[] = [
     description: 'Participated in Campus Blood Donation Drive',
     date: '2025-05-10'
   },
-  {    id: '8',
+  {    
+    id: '8',
     studentId: '3',
     eventId: '14',
     category: EventCategory.ASSOCIATION,

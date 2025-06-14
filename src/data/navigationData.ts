@@ -19,8 +19,8 @@ export const sampleUserProfile = {
   name: 'John Doe',
   role: UserRole.STUDENT,
   avatar: '/default-avatar.png',
-  studentId: 'S12345',
-  faculty: 'Computer Science',
+  studentId: '223945',
+  faculty: 'Faculty of Computer Science and Information Technology',
   year: '3'
 };
 

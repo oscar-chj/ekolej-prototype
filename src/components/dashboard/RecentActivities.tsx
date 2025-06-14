@@ -1,6 +1,7 @@
 'use client';
 
-import { MeritActivity } from '@/types/merit.types';
+import DataService from '@/services/data/DataService';
+import { EventCategory } from '@/types/api.types';
 import { formatDate } from '@/lib/dateUtils';
 import { getCategoryColor, getCategoryDisplayName } from '@/lib/categoryUtils';
 import { ArrowForward, Assignment } from '@mui/icons-material';
@@ -19,18 +20,49 @@ import {
   Typography
 } from '@mui/material';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
+
 /**
  * Props for the RecentActivities component
  */
 interface RecentActivitiesProps {
-  activities: MeritActivity[];
+  studentId: string;
+}
+
+interface ActivityItem {
+  id: string;
+  title: string;
+  category: EventCategory;
+  points: number;
+  date: string;
+  description: string;
 }
 
 /**
  * Component that displays a list of recent merit activities
  */
-const RecentActivities = memo(function RecentActivities({ activities }: RecentActivitiesProps) {
+const RecentActivities = memo(function RecentActivities({ studentId }: RecentActivitiesProps) {
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  useEffect(() => {
+    // Get student's recent merit records from DataService
+    const meritRecords = DataService.getStudentMeritRecords(studentId);
+    
+    // Convert merit records to activities format and get recent ones
+    const recentActivities = meritRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5) // Show only last 5 activities
+      .map(record => ({
+        id: record.id,
+        title: record.description,
+        category: record.category,
+        points: record.points,
+        date: record.date,
+        description: record.description
+      }));
+
+    setActivities(recentActivities);
+  }, [studentId]);
   // Handle empty state
   if (!activities || activities.length === 0) {
     return (

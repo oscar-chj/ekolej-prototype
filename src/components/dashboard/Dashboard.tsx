@@ -2,8 +2,8 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { ErrorDisplay, LoadingDisplay } from '@/components/ui/ErrorDisplay';
-import { sampleMeritData } from '@/data/dashboardData';
-import { MeritSummary } from '@/types/merit.types';
+import DataService from '@/services/data/DataService';
+import { Event, Student } from '@/types/api.types';
 import { Box, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import MeritSummaryCard from './MeritSummaryCard';
@@ -11,21 +11,51 @@ import PointsBreakdown from './PointsBreakdown';
 import RecentActivities from './RecentActivities';
 import UpcomingEvents from './UpcomingEvents';
 
+interface MeritSummary {
+  totalPoints: number;
+  targetPoints: number;
+  universityMerit: number;
+  facultyMerit: number;
+  collegeMerit: number;
+  associationMerit: number;
+  recentActivities: number;
+  rank: number;
+  totalStudents: number;
+  progressPercentage: number;
+}
+
+interface DashboardData {
+  student: Student;
+  meritSummary: MeritSummary;
+  upcomingEvents: Event[];
+  totalRegistrations: number;
+  recentActivities: number;
+}
+
 export default function Dashboard() {
-  const [meritData, setMeritData] = useState<MeritSummary | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call with static data
+    // Fetch data from centralized DataService
     const fetchData = async () => {
       try {
         setIsLoading(true);
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500));
-        setMeritData(sampleMeritData);
+          // Get data from DataService (simulated student ID)
+        const studentId = '1'; // In real app, this would come from auth context
+        const summary = DataService.getDashboardSummary(studentId);
+        
+        // Only set data if student exists
+        if (summary.student) {
+          setDashboardData(summary as DashboardData);
+        } else {
+          setError('Student not found');
+        }
       } catch (err) {
-        console.error('Error fetching merit data:', err);
+        console.error('Error fetching dashboard data:', err);
         setError('Failed to load dashboard data');
       } finally {
         setIsLoading(false);
@@ -40,8 +70,7 @@ export default function Dashboard() {
         <LoadingDisplay message="Loading your dashboard..." />
       </DashboardLayout>
     );
-  }
-  if (error || !meritData) {
+  }  if (error || !dashboardData) {
     return (
       <DashboardLayout title="Merit Dashboard">
         <ErrorDisplay 
@@ -52,6 +81,8 @@ export default function Dashboard() {
       </DashboardLayout>
     );
   }
+
+  const { meritSummary, upcomingEvents } = dashboardData;
   
   return (
     <DashboardLayout title="Merit Dashboard">
@@ -68,15 +99,14 @@ export default function Dashboard() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <MeritSummaryCard 
-            totalPoints={meritData.totalPoints} 
-            targetPoints={meritData.targetPoints} 
+            totalPoints={meritSummary.totalPoints} 
+            targetPoints={meritSummary.targetPoints} 
           />
         </Grid>        <Grid size={{ xs: 12, md: 6 }}>
-          <PointsBreakdown 
-            academicPoints={meritData.academicPoints}
-            cocurricularPoints={meritData.cocurricularPoints}
-            communityPoints={meritData.communityPoints}
-            associationPoints={meritData.associationPoints}
+          <PointsBreakdown            academicPoints={meritSummary.universityMerit}
+            cocurricularPoints={meritSummary.facultyMerit}
+            communityPoints={meritSummary.collegeMerit}
+            associationPoints={meritSummary.associationMerit}
           />
         </Grid>
       </Grid>
@@ -84,11 +114,11 @@ export default function Dashboard() {
       {/* Recent Activities and Upcoming Events */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <RecentActivities activities={meritData.recentActivities} />
+          <RecentActivities studentId="1" />
         </Grid>
 
         <Grid size={{ xs: 12, md: 5 }}>
-          <UpcomingEvents events={meritData.upcomingEvents} />
+          <UpcomingEvents events={upcomingEvents || []} />
         </Grid>
       </Grid>
     </DashboardLayout>
