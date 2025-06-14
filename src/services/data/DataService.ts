@@ -264,17 +264,10 @@ export class DataService {
     const meritSummary = this.getStudentMeritSummary(studentId);
     const studentRegistrations = registrations.filter(
       (reg: EventRegistration) => reg.studentId === studentId
-    );
-
-    // Get upcoming events that the student has registered for
+    );    // Get upcoming events (all upcoming events, not just registered ones)
     const upcomingEvents = events
       .filter((event: Event) => event.status === "Upcoming")
-      .filter((event: Event) =>
-        studentRegistrations.some(
-          (reg: EventRegistration) => reg.eventId === event.id
-        )
-      )
-      .slice(0, 3);
+      .slice(0, 5); // Show top 5 upcoming events
 
     return {
       student,

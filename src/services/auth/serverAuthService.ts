@@ -1,6 +1,6 @@
 "use server";
 
-import { mockUsers } from "@/data/mockUsers";
+import { findUserByEmail } from "@/data/students";
 import { type User, UserRole } from "@/types/auth.types";
 
 // Server-side specific session storage
@@ -26,8 +26,7 @@ export async function login(
   }
 
   // In a real app, this would validate credentials against a secure backend
-  const normalizedEmail = email.toLowerCase().trim();
-  const user = mockUsers.find((u) => u.email.toLowerCase() === normalizedEmail);
+  const user = findUserByEmail(email);
 
   if (user) {
     currentUser = { ...user }; // Clone to avoid reference issues

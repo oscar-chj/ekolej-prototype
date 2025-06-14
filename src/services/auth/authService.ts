@@ -1,6 +1,6 @@
 "use client";
 
-import { mockUsers } from "@/data/mockUsers";
+import { findUserByEmail } from "@/data/students";
 import { type User, UserRole } from "@/types/auth.types";
 
 /**
@@ -24,7 +24,6 @@ class AuthService {
     }
     return AuthService.instance;
   }
-
   /**
    * Authenticate a user with email and password
    * @param email - User's email address
@@ -37,10 +36,7 @@ class AuthService {
     }
 
     // In a real app, this would validate credentials against a secure backend
-    const normalizedEmail = email.toLowerCase().trim();
-    const user = mockUsers.find(
-      (u) => u.email.toLowerCase() === normalizedEmail
-    );
+    const user = findUserByEmail(email);
 
     if (user) {
       this.currentUser = { ...user }; // Clone to avoid reference issues

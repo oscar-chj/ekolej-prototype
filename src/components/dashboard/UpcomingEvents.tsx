@@ -1,6 +1,6 @@
 "use client";
 
-import { MeritEvent } from "@/types/merit.types";
+import { Event } from "@/types/api.types";
 import { formatDate as formatEventDate } from "@/lib/dateUtils";
 import { getCategoryColor } from "@/lib/categoryUtils";
 import {
@@ -31,7 +31,7 @@ import Link from "next/link";
  * Props for the UpcomingEvents component
  */
 interface UpcomingEventsProps {
-  events: MeritEvent[];
+  events: Event[];
 }
 
 /**

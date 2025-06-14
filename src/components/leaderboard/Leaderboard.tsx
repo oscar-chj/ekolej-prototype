@@ -251,7 +251,7 @@ function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string }) {
             >
               <CardContent>
                 {index === 0 && (
-                  <Box sx={{ position: "absolute", top: -10, right: -10 }}>
+                  <Box sx={{ position: "absolute", top: -8, right: 0 }}>
                     <Typography fontSize="2rem">👑</Typography>
                   </Box>
                 )}
