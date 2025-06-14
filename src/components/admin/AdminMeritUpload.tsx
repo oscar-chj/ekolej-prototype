@@ -2,6 +2,7 @@
 
 import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
 import DataService from "@/services/data/DataService";
+import { students } from "@/data/students";
 import { Event } from "@/types/api.types";
 import {
   ArrowBack,
@@ -20,7 +21,6 @@ import {
   Card,
   CardContent,
   Chip,
-  IconButton,
   LinearProgress,
   Paper,
   Step,
@@ -68,43 +68,7 @@ export default function AdminMeritUpload({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [completedEvents, setCompletedEvents] = useState<Event[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // Sample CSV data for demonstration
-  const sampleCSVData: CSVMeritEntry[] = [
-    {
-      studentId: "S12345",
-      studentName: "Ahmad Ibrahim",
-      points: 15,
-      meritType: "Academic Excellence",
-      isValid: true,
-      status: "valid",
-    },
-    {
-      studentId: "S12346",
-      studentName: "Sarah Lee",
-      points: 20,
-      meritType: "Research Presentation",
-      isValid: true,
-      status: "valid",
-    },
-    {
-      studentId: "S12347",
-      studentName: "Raj Patel",
-      points: 10,
-      meritType: "Community Service",
-      isValid: true,
-      status: "valid",
-    },
-    {
-      studentId: "INVALID",
-      studentName: "Invalid Student",
-      points: 5,
-      meritType: "Unknown",
-      isValid: false,
-      status: "invalid",
-      errors: ["Student ID not found"],
-      errorMessage: "Student ID not found in system",
-    },
-  ];
+
   useEffect(() => {
     // Get completed events for selection
     const allEvents = DataService.getEvents();
@@ -120,6 +84,66 @@ export default function AdminMeritUpload({
       }
     }
   }, [eventId]);
+  // Validate CSV entries against actual student data
+  const validateCSVEntries = (
+    entries: Omit<
+      CSVMeritEntry,
+      "isValid" | "status" | "errors" | "errorMessage"
+    >[]
+  ): CSVMeritEntry[] => {
+    const validatedEntries: CSVMeritEntry[] = [];
+    const seenStudentIds = new Set<string>();
+
+    entries.forEach((entry) => {
+      const errors: string[] = [];
+      let isValid = true;
+
+      // Check if student exists in the system
+      const student = students.find((s) => s.studentId === entry.studentId);
+      if (!student) {
+        errors.push("Student ID not found in system");
+        isValid = false;
+      }
+
+      // Check for duplicate entries in the same upload
+      if (seenStudentIds.has(entry.studentId)) {
+        errors.push("Duplicate entry for student in this upload");
+        isValid = false;
+      } else {
+        seenStudentIds.add(entry.studentId);
+      }
+
+      // Validate points against event maximum
+      if (selectedEvent && entry.points > selectedEvent.points) {
+        errors.push(
+          `Points exceed maximum allowed for event (${selectedEvent.points})`
+        );
+        isValid = false;
+      }
+
+      // Validate points are positive
+      if (entry.points <= 0) {
+        errors.push("Points must be positive");
+        isValid = false;
+      }
+
+      // Validate merit type is not empty
+      if (!entry.meritType || entry.meritType.trim() === "") {
+        errors.push("Merit type is required");
+        isValid = false;
+      }
+
+      validatedEntries.push({
+        ...entry,
+        isValid,
+        status: isValid ? "valid" : "invalid",
+        errors: errors.length > 0 ? errors : undefined,
+        errorMessage: errors.length > 0 ? errors[0] : undefined,
+      });
+    });
+
+    return validatedEntries;
+  };
 
   const handleFileUpload = (
     uploadEvent: React.ChangeEvent<HTMLInputElement>
@@ -127,9 +151,86 @@ export default function AdminMeritUpload({
     const file = uploadEvent.target.files?.[0];
     if (file) {
       setIsProcessing(true);
-      // Simulate file processing
+      // Simulate file processing with validation
       setTimeout(() => {
-        setCsvData(sampleCSVData);
+        // Use enhanced sample data with validation
+        const rawEntries = [
+          {
+            studentId: "223001",
+            studentName: "Ahmad Abdullah",
+            points: 15,
+            meritType: "Academic Excellence",
+          },
+          {
+            studentId: "223002",
+            studentName: "Sarah Lee",
+            points: 20,
+            meritType: "Research Presentation",
+          },
+          {
+            studentId: "223003",
+            studentName: "Raj Kumar",
+            points: 10,
+            meritType: "Community Service",
+          },
+          {
+            studentId: "223004",
+            studentName: "Li Wei",
+            points: 8,
+            meritType: "Event Participation",
+          },
+          {
+            studentId: "223005",
+            studentName: "Fatimah Zahra",
+            points: 12,
+            meritType: "Leadership Activity",
+          },
+          {
+            studentId: "223006",
+            studentName: "Chong Wei",
+            points: 6,
+            meritType: "Volunteer Work",
+          },
+          {
+            studentId: "INVALID001",
+            studentName: "Unknown Student",
+            points: 5,
+            meritType: "Event Participation",
+          },
+          {
+            studentId: "223007",
+            studentName: "Siti Aishah",
+            points: 25,
+            meritType: "Academic Achievement",
+          },
+          {
+            studentId: "223008",
+            studentName: "John Smith",
+            points: 14,
+            meritType: "Workshop Attendance",
+          },
+          {
+            studentId: "223002",
+            studentName: "Sarah Lee",
+            points: 10,
+            meritType: "Event Participation",
+          }, // Duplicate
+          {
+            studentId: "223009",
+            studentName: "Priya Sharma",
+            points: -5,
+            meritType: "Invalid Points",
+          }, // Negative points
+          {
+            studentId: "223010",
+            studentName: "Test Student",
+            points: 8,
+            meritType: "",
+          }, // Empty merit type
+        ];
+
+        const validatedData = validateCSVEntries(rawEntries);
+        setCsvData(validatedData);
         setIsProcessing(false);
         setActiveStep(2); // Move to review step
       }, 2000);
@@ -342,7 +443,7 @@ export default function AdminMeritUpload({
   );
   const renderReviewStep = () => (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Button
           startIcon={<ArrowBack />}
           onClick={() => setActiveStep(1)}
@@ -350,21 +451,17 @@ export default function AdminMeritUpload({
         >
           Back to Upload
         </Button>
-        <Typography variant="h6">
-          Review Merit Data
-        </Typography>
+        <Typography variant="h6">Review Merit Data</Typography>
       </Box>
-
       {selectedEvent && (
         <Alert severity="info" sx={{ mb: 2 }}>
           Reviewing merit data for: <strong>{selectedEvent.title}</strong>
         </Alert>
       )}
-
       <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
         <Chip
           label={`${validEntries.length} Valid Entries`}
-          color="success"
+          color="secondary" // green
           icon={<Check />}
         />
         <Chip
@@ -373,52 +470,95 @@ export default function AdminMeritUpload({
           icon={<Error />}
         />
       </Box>
-
       {invalidEntries.length > 0 && (
         <Alert severity="warning" sx={{ mb: 3 }}>
           {invalidEntries.length} entries have validation errors. Only valid
           entries will be processed.
         </Alert>
       )}
-
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Student ID</TableCell>
               <TableCell>Student Name</TableCell>
+              <TableCell>Faculty</TableCell>
               <TableCell align="right">Points</TableCell>
               <TableCell>Merit Type</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Validation Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {csvData.map((entry, index) => (
-              <TableRow key={index}>
-                <TableCell>{entry.studentId}</TableCell>
-                <TableCell>{entry.studentName}</TableCell>
-                <TableCell align="right">{entry.points}</TableCell>
-                <TableCell>{entry.meritType}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      label={entry.status}
-                      color={getStatusColor(entry.status)}
-                      size="small"
-                    />
-                    {entry.errorMessage && (
-                      <IconButton size="small" title={entry.errorMessage}>
-                        <Error color="error" fontSize="small" />
-                      </IconButton>
+            {csvData.map((entry, index) => {
+              const student = students.find(
+                (s) => s.studentId === entry.studentId
+              );
+              return (
+                <TableRow key={index}>
+                  <TableCell>{entry.studentId}</TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography variant="body2">
+                        {entry.studentName}
+                      </Typography>
+                      {student && (
+                        <Typography variant="caption" color="text.secondary">
+                          Year {student.year} • {student.program}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {student ? student.faculty : "Unknown"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography
+                      variant="body2"
+                      color={entry.isValid ? "text.primary" : "error.main"}
+                      fontWeight={entry.isValid ? "normal" : "bold"}
+                    >
+                      {entry.points}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{entry.meritType || "Not specified"}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip
+                        label={entry.status}
+                        color={getStatusColor(entry.status)}
+                        size="small"
+                      />
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    {entry.isValid ? (
+                      <Typography variant="caption" color="success.main">
+                        ✓ All validations passed
+                      </Typography>
+                    ) : (
+                      <Box>
+                        {entry.errors?.map((error, errorIndex) => (
+                          <Typography
+                            key={errorIndex}
+                            variant="caption"
+                            color="error.main"
+                            display="block"
+                          >
+                            • {error}
+                          </Typography>
+                        ))}
+                      </Box>
                     )}
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
-
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button variant="outlined" onClick={() => setActiveStep(1)}>
           Upload Different File
@@ -435,7 +575,6 @@ export default function AdminMeritUpload({
       </Box>
     </Box>
   );
-
   const renderCompletionStep = () => (
     <Box sx={{ textAlign: "center" }}>
       <Check
@@ -449,34 +588,45 @@ export default function AdminMeritUpload({
         Merit Upload Complete!
       </Typography>
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        Successfully processed {validEntries.length} merit entries for
-        {selectedEvent?.title}
+        Successfully processed {validEntries.length} merit entries for{" "}
+        <strong>{selectedEvent?.title}</strong>
       </Typography>
 
       <Box sx={{ mt: 3, p: 2, backgroundColor: "grey.50", borderRadius: 1 }}>
         <Typography variant="body2" gutterBottom>
-          <strong>Summary:</strong>
+          <strong>Upload Summary:</strong>
         </Typography>
         <Typography variant="body2">
           • Valid entries processed: {validEntries.length}
         </Typography>
         <Typography variant="body2">
-          • Total points awarded:
+          • Total points awarded:{" "}
           {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
         </Typography>
         <Typography variant="body2">• Event: {selectedEvent?.title}</Typography>
+        <Typography variant="body2">• Date: {selectedEvent?.date}</Typography>
       </Box>
 
-      <Button
-        variant="contained"
-        onClick={() => {
-          setActiveStep(0);
-          setCsvData([]);
-        }}
-        sx={{ mt: 3 }}
-      >
-        Upload Merit for Another Event
-      </Button>
+      <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setActiveStep(0);
+            setCsvData([]);
+            setSelectedEvent(null);
+          }}
+        >
+          Upload Merit for Another Event
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setActiveStep(2);
+          }}
+        >
+          View Upload Details
+        </Button>
+      </Box>
     </Box>
   );
 
