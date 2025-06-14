@@ -18,7 +18,7 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -70,11 +70,32 @@ function getRankIcon(rank: number): string {
 
 interface LeaderboardTableProps {
   sortBy: "total" | "university" | "faculty" | "college" | "association";
+  currentUserId?: string;
 }
 
-function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
+function LeaderboardTable({
+  sortBy,
+  currentUserId = "1",
+}: LeaderboardTableProps) {
   const sortedData = DataService.getLeaderboardData(sortBy);
 
+  // Find current user's position
+  const currentUserIndex = sortedData.findIndex(
+    (entry) => entry.id === currentUserId
+  );
+
+  // Show top 10 and ensure current user is visible
+  let displayData = sortedData.slice(0, 10);
+
+  // If current user is not in top 10, add them with context
+  if (currentUserIndex >= 10) {
+    // Add separator and current user with some context
+    const contextStart = Math.max(0, currentUserIndex - 1);
+    const contextEnd = Math.min(sortedData.length, currentUserIndex + 2);
+    const userContext = sortedData.slice(contextStart, contextEnd);
+
+    displayData = [...displayData, ...userContext];
+  }
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table>
@@ -94,8 +115,15 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedData.map((entry, index) => {
-            const displayRank = index + 1;
+          {displayData.map((entry, index) => {
+            // Calculate actual rank based on original position
+            const actualIndex = sortedData.findIndex(
+              (item) => item.id === entry.id
+            );
+            const displayRank = actualIndex + 1;
+            const isCurrentUser = entry.id === currentUserId;
+            const showSeparator = index === 10 && currentUserIndex >= 10;
+
             let points = entry.totalPoints;
 
             switch (sortBy) {
@@ -114,58 +142,72 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
             }
 
             return (
-              <TableRow
-                key={entry.id}
-                sx={{
-                  "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
-                  ...(entry.studentId === "S12345" && {
-                    backgroundColor: "primary.light",
-                    color: "primary.contrastText",
-                  }),
-                }}
-              >
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: getRankColor(displayRank),
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {getRankIcon(displayRank)}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Avatar sx={{ width: 32, height: 32 }}>
-                      {entry.name.charAt(0)}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {entry.name}
+              <React.Fragment key={entry.id}>
+                {showSeparator && (
+                  <TableRow>
+                    <TableCell colSpan={5} sx={{ textAlign: "center", py: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        ⋯
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {entry.studentId}
+                    </TableCell>
+                  </TableRow>
+                )}
+                <TableRow
+                  sx={{
+                    "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
+                    ...(isCurrentUser && {
+                      color: "primary.contrastText",
+                      border: "2px solid",
+                      borderColor: "primary.main",
+                    }),
+                  }}
+                >
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: getRankColor(displayRank),
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {getRankIcon(displayRank)}
                       </Typography>
+                      {isCurrentUser && (
+                        <Chip label="You" size="small" color="primary" />
+                      )}
                     </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>{entry.faculty}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={`Year ${entry.year}`}
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <Typography variant="h6" color="primary" fontWeight="bold">
-                    {points}
-                  </Typography>
-                </TableCell>
-              </TableRow>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar sx={{ width: 32, height: 32 }}>
+                        {entry.name.charAt(0)}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" fontWeight="medium">
+                          {entry.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {entry.studentId}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{entry.faculty}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={`Year ${entry.year}`}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography variant="h6" color="primary" fontWeight="bold">
+                      {points}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </React.Fragment>
             );
           })}
         </TableBody>
@@ -174,7 +216,7 @@ function LeaderboardTable({ sortBy }: LeaderboardTableProps) {
   );
 }
 
-function TopThreePodium() {
+function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string }) {
   const top3 = DataService.getLeaderboardData("total").slice(0, 3);
 
   return (
@@ -190,51 +232,61 @@ function TopThreePodium() {
           flexWrap: "wrap",
         }}
       >
-        {top3.map((student, index) => (
-          <Card
-            key={student.id}
-            sx={{
-              minWidth: 200,
-              textAlign: "center",
-              position: "relative",
-              border:
-                index === 0
-                  ? "2px solid #FFD700"
-                  : "1px solid rgba(0, 0, 0, 0.12)",
-            }}
-          >
-            <CardContent>
-              {index === 0 && (
-                <Box sx={{ position: "absolute", top: -10, right: -10 }}>
-                  <Typography fontSize="2rem">👑</Typography>
-                </Box>
-              )}
-              <Avatar
-                sx={{
-                  width: 64,
-                  height: 64,
-                  mx: "auto",
-                  mb: 2,
-                  bgcolor: getRankColor(index + 1),
-                }}
-              >
-                {student.name.charAt(0)}
-              </Avatar>
-              <Typography variant="h6" fontWeight="bold">
-                {student.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {student.faculty} • Year {student.year}
-              </Typography>
-              <Typography variant="h4" color="primary" fontWeight="bold">
-                {student.totalPoints}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Total Points
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
+        {top3.map((student, index) => {
+          const isCurrentUser = student.id === currentUserId;
+          return (
+            <Card
+              key={student.id}
+              sx={{
+                minWidth: 200,
+                textAlign: "center",
+                position: "relative",
+                border: "2px solid #FFD700",
+                ...(isCurrentUser && {
+                  boxShadow: "0 0 20px rgba(25, 118, 210, 0.4)",
+                  border: "2px solid",
+                  borderColor: "primary.main",
+                }),
+              }}
+            >
+              <CardContent>
+                {index === 0 && (
+                  <Box sx={{ position: "absolute", top: -10, right: -10 }}>
+                    <Typography fontSize="2rem">👑</Typography>
+                  </Box>
+                )}
+                {isCurrentUser && (
+                  <Box sx={{ position: "absolute", top: 8, left: 8 }}>
+                    <Chip label="You!" size="small" color="primary" />
+                  </Box>
+                )}
+                <Avatar
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    mx: "auto",
+                    mb: 2,
+                    bgcolor: getRankColor(index + 1),
+                  }}
+                >
+                  {student.name.charAt(0)}
+                </Avatar>
+                <Typography variant="h6" fontWeight="bold">
+                  {student.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {student.faculty} • Year {student.year}
+                </Typography>
+                <Typography variant="h4" color="primary" fontWeight="bold">
+                  {student.totalPoints}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Total Points
+                </Typography>
+              </CardContent>
+            </Card>
+          );
+        })}
       </Box>
     </Box>
   );
@@ -242,6 +294,7 @@ function TopThreePodium() {
 
 export default function Leaderboard() {
   const [selectedTab, setSelectedTab] = useState(0);
+  const currentUserId = "1"; // In a real app, this would come from auth context
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
@@ -258,7 +311,7 @@ export default function Leaderboard() {
         </Typography>
       </Box>
 
-      <TopThreePodium />
+      <TopThreePodium currentUserId={currentUserId} />
 
       <Paper sx={{ width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -277,19 +330,22 @@ export default function Leaderboard() {
         </Box>
 
         <TabPanel value={selectedTab} index={0}>
-          <LeaderboardTable sortBy="total" />
+          <LeaderboardTable sortBy="total" currentUserId={currentUserId} />
         </TabPanel>
         <TabPanel value={selectedTab} index={1}>
-          <LeaderboardTable sortBy="university" />
+          <LeaderboardTable sortBy="university" currentUserId={currentUserId} />
         </TabPanel>
         <TabPanel value={selectedTab} index={2}>
-          <LeaderboardTable sortBy="faculty" />
+          <LeaderboardTable sortBy="faculty" currentUserId={currentUserId} />
         </TabPanel>
         <TabPanel value={selectedTab} index={3}>
-          <LeaderboardTable sortBy="college" />
+          <LeaderboardTable sortBy="college" currentUserId={currentUserId} />
         </TabPanel>
         <TabPanel value={selectedTab} index={4}>
-          <LeaderboardTable sortBy="association" />
+          <LeaderboardTable
+            sortBy="association"
+            currentUserId={currentUserId}
+          />
         </TabPanel>
       </Paper>
     </Box>
