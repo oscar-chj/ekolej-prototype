@@ -122,12 +122,6 @@ export default function MeritReports({
                     color={getCategoryColor(record.category)}
                     sx={{ color: "white", fontWeight: 600 }}
                   />
-                  <Chip
-                    label={record.meritType}
-                    size="small"
-                    variant="outlined"
-                    color="primary"
-                  />
                   <Typography variant="h6" color="primary" fontWeight="bold">
                     +{record.points} pts
                   </Typography>
@@ -150,19 +144,6 @@ export default function MeritReports({
                   Date: {formatDate(record.date)}
                 </Typography>
               </Box>
-
-              {record.isVerified && (
-                <Button
-                  size="small"
-                  variant="text"
-                  sx={{ mt: 1, alignSelf: "flex-start" }}
-                  onClick={() =>
-                    alert(`Merit record verified: ${record.description}`)
-                  }
-                >
-                  View Certificate
-                </Button>
-              )}
             </ListItem>
             {index < meritRecords.length - 1 && <Divider />}
           </Box>
