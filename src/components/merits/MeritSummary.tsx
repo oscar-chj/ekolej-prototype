@@ -152,7 +152,9 @@ function CategoryCard({ category, points, targetPoints }: CategoryCardProps) {
           }}
         >
           {isCompleted
-            ? `Target achieved${points > targetPoints ? ` (+${points - targetPoints})` : ""}`
+            ? `Target achieved${
+                points > targetPoints ? ` (+${points - targetPoints})` : ""
+              }`
             : `${targetPoints - points} points remaining`}
         </Typography>
       </CardContent>
@@ -222,7 +224,8 @@ export default function MeritSummary({
                 }}
               >
                 Merit Points Earned
-              </Typography>              {/* Progress message */}
+              </Typography>{" "}
+              {/* Progress message */}
               <Box
                 sx={{
                   backgroundColor: "rgba(255,255,255,0.1)",
@@ -238,7 +241,9 @@ export default function MeritSummary({
                     fontSize: { xs: "1rem", sm: "0.95rem", md: "1.1rem" },
                     lineHeight: 1.5,
                   }}
-                >                  {meritData.targetAchieved
+                >
+                  {" "}
+                  {meritData.targetAchieved
                     ? meritData.exceededPoints > 0
                       ? `Outstanding! You've exceeded your goal by ${meritData.exceededPoints} points.`
                       : "Congratulations! You've reached your merit goal."
@@ -281,7 +286,8 @@ export default function MeritSummary({
                 >
                   out of {meritData.totalStudents} students
                 </Typography>
-              </Box>              <Chip
+              </Box>{" "}
+              <Chip
                 label={
                   meritData.targetAchieved
                     ? meritData.exceededPoints > 0
@@ -310,7 +316,8 @@ export default function MeritSummary({
             </Box>
           </Box>
         </CardContent>
-      </Card>      {/* Progress Insight */}
+      </Card>{" "}
+      {/* Progress Insight */}
       <Alert
         severity={meritData.targetAchieved ? "success" : "info"}
         sx={{
@@ -340,7 +347,8 @@ export default function MeritSummary({
             ? meritData.exceededPoints > 0
               ? `You've exceeded your target by ${meritData.exceededPoints} points.`
               : "You've successfully reached your merit goal."
-            : `${meritData.remainingPoints} more points needed to reach your goal.`}        </Typography>
+            : `${meritData.remainingPoints} more points needed to reach your goal.`}{" "}
+        </Typography>
         {!meritData.targetAchieved && (
           <Typography
             variant="body2"
@@ -349,7 +357,8 @@ export default function MeritSummary({
               lineHeight: 1.4,
             }}
           >
-            Tip: International and Faculty events typically offer higher point values.
+            Tip: International and Faculty events typically offer higher point
+            values.
           </Typography>
         )}
       </Alert>
