@@ -164,31 +164,31 @@ export const students: Student[] = [
     role: UserRole.STUDENT,
   },
 
-  // Admin users (staff who can manage the system)
+  // Student admins (students who can also manage the system)
   {
     id: "admin1",
-    name: "Dr. Aminah Hassan",
-    email: "admin@edu.my",
-    studentId: "229001", // Administrative ID
-    faculty: "Administration",
-    year: 0, // Not applicable for admin
-    program: "Administration",
+    name: "Amirah Binti Zakaria",
+    email: "amirah.admin@student.edu.my",
+    studentId: "224001", // Student ID with admin privileges
+    faculty: "Computer Science",
+    year: 4, // Final year student
+    program: "Information Systems",
     totalMeritPoints: 0,
-    enrollmentDate: "2020-01-01",
-    profileImage: "/images/avatars/admin.jpg",
+    enrollmentDate: "2021-09-01",
+    profileImage: "/images/avatars/amirah.jpg",
     role: UserRole.ADMIN,
   },
   {
     id: "admin2",
-    name: "John Doe",
-    email: "john.doe@edu.my",
-    studentId: "229002",
-    faculty: "Computer Science",
-    year: 0,
-    program: "Administration",
+    name: "Marcus Lim Wei Jun",
+    email: "marcus.admin@student.edu.my",
+    studentId: "224002",
+    faculty: "Engineering",
+    year: 3,
+    program: "Software Engineering",
     totalMeritPoints: 0,
-    enrollmentDate: "2021-01-01",
-    profileImage: "/default-avatar.png",
+    enrollmentDate: "2022-09-01",
+    profileImage: "/images/avatars/marcus.jpg",
     role: UserRole.ADMIN,
   },
 ];

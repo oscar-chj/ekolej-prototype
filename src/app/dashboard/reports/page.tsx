@@ -2,8 +2,32 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import MeritReports from "@/components/reports/MeritReports";
+import authService from "@/services/auth/authService";
+import { useEffect, useState } from "react";
 
 export default function MeritReportsPage() {
+  const [studentId, setStudentId] = useState<string>("1"); // Default fallback
+  useEffect(() => {
+    // Get current user ID from authentication, initialize if needed
+    const getCurrentUser = async () => {
+      try {
+        let user = await authService.getCurrentUser();
+        if (!user) {
+          // For prototype: initialize with default user (Ahmad Abdullah)
+          user = await authService.initializeWithUser("1");
+        }
+        if (user) {
+          setStudentId(user.id);
+        }
+      } catch (error) {
+        console.error("Error getting current user:", error);
+        // Keep default value of "1"
+      }
+    };
+
+    getCurrentUser();
+  }, []);
+
   const handleDownloadReport = () => {
     // In production, this would generate and download a PDF report
     console.log("Generating merit report...");
@@ -21,9 +45,6 @@ export default function MeritReportsPage() {
     console.log("Preparing print view...");
     window.print();
   };
-
-  // Use a simulated student ID (in real app, this would come from auth context)
-  const studentId = "1";
 
   return (
     <DashboardLayout title="Merit Reports">

@@ -3,6 +3,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { ErrorDisplay, LoadingDisplay } from "@/components/ui/ErrorDisplay";
 import DataService from "@/services/data/DataService";
+import authService from "@/services/auth/authService";
 import { Event, Student } from "@/types/api.types";
 import { Box, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -42,17 +43,25 @@ export default function Dashboard() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     // Fetch data from centralized DataService
     const fetchData = async () => {
       try {
         setIsLoading(true);
         // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        // Get data from DataService (simulated student ID)
-        const studentId = "1"; // In real app, this would come from auth context
-        const summary = DataService.getDashboardSummary(studentId);
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Get current authenticated user, initialize if none
+        let currentUser = await authService.getCurrentUser();
+        if (!currentUser) {
+          // For prototype: initialize with default user (Ahmad Abdullah)
+          currentUser = await authService.initializeWithUser("1");
+          if (!currentUser) {
+            setError("User authentication failed");
+            return;
+          }
+        }
+
+        // Get data from DataService using authenticated user's ID
+        const summary = DataService.getDashboardSummary(currentUser.id);
 
         // Only set data if student exists
         if (summary.student) {
@@ -139,7 +148,7 @@ export default function Dashboard() {
       {/* Recent Activities and Upcoming Events */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <RecentActivities studentId="1" />
+          <RecentActivities studentId={dashboardData.student.id} />
         </Grid>
 
         <Grid size={{ xs: 12, md: 5 }}>

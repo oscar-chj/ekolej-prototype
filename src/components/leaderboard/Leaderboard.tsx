@@ -1,6 +1,8 @@
 "use client";
 
+import authService from "@/services/auth/authService";
 import DataService from "@/services/data/DataService";
+import { UserRole } from "@/types/auth.types";
 import {
   Avatar,
   Box,
@@ -18,7 +20,7 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -73,29 +75,98 @@ interface LeaderboardTableProps {
   currentUserId?: string;
 }
 
+function getCurrentUserRanking(
+  currentUserId: string,
+  sortBy: "total" | "university" | "faculty" | "college" | "association"
+) {
+  const sortedData = DataService.getLeaderboardData(sortBy);
+  const userIndex = sortedData.findIndex((entry) => entry.id === currentUserId);
+
+  if (userIndex === -1) return null;
+
+  const userEntry = sortedData[userIndex];
+  const rank = userIndex + 1;
+
+  let points = userEntry.totalPoints;
+  switch (sortBy) {
+    case "university":
+      points = userEntry.universityMerit;
+      break;
+    case "faculty":
+      points = userEntry.facultyMerit;
+      break;
+    case "college":
+      points = userEntry.collegeMerit;
+      break;
+    case "association":
+      points = userEntry.associationMerit;
+      break;
+  }
+
+  return { rank, points, total: sortedData.length };
+}
+
+interface CurrentUserRankingProps {
+  currentUserId: string;
+  sortBy: "total" | "university" | "faculty" | "college" | "association";
+  isStudent: boolean;
+}
+
+function CurrentUserRanking({
+  currentUserId,
+  sortBy,
+  isStudent,
+}: CurrentUserRankingProps) {
+  if (!isStudent) return null;
+
+  const ranking = getCurrentUserRanking(currentUserId, sortBy);
+  if (!ranking) return null;
+
+  const categoryNames = {
+    total: "Overall",
+    university: "University Merit",
+    faculty: "Faculty Merit",
+    college: "College Merit",
+    association: "Association Merit",
+  };
+
+  return (
+    <Card sx={{ mb: 3, bgcolor: "primary.main", color: "white" }}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Your {categoryNames[sortBy]} Ranking
+        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+          <Box>
+            <Typography variant="h3" fontWeight="bold">
+              #{ranking.rank}
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              out of {ranking.total} students
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="h4" fontWeight="bold">
+              {ranking.points}
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              points earned
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
 function LeaderboardTable({
   sortBy,
   currentUserId = "1",
 }: LeaderboardTableProps) {
   const sortedData = DataService.getLeaderboardData(sortBy);
 
-  // Find current user's position
-  const currentUserIndex = sortedData.findIndex(
-    (entry) => entry.id === currentUserId
-  );
-
-  // Show top 10 and ensure current user is visible
-  let displayData = sortedData.slice(0, 10);
-
-  // If current user is not in top 10, add them with context
-  if (currentUserIndex >= 10) {
-    // Add separator and current user with some context
-    const contextStart = Math.max(0, currentUserIndex - 1);
-    const contextEnd = Math.min(sortedData.length, currentUserIndex + 2);
-    const userContext = sortedData.slice(contextStart, contextEnd);
-
-    displayData = [...displayData, ...userContext];
-  }
+  // Show only top 10 students for leaderboard
+  const displayData = sortedData.slice(0, 10);
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table>
@@ -115,14 +186,13 @@ function LeaderboardTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {displayData.map((entry, index) => {
+          {displayData.map((entry) => {
             // Calculate actual rank based on original position
             const actualIndex = sortedData.findIndex(
               (item) => item.id === entry.id
             );
             const displayRank = actualIndex + 1;
             const isCurrentUser = entry.id === currentUserId;
-            const showSeparator = index === 10 && currentUserIndex >= 10;
 
             let points = entry.totalPoints;
 
@@ -142,72 +212,62 @@ function LeaderboardTable({
             }
 
             return (
-              <React.Fragment key={entry.id}>
-                {showSeparator && (
-                  <TableRow>
-                    <TableCell colSpan={5} sx={{ textAlign: "center", py: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        ⋯
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-                <TableRow
-                  sx={{
-                    "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
-                    ...(isCurrentUser && {
-                      color: "primary.contrastText",
-                      border: "2px solid",
-                      borderColor: "primary.main",
-                    }),
-                  }}
-                >
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          color: getRankColor(displayRank),
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {getRankIcon(displayRank)}
-                      </Typography>
-                      {isCurrentUser && (
-                        <Chip label="You" size="small" color="primary" />
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Avatar sx={{ width: 32, height: 32 }}>
-                        {entry.name.charAt(0)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" fontWeight="medium">
-                          {entry.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {entry.studentId}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{entry.faculty}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={`Year ${entry.year}`}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography variant="h6" color="primary" fontWeight="bold">
-                      {points}
+              <TableRow
+                key={entry.id}
+                sx={{
+                  "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
+                  ...(isCurrentUser && {
+                    color: "primary.contrastText",
+                    border: "2px solid",
+                    borderColor: "primary.main",
+                  }),
+                }}
+              >
+                <TableCell>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: getRankColor(displayRank),
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {getRankIcon(displayRank)}
                     </Typography>
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
+                    {isCurrentUser && (
+                      <Chip label="You" size="small" color="primary" />
+                    )}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                      {entry.name.charAt(0)}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        {entry.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {entry.studentId}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </TableCell>
+                <TableCell>{entry.faculty}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={`Year ${entry.year}`}
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="h6" color="primary" fontWeight="bold">
+                    {points}
+                  </Typography>
+                </TableCell>{" "}
+              </TableRow>
             );
           })}
         </TableBody>
@@ -294,14 +354,46 @@ function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string }) {
 
 export default function Leaderboard() {
   const [selectedTab, setSelectedTab] = useState(0);
-  const currentUserId = "1"; // In a real app, this would come from auth context
+  const [currentUserId, setCurrentUserId] = useState<string>("1"); // Default fallback
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole>(
+    UserRole.STUDENT
+  );
+  useEffect(() => {
+    // Get current user ID and role from authentication, initialize if needed
+    const getCurrentUser = async () => {
+      try {
+        let user = await authService.getCurrentUser();
+        if (!user) {
+          // For prototype: initialize with default user (Ahmad Abdullah)
+          user = await authService.initializeWithUser("1");
+        }
+        if (user) {
+          setCurrentUserId(user.id);
+          setCurrentUserRole(user.role);
+        }
+      } catch (error) {
+        console.error("Error getting current user:", error);
+        // Keep default values
+      }
+    };
+
+    getCurrentUser();
+  }, []);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
 
+  const sortByOptions: Array<
+    "total" | "university" | "faculty" | "college" | "association"
+  > = ["total", "university", "faculty", "college", "association"];
+
+  const currentSortBy = sortByOptions[selectedTab];
+  const isStudent = currentUserRole === UserRole.STUDENT;
+
   return (
     <Box>
+      {" "}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Merit Leaderboard
@@ -310,9 +402,13 @@ export default function Leaderboard() {
           See how you rank among your peers across different merit categories
         </Typography>
       </Box>
-
+      {/* Show current user's ranking if they're a student */}
+      <CurrentUserRanking
+        currentUserId={currentUserId}
+        sortBy={currentSortBy}
+        isStudent={isStudent}
+      />
       <TopThreePodium currentUserId={currentUserId} />
-
       <Paper sx={{ width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs

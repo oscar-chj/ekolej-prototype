@@ -187,7 +187,6 @@ export class DataService {
 
     return summary;
   }
-
   /**
    * Generate leaderboard data from merit records
    */
@@ -284,7 +283,7 @@ export class DataService {
     const meritRecords = this.getStudentMeritRecords(studentId);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     return meritRecords
       .filter((record: MeritRecord) => new Date(record.date) > thirtyDaysAgo)
       .map((record: MeritRecord) => {

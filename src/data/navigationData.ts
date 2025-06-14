@@ -12,19 +12,6 @@ export interface NavigationItem {
 }
 
 /**
- * Sample user profile data
- * In a real app this would come from context/state/auth
- */
-export const sampleUserProfile = {
-  name: "John Doe",
-  role: UserRole.STUDENT,
-  avatar: "/default-avatar.png",
-  studentId: "223945",
-  faculty: "Faculty of Computer Science and Information Technology",
-  year: "3",
-};
-
-/**
  * Main navigation menu items for the sidebar
  */
 export const mainNavigationItems: NavigationItem[] = [

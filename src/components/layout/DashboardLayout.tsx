@@ -1,9 +1,15 @@
 "use client";
 
 import { DRAWER_WIDTH } from "@/lib/constants";
-import { Menu as MenuIcon, NotificationsOutlined } from "@mui/icons-material";
+import authService from "@/services/auth/authService";
+import {
+  Menu as MenuIcon,
+  NotificationsOutlined,
+  PersonOutline,
+} from "@mui/icons-material";
 import {
   AppBar,
+  Avatar,
   Box,
   Container,
   Drawer,
@@ -12,8 +18,9 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Chip,
 } from "@mui/material";
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 
 /**
@@ -36,8 +43,28 @@ const DashboardLayout = memo(function DashboardLayout({
   title = "Dashboard",
 }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [currentUserName, setCurrentUserName] = useState<string>("User");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  useEffect(() => {
+    // Get current user name for display, initialize if needed
+    const getCurrentUserName = async () => {
+      try {
+        let user = await authService.getCurrentUser();
+        if (!user) {
+          // For prototype: initialize with default user (Ahmad Abdullah)
+          user = await authService.initializeWithUser("1");
+        }
+        if (user) {
+          setCurrentUserName(user.name);
+        }
+      } catch (error) {
+        console.error("Error getting current user name:", error);
+      }
+    };
+
+    getCurrentUserName();
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -121,6 +148,18 @@ const DashboardLayout = memo(function DashboardLayout({
             <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
               {title}
             </Typography>
+            {/* Current User Indicator */}
+            <Chip
+              avatar={
+                <Avatar sx={{ bgcolor: "primary.main" }}>
+                  <PersonOutline />
+                </Avatar>
+              }
+              label={currentUserName}
+              variant="outlined"
+              size="small"
+              sx={{ mr: 2, display: { xs: "none", sm: "flex" } }}
+            />
             <IconButton
               color="inherit"
               aria-label="notifications"

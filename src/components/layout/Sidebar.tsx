@@ -1,7 +1,8 @@
 "use client";
 
+import authService from "@/services/auth/authService";
 import { UserRole } from "@/types/auth.types";
-import { sampleUserProfile, mainNavigationItems } from "@/data/navigationData";
+import { mainNavigationItems } from "@/data/navigationData";
 import { getIconComponent } from "@/lib/iconUtils";
 import { Logout } from "@mui/icons-material";
 import {
@@ -19,7 +20,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 
 /**
  * Sidebar component props
@@ -33,9 +34,38 @@ interface SidebarProps {
  */
 const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
+  const [userProfile, setUserProfile] = useState({
+    name: "User",
+    role: UserRole.STUDENT,
+    avatar: "/default-avatar.png",
+    studentId: "000000",
+    faculty: "Loading...",
+    year: "0",
+  });
 
-  // Use imported user profile and navigation items
-  const userProfile = sampleUserProfile;
+  useEffect(() => {
+    // Get current user profile from authentication
+    const getCurrentUserProfile = async () => {
+      try {
+        const user = await authService.getCurrentUser();
+        if (user) {
+          setUserProfile({
+            name: user.name,
+            role: user.role,
+            avatar: user.profileImage || "/default-avatar.png",
+            studentId: user.studentId || "000000",
+            faculty: user.faculty || "Unknown Faculty",
+            year: user.year || "0",
+          });
+        }
+      } catch (error) {
+        console.error("Error getting current user profile:", error);
+        // Keep default values
+      }
+    };
+
+    getCurrentUserProfile();
+  }, []);
 
   // Filter navigation items based on user role
   const visibleNavItems = mainNavigationItems.filter(
