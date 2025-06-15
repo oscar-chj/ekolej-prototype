@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
-import { Menu as MenuIcon, NotificationsOutlined } from '@mui/icons-material';
+import { DRAWER_WIDTH } from "@/lib/constants";
+import authService from "@/services/auth/authService";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -10,10 +12,10 @@ import {
   Toolbar,
   Typography,
   useMediaQuery,
-  useTheme
-} from '@mui/material';
-import { memo, useState } from 'react';
-import Sidebar from './Sidebar';
+  useTheme,
+} from "@mui/material";
+import { memo, useEffect, useState } from "react";
+import Sidebar from "./Sidebar";
 
 /**
  * Props for DashboardLayout component
@@ -24,32 +26,52 @@ interface DashboardLayoutProps {
 }
 
 // Constants for layout dimensions
-const DRAWER_WIDTH = 280;
+// Imported from constants file
 
 /**
  * Dashboard layout component that provides the main application structure
  * with responsive sidebar and app bar
  */
-const DashboardLayout = memo(function DashboardLayout({ 
-  children, 
-  title = 'Dashboard' 
+const DashboardLayout = memo(function DashboardLayout({
+  children,
+  title = "Dashboard",
 }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [, setCurrentUserName] = useState<string>("User");
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  useEffect(() => {
+    // Get current user name for display, initialize if needed
+    const getCurrentUserName = async () => {
+      try {
+        let user = await authService.getCurrentUser();
+        if (!user) {
+          // For prototype: initialize with default user (Ahmad Abdullah)
+          user = await authService.initializeWithUser("1");
+        }
+        if (user) {
+          setCurrentUserName(user.name);
+        }
+      } catch (error) {
+        console.error("Error getting current user name:", error);
+      }
+    };
+
+    getCurrentUserName();
+  }, []);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(prevState => !prevState);
+    setMobileOpen((prevState) => !prevState);
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* Desktop sidebar - permanent drawer on larger screens */}
       <Box
         component="nav"
-        sx={{ 
-          width: { sm: DRAWER_WIDTH }, 
-          flexShrink: { sm: 0 }
+        sx={{
+          width: { sm: DRAWER_WIDTH },
+          flexShrink: { sm: 0 },
         }}
         aria-label="main navigation"
       >
@@ -57,11 +79,11 @@ const DashboardLayout = memo(function DashboardLayout({
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: DRAWER_WIDTH,
-              borderRight: '1px solid rgba(0, 0, 0, 0.08)'
+              borderRight: "1px solid rgba(0, 0, 0, 0.08)",
             },
           }}
           open
@@ -76,10 +98,10 @@ const DashboardLayout = memo(function DashboardLayout({
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }} // Better mobile performance
           sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: DRAWER_WIDTH 
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: DRAWER_WIDTH,
             },
           }}
         >
@@ -88,23 +110,23 @@ const DashboardLayout = memo(function DashboardLayout({
       </Box>
 
       {/* Main content */}
-      <Box 
-        sx={{ 
-          flexGrow: 1, 
-          display: 'flex', 
-          flexDirection: 'column',
-          overflow: 'hidden' 
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
         }}
       >
-        <AppBar 
-          position="fixed" 
-          color="default" 
+        <AppBar
+          position="fixed"
+          color="default"
           elevation={0}
-          sx={{ 
-            width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, 
+          sx={{
+            width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
             ml: { sm: `${DRAWER_WIDTH}px` },
-            backgroundColor: 'background.paper',
-            borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
+            backgroundColor: "background.paper",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
           }}
         >
           <Toolbar>
@@ -113,20 +135,13 @@ const DashboardLayout = memo(function DashboardLayout({
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
+              sx={{ mr: 2, display: { sm: "none" } }}
             >
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
               {title}
             </Typography>
-            <IconButton 
-              color="inherit"
-              aria-label="notifications"
-              size="medium"
-            >
-              <NotificationsOutlined />
-            </IconButton>
           </Toolbar>
         </AppBar>
 
@@ -137,11 +152,11 @@ const DashboardLayout = memo(function DashboardLayout({
             pt: { xs: 8, sm: 9 }, // Toolbar offset
             px: { xs: 2, sm: 4 },
             pb: 4,
-            backgroundColor: 'background.default',
-            overflow: 'auto' // Allow scrolling in main content area
+            backgroundColor: "background.default",
+            overflow: "auto", // Allow scrolling in main content area
           }}
         >
-          <Container maxWidth="lg" sx={{ height: '100%' }}>
+          <Container maxWidth="lg" sx={{ height: "100%" }}>
             {children}
           </Container>
         </Box>

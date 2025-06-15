@@ -1,16 +1,11 @@
-'use client';
+"use client";
 
-import { UserRole } from '@/types/auth.types';
+import { mainNavigationItems } from "@/data/navigationData";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { getIconComponent } from "@/lib/iconUtils";
+import { UserRole } from "@/types/auth.types";
+import { Logout } from "@mui/icons-material";
 import {
-  AssessmentOutlined,
-  Dashboard,
-  EventNote,
-  Logout,
-  Person,
-  Settings
-} from '@mui/icons-material';
-import {
-  Avatar,
   Box,
   Divider,
   List,
@@ -20,22 +15,12 @@ import {
   ListItemText,
   Stack,
   Tooltip,
-  Typography
-} from '@mui/material';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { memo } from 'react';
-
-/**
- * Navigation item structure
- */
-interface NavigationItem {
-  text: string;
-  icon: React.ReactNode;
-  href: string;
-  roles?: UserRole[];
-  tooltip?: string;
-}
+  Typography,
+} from "@mui/material";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { memo, useMemo } from "react";
+import ProfileAvatar from "@/components/common/ProfileAvatar";
 
 /**
  * Sidebar component props
@@ -44,60 +29,26 @@ interface SidebarProps {
   onItemClick?: () => void;
 }
 
-// Sample user profile data - in a real app this would come from context/state
-const userProfile = {
-  name: 'John Doe',
-  role: UserRole.STUDENT,
-  avatar: '/default-avatar.png',
-  studentId: 'S12345',
-  faculty: 'Computer Science',
-  year: '3'
-};
-
-// Main navigation menu items
-const mainNavigationItems: NavigationItem[] = [
-  { 
-    text: 'Dashboard', 
-    icon: <Dashboard />, 
-    href: '/dashboard',
-    tooltip: 'View your dashboard' 
-  },
-  { 
-    text: 'Merit Points', 
-    icon: <AssessmentOutlined />, 
-    href: '/dashboard/merits',
-    tooltip: 'View and manage your merit points' 
-  },
-  { 
-    text: 'Events', 
-    icon: <EventNote />, 
-    href: '/dashboard/events',
-    tooltip: 'Browse and register for events' 
-  },
-  { 
-    text: 'Profile', 
-    icon: <Person />, 
-    href: '/dashboard/profile',
-    tooltip: 'View and edit your profile' 
-  },
-  { 
-    text: 'Settings', 
-    icon: <Settings />, 
-    href: '/dashboard/settings',
-    tooltip: 'Manage your account settings',
-    roles: [UserRole.ADMIN, UserRole.STUDENT]
-  },
-];
-
 /**
  * Sidebar component providing navigation for the dashboard
  */
 const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
-  
+  const { student, isLoading } = useUserProfile();
+
+  // Memoize user profile object to prevent unnecessary re-renders
+  const userProfile = useMemo(() => ({
+    name: student?.name || (isLoading ? "Loading..." : "User"),
+    role: student?.role || UserRole.STUDENT,
+    avatar: student?.profileImage || "/default-avatar.png",
+    studentId: student?.studentId || (isLoading ? "..." : "000000"),
+    faculty: student?.faculty || (isLoading ? "Loading..." : "Unknown Faculty"),
+    year: student?.year?.toString() || (isLoading ? "..." : "0"),
+  }), [student, isLoading]);
+
   // Filter navigation items based on user role
-  const visibleNavItems = mainNavigationItems.filter(item => 
-    !item.roles || item.roles.includes(userProfile.role)
+  const visibleNavItems = mainNavigationItems.filter(
+    (item) => !item.roles || item.roles.includes(userProfile.role)
   );
 
   const handleItemClick = () => {
@@ -110,29 +61,39 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
     <>
       {/* User Profile Section */}
       <Box sx={{ p: 2, pt: 4 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-          <Avatar 
-            sx={{ width: 80, height: 80, mb: 1.5 }} 
-            alt={userProfile.name} 
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >          <ProfileAvatar
             src={userProfile.avatar}
+            alt={userProfile.name}
+            sx={{ 
+              width: 80, 
+              height: 80, 
+              mb: 1.5,
+            }}
           />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {userProfile.name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {userProfile.role}
+            {userProfile.role.toUpperCase()}
           </Typography>
         </Box>
 
         {/* Student Information Card */}
         {userProfile.role === UserRole.STUDENT && (
-          <Stack 
-            spacing={0.5} 
-            sx={{ 
-              p: 1.5, 
-              bgcolor: 'background.default', 
-              borderRadius: 2, 
-              mb: 3 
+          <Stack
+            spacing={0.5}
+            sx={{
+              p: 1.5,
+              bgcolor: "background.default",
+              borderRadius: 2,
+              mb: 3,
             }}
           >
             <Typography variant="caption" color="text.secondary">
@@ -154,37 +115,37 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
       <List sx={{ pt: 1, px: 1 }}>
         {visibleNavItems.map((item) => {
           const isSelected = pathname === item.href;
-          
+
           return (
             <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-              <Tooltip title={item.tooltip || ''} placement="right" arrow>
-                <ListItemButton 
-                  component={Link} 
+              <Tooltip title={item.tooltip || ""} placement="right" arrow>
+                <ListItemButton
+                  component={Link}
                   href={item.href}
                   selected={isSelected}
                   onClick={handleItemClick}
-                  sx={{ 
+                  sx={{
                     borderRadius: 1,
-                    '&.Mui-selected': {
-                      backgroundColor: 'primary.main',
-                      color: 'primary.contrastText',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
+                    "&.Mui-selected": {
+                      backgroundColor: "primary.main",
+                      color: "primary.contrastText",
+                      "&:hover": {
+                        backgroundColor: "primary.dark",
                       },
-                      '& .MuiListItemIcon-root': {
-                        color: 'primary.contrastText',
-                      }
-                    }
+                      "& .MuiListItemIcon-root": {
+                        color: "primary.contrastText",
+                      },
+                    },
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    {item.icon}
+                    {getIconComponent(item.iconName)}
                   </ListItemIcon>
-                  <ListItemText 
-                    primary={item.text} 
-                    primaryTypographyProps={{ 
-                      fontWeight: isSelected ? 500 : 400 
-                    }} 
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      fontWeight: isSelected ? 500 : 400,
+                    }}
                   />
                 </ListItemButton>
               </Tooltip>
@@ -197,28 +158,28 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Divider sx={{ mx: 2 }} />
-      
+
       {/* Logout Section */}
       <List sx={{ p: 1 }}>
         <ListItem disablePadding>
           <Tooltip title="Sign out of your account" placement="right" arrow>
-            <ListItemButton 
-              component={Link} 
+            <ListItemButton
+              component={Link}
               href="/auth/logout"
               onClick={handleItemClick}
-              sx={{ 
+              sx={{
                 borderRadius: 1,
-                '&:hover': {
-                  backgroundColor: 'error.lighter',
-                }
+                "&:hover": {
+                  backgroundColor: "error.lighter",
+                },
               }}
             >
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <Logout color="error" />
               </ListItemIcon>
-              <ListItemText 
-                primary="Logout" 
-                primaryTypographyProps={{ color: 'error' }} 
+              <ListItemText
+                primary="Logout"
+                primaryTypographyProps={{ color: "error" }}
               />
             </ListItemButton>
           </Tooltip>

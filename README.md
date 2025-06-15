@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student Merit Management System
+
+A comprehensive system for tracking university student merit points and activities, built with Next.js, TypeScript, and Material-UI.
+
+## Features
+
+- Student dashboard with merit point tracking
+- Event registration and management
+- Points breakdown by category (Academic, Co-curricular, Community)
+- Clean and modern UI with responsive design
+- Simple authentication system (development only)
 
 ## Getting Started
 

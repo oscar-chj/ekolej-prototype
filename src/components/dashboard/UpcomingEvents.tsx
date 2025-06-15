@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { MeritEvent } from '@/types/merit.types';
-import { EventCategory } from '@/types/api.types';
-import { 
-  Event as EventIcon, 
-  LocationOn, 
-  ArrowForward, 
-  EventBusy 
-} from '@mui/icons-material';
+import { Event } from "@/types/api.types";
+import { formatDate as formatEventDate } from "@/lib/dateUtils";
+import { getCategoryColor } from "@/lib/categoryUtils";
+import {
+  Event as EventIcon,
+  LocationOn,
+  ArrowForward,
+  EventBusy,
+} from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -21,66 +22,45 @@ import {
   ListItemAvatar,
   ListItemText,
   Typography,
-  Stack
-} from '@mui/material';
-import { memo } from 'react';
-import Link from 'next/link';
+  Stack,
+} from "@mui/material";
+import { memo } from "react";
+import Link from "next/link";
 
 /**
  * Props for the UpcomingEvents component
  */
 interface UpcomingEventsProps {
-  events: MeritEvent[];
+  events: Event[];
 }
-
-/**
- * Format a date string to a more readable format
- * @param dateString - ISO date string
- * @returns Formatted date
- */
-const formatDate = (dateString: string): string => {
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
-
-/**
- * Get a color for the event category
- * @param category - Event category
- * @returns MUI color name
- */
-const getCategoryColor = (category: EventCategory): "primary" | "secondary" | "success" | "info" | "default" => {
-  switch(category) {
-    case EventCategory.ACADEMIC: return 'primary';
-    case EventCategory.COCURRICULAR: return 'secondary';
-    case EventCategory.COMMUNITY: return 'success';
-    default: return 'info';
-  }
-};
 
 /**
  * Component that displays a list of upcoming events
  */
-const UpcomingEvents = memo(function UpcomingEvents({ events }: UpcomingEventsProps) {
+const UpcomingEvents = memo(function UpcomingEvents({
+  events,
+}: UpcomingEventsProps) {
   // Handle empty state
   if (!events || events.length === 0) {
     return (
-      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
-        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-          <EventBusy sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+      <Card
+        elevation={0}
+        sx={{ borderRadius: 2, border: "1px solid rgba(0, 0, 0, 0.05)" }}
+      >
+        <CardContent sx={{ textAlign: "center", py: 4 }}>
+          <EventBusy
+            sx={{ fontSize: 48, color: "text.secondary", mb: 2, opacity: 0.5 }}
+          />
           <Typography variant="h6" gutterBottom>
             No Upcoming Events
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Check back later for new events or browse all available events.
           </Typography>
-          <Button 
+          <Button
             component={Link}
-            href="/dashboard/events" 
-            variant="outlined" 
+            href="/dashboard/events"
+            variant="outlined"
             endIcon={<ArrowForward />}
           >
             Browse Events
@@ -91,86 +71,120 @@ const UpcomingEvents = memo(function UpcomingEvents({ events }: UpcomingEventsPr
   }
 
   return (
-    <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+    <Card
+      elevation={0}
+      sx={{ borderRadius: 2, border: "1px solid rgba(0, 0, 0, 0.05)" }}
+    >
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">
-            Upcoming Events
-          </Typography>
-          <Button 
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6">Upcoming Events</Typography>
+          <Button
             component={Link}
-            href="/dashboard/events" 
+            href="/dashboard/events"
             endIcon={<ArrowForward fontSize="small" />}
             size="small"
           >
             View All
           </Button>
         </Box>
-        
+
         <List disablePadding>
           {events.map((event, index) => (
             <Box key={event.id}>
-              <ListItem 
+              <ListItem
                 alignItems="flex-start"
                 component={Link}
                 href={`/dashboard/events/${event.id}`}
-                sx={{ 
-                  textDecoration: 'none', 
-                  color: 'inherit',
-                  py: 1.5, 
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    borderRadius: 1
-                  }
+                sx={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  py: 1.5,
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                    borderRadius: 1,
+                  },
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: `${getCategoryColor(event.category)}.light` }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: `${getCategoryColor(event.category)}.light`,
+                    }}
+                  >
                     <EventIcon />
                   </Avatar>
                 </ListItemAvatar>
-                
+
                 <ListItemText
                   primary={
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 600, mb: 0.5 }}
+                    >
                       {event.title}
                     </Typography>
                   }
                   secondary={
                     <>
                       {/* Replace Box with Stack to avoid div inside p hydration error */}
-                      <Stack direction="row" alignItems="center" sx={{ color: 'text.secondary', mb: 0.5 }}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        sx={{ color: "text.secondary", mb: 0.5 }}
+                      >
                         <EventIcon sx={{ fontSize: 14, mr: 0.5 }} />
                         <Typography variant="caption" component="span">
-                          {formatDate(event.date)}
+                          {formatEventDate(event.date)}
                         </Typography>
-                        <Typography component="span" sx={{ mx: 0.5 }}>•</Typography>
+                        <Typography component="span" sx={{ mx: 0.5 }}>
+                          •
+                        </Typography>
                         <LocationOn sx={{ fontSize: 14, mr: 0.5 }} />
                         <Typography variant="caption" component="span">
                           {event.location}
                         </Typography>
                       </Stack>
-                      
+
                       {/* Replace Box with Stack for the second row as well */}
-                      <Stack direction="row" alignItems="center" sx={{ mt: 0.5 }}>
-                        <Chip 
-                          label={`${event.points} points`} 
-                          color={getCategoryColor(event.category)} 
-                          size="small" 
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        sx={{ mt: 0.5 }}
+                      >
+                        <Chip
+                          label={`${event.points} points`}
+                          color={getCategoryColor(event.category)}
+                          size="small"
                           variant="outlined"
-                          sx={{ fontSize: '0.7rem' }} 
+                          sx={{ fontSize: "0.7rem" }}
                         />
-                        {event.capacity && event.registeredCount !== undefined && (
-                          <Typography variant="caption" component="span" sx={{ ml: 1, color: 
-                            event.registeredCount >= event.capacity 
-                              ? 'error.main' 
-                              : event.registeredCount >= event.capacity * 0.8 
-                                ? 'warning.main' 
-                                : 'success.main' 
-                          }}>
-                            {event.registeredCount}/{event.capacity} registered
-                          </Typography>
-                        )}
+                        {event.capacity &&
+                          event.registeredCount !== undefined && (
+                            <Typography
+                              variant="caption"
+                              component="span"
+                              sx={{
+                                ml: 1,
+                                color:
+                                  event.registeredCount >= event.capacity
+                                    ? "error.main"
+                                    : event.registeredCount >=
+                                      event.capacity * 0.8
+                                    ? "warning.main"
+                                    : "success.main",
+                              }}
+                            >
+                              {event.registeredCount}/{event.capacity}{" "}
+                              registered
+                            </Typography>
+                          )}
                       </Stack>
                     </>
                   }

@@ -1,7 +1,7 @@
 "use client";
 
-import { mockUsers } from '@/data/mockUsers';
-import { type User, UserRole } from '@/types/auth.types';
+import { findUserByEmail } from "@/data/students";
+import { type User, UserRole } from "@/types/auth.types";
 
 /**
  * Authentication service class that handles user authentication
@@ -10,11 +10,10 @@ import { type User, UserRole } from '@/types/auth.types';
 class AuthService {
   private static instance: AuthService | null = null;
   private currentUser: User | null = null;
-
   private constructor() {
     // Private constructor to enforce singleton pattern
+    // No auto-login - user must explicitly log in
   }
-
   /**
    * Get the singleton instance of the AuthService
    */
@@ -24,7 +23,6 @@ class AuthService {
     }
     return AuthService.instance;
   }
-
   /**
    * Authenticate a user with email and password
    * @param email - User's email address
@@ -35,16 +33,15 @@ class AuthService {
     if (!email || !password) {
       return null;
     }
-    
+
     // In a real app, this would validate credentials against a secure backend
-    const normalizedEmail = email.toLowerCase().trim();
-    const user = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
-    
+    const user = findUserByEmail(email);
+
     if (user) {
       this.currentUser = { ...user }; // Clone to avoid reference issues
       return { ...user };
     }
-    
+
     return null;
   }
 
@@ -72,7 +69,6 @@ class AuthService {
   public async isAuthenticated(): Promise<boolean> {
     return this.currentUser !== null;
   }
-
   /**
    * Check if the current user has a specific role
    * @param role - The role to check for
@@ -80,6 +76,42 @@ class AuthService {
    */
   public async hasRole(role: UserRole): Promise<boolean> {
     return this.currentUser?.role === role;
+  }
+  /**
+   * Switch to a different user (for prototype testing)
+   * @param userId - The ID of the user to switch to
+   * @returns The switched user or null if not found
+   */
+  public async switchUser(userId: string): Promise<User | null> {
+    try {
+      // Import students data to find user by ID
+      const { students } = await import("@/data/students");
+      const student = students.find((s) => s.id === userId);
+
+      if (student) {
+        // Convert student to user
+        const { studentToUser } = await import("@/data/students");
+        const user = studentToUser(student);
+        this.currentUser = { ...user };
+        console.log(`Prototype: Switched to user ${user.name} (ID: ${userId})`);
+        return { ...user };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error switching user:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Initialize with a default user for prototype (call this manually)
+   * @param userId - The ID of the user to initialize with (defaults to "1")
+   */
+  public async initializeWithUser(userId: string = "1"): Promise<User | null> {
+    if (!this.currentUser) {
+      return await this.switchUser(userId);
+    }
+    return this.currentUser;
   }
 }
 

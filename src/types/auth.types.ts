@@ -6,8 +6,8 @@
  * Enum for user roles in the system
  */
 export enum UserRole {
-  STUDENT = 'student',
-  ADMIN = 'admin'
+  STUDENT = "student",
+  ADMIN = "admin",
 }
 
 /**

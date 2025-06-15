@@ -1,4 +1,4 @@
-import { EventCategory } from './api.types';
+import { EventCategory } from "./api.types";
 
 /**
  * Interface representing a merit activity
@@ -10,8 +10,7 @@ export interface MeritActivity {
   points: number;
   date: string;
   description?: string;
-  verified?: boolean;
-  verifiedBy?: string;
+  // Note: verification fields removed as verification is not required
 }
 
 /**
@@ -35,9 +34,10 @@ export interface MeritEvent {
 export interface MeritSummary {
   totalPoints: number;
   targetPoints: number;
-  academicPoints: number;
-  cocurricularPoints: number;
-  communityPoints: number;
+  universityMerit: number;
+  facultyMerit: number;
+  collegeMerit: number;
+  clubMerit: number;
   recentActivities: MeritActivity[];
   upcomingEvents: MeritEvent[];
 }
@@ -55,9 +55,9 @@ export interface CreateMeritRecordRequest {
 }
 
 /**
- * Interface for merit verification request
+ * Interface for merit verification request (deprecated - verification not required)
  */
 export interface VerifyMeritRecordRequest {
   recordId: string;
-  verifiedBy: string;
+  verifiedBy?: string; // Optional since verification is not required
 }

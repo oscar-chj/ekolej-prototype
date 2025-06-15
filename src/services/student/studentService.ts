@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import { students } from '@/data/students';
-import { ApiResponse, PaginatedResponse, PaginationParams, Student, StudentFilters } from '@/types/api.types';
+import { students } from "@/data/students";
+import {
+  ApiResponse,
+  PaginatedResponse,
+  PaginationParams,
+  Student,
+  StudentFilters,
+} from "@/types/api.types";
 
 /**
  * Service for student-related operations
@@ -22,15 +28,18 @@ export class StudentService {
     try {
       // Apply filters
       const filteredStudents = this.applyStudentFilters(students, filters);
-      
+
       // Apply pagination
       return this.paginateResults(filteredStudents, params);
     } catch (error) {
-      console.error('Error getting students:', error);
-      return this.createErrorPaginatedResponse('Failed to retrieve students', params);
+      console.error("Error getting students:", error);
+      return this.createErrorPaginatedResponse(
+        "Failed to retrieve students",
+        params
+      );
     }
   }
-  
+
   /**
    * Get a student by ID
    * @param id - The internal student ID
@@ -41,64 +50,66 @@ export class StudentService {
       if (!id) {
         return {
           success: false,
-          error: 'Student ID is required'
+          error: "Student ID is required",
         };
       }
-      
-      const student = students.find(s => s.id === id);
-      
+
+      const student = students.find((s) => s.id === id);
+
       if (!student) {
         return {
           success: false,
-          error: 'Student not found'
+          error: "Student not found",
         };
       }
-      
+
       return {
         success: true,
-        data: student
+        data: student,
       };
     } catch (error) {
-      console.error('Error getting student by ID:', error);
+      console.error("Error getting student by ID:", error);
       return {
         success: false,
-        error: 'Failed to retrieve student'
+        error: "Failed to retrieve student",
       };
     }
   }
-  
+
   /**
    * Get a student by their university student ID (not the internal ID)
    * @param studentId - The university student ID
    * @returns API response containing the student or an error
    */
-  async getStudentByStudentId(studentId: string): Promise<ApiResponse<Student>> {
+  async getStudentByStudentId(
+    studentId: string
+  ): Promise<ApiResponse<Student>> {
     try {
       if (!studentId) {
         return {
           success: false,
-          error: 'Student ID is required'
+          error: "Student ID is required",
         };
       }
-      
-      const student = students.find(s => s.studentId === studentId);
-      
+
+      const student = students.find((s) => s.studentId === studentId);
+
       if (!student) {
         return {
           success: false,
-          error: 'Student not found'
+          error: "Student not found",
         };
       }
-      
+
       return {
         success: true,
-        data: student
+        data: student,
       };
     } catch (error) {
-      console.error('Error getting student by student ID:', error);
+      console.error("Error getting student by student ID:", error);
       return {
         success: false,
-        error: 'Failed to retrieve student'
+        error: "Failed to retrieve student",
       };
     }
   }
@@ -115,17 +126,23 @@ export class StudentService {
   ): Promise<PaginatedResponse<Student[]>> {
     try {
       if (!faculty) {
-        return this.createErrorPaginatedResponse('Faculty name is required', params);
+        return this.createErrorPaginatedResponse(
+          "Faculty name is required",
+          params
+        );
       }
-      
+
       const facultyStudents = students.filter(
-        s => s.faculty.toLowerCase() === faculty.toLowerCase()
+        (s) => s.faculty.toLowerCase() === faculty.toLowerCase()
       );
-      
+
       return this.paginateResults(facultyStudents, params);
     } catch (error) {
-      console.error('Error getting students by faculty:', error);
-      return this.createErrorPaginatedResponse('Failed to retrieve students', params);
+      console.error("Error getting students by faculty:", error);
+      return this.createErrorPaginatedResponse(
+        "Failed to retrieve students",
+        params
+      );
     }
   }
 
@@ -139,16 +156,16 @@ export class StudentService {
       const sortedStudents = [...students]
         .sort((a, b) => b.totalMeritPoints - a.totalMeritPoints)
         .slice(0, limit);
-      
+
       return {
         success: true,
-        data: sortedStudents
+        data: sortedStudents,
       };
     } catch (error) {
-      console.error('Error getting top students:', error);
+      console.error("Error getting top students:", error);
       return {
         success: false,
-        error: 'Failed to retrieve top students'
+        error: "Failed to retrieve top students",
       };
     }
   }
@@ -157,38 +174,44 @@ export class StudentService {
    * Apply filters to an array of students
    * @private
    */
-  private applyStudentFilters(studentsArray: Student[], filters?: StudentFilters): Student[] {
+  private applyStudentFilters(
+    studentsArray: Student[],
+    filters?: StudentFilters
+  ): Student[] {
     if (!filters) return [...studentsArray];
-    
+
     let filteredStudents = [...studentsArray];
-    
+
     if (filters.faculty) {
       filteredStudents = filteredStudents.filter(
-        student => student.faculty.toLowerCase() === filters.faculty?.toLowerCase()
+        (student) =>
+          student.faculty.toLowerCase() === filters.faculty?.toLowerCase()
       );
     }
-    
+
     if (filters.year !== undefined) {
       filteredStudents = filteredStudents.filter(
-        student => student.year === filters.year
+        (student) => student.year === filters.year
       );
     }
-    
+
     if (filters.program) {
       filteredStudents = filteredStudents.filter(
-        student => student.program.toLowerCase() === filters.program?.toLowerCase()
+        (student) =>
+          student.program.toLowerCase() === filters.program?.toLowerCase()
       );
     }
-    
+
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase().trim();
       filteredStudents = filteredStudents.filter(
-        student => student.name.toLowerCase().includes(searchTerm) || 
-                  student.studentId.toLowerCase().includes(searchTerm) ||
-                  student.email.toLowerCase().includes(searchTerm)
+        (student) =>
+          student.name.toLowerCase().includes(searchTerm) ||
+          student.studentId.toLowerCase().includes(searchTerm) ||
+          student.email.toLowerCase().includes(searchTerm)
       );
     }
-    
+
     return filteredStudents;
   }
 
@@ -197,7 +220,7 @@ export class StudentService {
    * @private
    */
   private paginateResults<T>(
-    items: T[], 
+    items: T[],
     params?: PaginationParams
   ): PaginatedResponse<T[]> {
     const page = params?.page || 1;
@@ -205,7 +228,7 @@ export class StudentService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     const paginatedItems = items.slice(startIndex, endIndex);
-    
+
     return {
       success: true,
       data: paginatedItems,
@@ -213,8 +236,8 @@ export class StudentService {
         totalItems: items.length,
         totalPages: Math.ceil(items.length / limit),
         currentPage: page,
-        itemsPerPage: limit
-      }
+        itemsPerPage: limit,
+      },
     };
   }
 
@@ -233,8 +256,8 @@ export class StudentService {
         totalItems: 0,
         totalPages: 0,
         currentPage: params?.page || 1,
-        itemsPerPage: params?.limit || 10
-      }
+        itemsPerPage: params?.limit || 10,
+      },
     };
   }
 }

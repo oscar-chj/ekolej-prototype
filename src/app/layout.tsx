@@ -1,30 +1,36 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
 
-import theme from '@/theme/theme';
+import theme from "@/theme/theme";
 import "./globals.css";
 
 // Configure fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: 'swap', // Optimize font display
+  display: "swap", // Optimize font display
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  display: 'swap', // Optimize font display
+  display: "swap", // Optimize font display
 });
 
 // Metadata for SEO and browser tab
 export const metadata: Metadata = {
-  title: "eKolej - University Merit System",
-  description: "A comprehensive system for tracking university student merit points and activities",
-  keywords: ["university", "merit system", "student achievements", "eKolej"],
-  authors: [{ name: "eKolej Team" }],
+  title: "Student's Merit Management System",
+  description:
+    "A comprehensive system for tracking university student merit points and activities",
+  keywords: [
+    "university",
+    "merit system",
+    "student achievements",
+    "student management",
+  ],
+  authors: [{ name: "Merit System Team" }],
 };
 
 /**

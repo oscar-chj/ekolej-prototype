@@ -33,6 +33,7 @@ export interface Student {
   totalMeritPoints: number;
   enrollmentDate: string;
   profileImage?: string;
+  role: import("./auth.types").UserRole;
 }
 
 export interface StudentFilters {
@@ -61,14 +62,13 @@ export interface Event {
 
 // Convert from type to enum object for EventCategory
 export enum EventCategory {
-  ACADEMIC = 'Academic',
-  COCURRICULAR = 'Co-curricular',
-  COMMUNITY = 'Community Service',
-  LEADERSHIP = 'Leadership',
-  SPORTS = 'Sports'
+  UNIVERSITY = "University",
+  FACULTY = "Faculty",
+  COLLEGE = "College",
+  CLUB = "Club",
 }
 
-export type EventStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
+export type EventStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled";
 
 export interface EventFilters {
   category?: EventCategory;
@@ -91,7 +91,11 @@ export interface EventRegistration {
   pointsAwarded: number;
 }
 
-export type RegistrationStatus = 'Registered' | 'Waitlisted' | 'Cancelled' | 'Attended';
+export type RegistrationStatus =
+  | "Registered"
+  | "Waitlisted"
+  | "Cancelled"
+  | "Attended";
 
 // Merit Types
 export interface MeritRecord {
@@ -102,7 +106,6 @@ export interface MeritRecord {
   points: number;
   description: string;
   date: string;
-  isVerified: boolean;
-  verifiedBy?: string;
-  verificationDate?: string;
+  isVerified?: boolean; // Optional - verification not required
+  meritType?: string; // Type of merit entry: "University Merit", "Faculty Merit", "College Merit", "Club Merit"
 }

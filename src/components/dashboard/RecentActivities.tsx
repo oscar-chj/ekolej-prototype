@@ -1,8 +1,10 @@
-'use client';
+"use client";
 
-import { EventCategory } from '@/types/api.types';
-import { MeritActivity } from '@/types/merit.types';
-import { ArrowForward, Assignment } from '@mui/icons-material';
+import DataService from "@/services/data/DataService";
+import { EventCategory } from "@/types/api.types";
+import { formatDate } from "@/lib/dateUtils";
+import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
+import { ArrowForward, Assignment } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -15,74 +17,75 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Typography
-} from '@mui/material';
-import Link from 'next/link';
-import { memo } from 'react';
+  Typography,
+} from "@mui/material";
+import Link from "next/link";
+import { memo, useEffect, useState } from "react";
+
 /**
  * Props for the RecentActivities component
  */
 interface RecentActivitiesProps {
-  activities: MeritActivity[];
+  studentId: string;
 }
 
-/**
- * Format a date string to a more readable format
- * @param dateString - ISO date string
- * @returns Formatted date
- */
-const formatDate = (dateString: string): string => {
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
-
-/**
- * Get the material UI color for a category
- * @param category - Activity category
- * @returns MUI color name
- */
-const getCategoryColor = (category: EventCategory): "primary" | "secondary" | "success" | "default" => {
-  switch(category) {
-    case EventCategory.ACADEMIC: return 'primary';
-    case EventCategory.COCURRICULAR: return 'secondary';
-    case EventCategory.COMMUNITY: return 'success';
-    default: return 'default';
-  }
-};
-
-/**
- * Get a display name for a category
- * @param category - Activity category
- * @returns Display name
- */
-const getCategoryDisplayName = (category: EventCategory): string => {
-  return category; // The enum values are already the display names we want
-};
+interface ActivityItem {
+  id: string;
+  title: string;
+  category: EventCategory;
+  points: number;
+  date: string;
+  description: string;
+}
 
 /**
  * Component that displays a list of recent merit activities
  */
-const RecentActivities = memo(function RecentActivities({ activities }: RecentActivitiesProps) {
+const RecentActivities = memo(function RecentActivities({
+  studentId,
+}: RecentActivitiesProps) {
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  useEffect(() => {
+    // Get student's recent merit records from DataService
+    const meritRecords = DataService.getStudentMeritRecords(studentId);
+
+    // Convert merit records to activities format and get recent ones
+    const recentActivities = meritRecords
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5) // Show only last 5 activities
+      .map((record) => ({
+        id: record.id,
+        title: record.description,
+        category: record.category,
+        points: record.points,
+        date: record.date,
+        description: record.description,
+      }));
+
+    setActivities(recentActivities);
+  }, [studentId]);
   // Handle empty state
   if (!activities || activities.length === 0) {
     return (
-      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
-        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-          <Assignment sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+      <Card
+        elevation={0}
+        sx={{ borderRadius: 2, border: "1px solid rgba(0, 0, 0, 0.05)" }}
+      >
+        <CardContent sx={{ textAlign: "center", py: 4 }}>
+          <Assignment
+            sx={{ fontSize: 48, color: "text.secondary", mb: 2, opacity: 0.5 }}
+          />
           <Typography variant="h6" gutterBottom>
             No Recent Activities
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Participate in university events to earn merit points.
           </Typography>
-          <Button 
+          <Button
             component={Link}
-            href="/dashboard/events" 
-            variant="outlined" 
+            href="/dashboard/events"
+            variant="outlined"
             endIcon={<ArrowForward />}
           >
             Browse Events
@@ -93,51 +96,73 @@ const RecentActivities = memo(function RecentActivities({ activities }: RecentAc
   }
 
   return (
-    <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+    <Card
+      elevation={0}
+      sx={{ borderRadius: 2, border: "1px solid rgba(0, 0, 0, 0.05)" }}
+    >
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">
-            Recent Activities
-          </Typography>
-          <Button 
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6">Recent Activities</Typography>
+          <Button
             component={Link}
-            href="/dashboard/merits" 
+            href="/dashboard/merits"
             endIcon={<ArrowForward fontSize="small" />}
             size="small"
           >
             View All
           </Button>
         </Box>
-        
+
         <List disablePadding>
           {activities.map((activity, index) => (
             <Box key={activity.id}>
               <ListItem alignItems="flex-start" sx={{ py: 1.5, px: 0 }}>
                 <ListItemAvatar>
-                  <Avatar sx={{ 
-                    bgcolor: `${getCategoryColor(activity.category)}.light`,
-                    fontWeight: 'bold'
-                  }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: `${getCategoryColor(activity.category)}.light`,
+                      fontWeight: "bold",
+                    }}
+                  >
                     {activity.points}
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary={
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 600, mb: 0.5 }}
+                    >
                       {activity.title}
                     </Typography>
                   }
                   secondary={
                     <>
-                      <Typography variant="body2" component="span" display="block" sx={{ color: 'text.secondary' }}>
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        display="block"
+                        sx={{ color: "text.secondary" }}
+                      >
                         {formatDate(activity.date)}
                       </Typography>
-                      <Typography component="span" display="block" sx={{ mt: 0.5 }}>
-                        <Chip 
-                          label={getCategoryDisplayName(activity.category)} 
+                      <Typography
+                        component="span"
+                        display="block"
+                        sx={{ mt: 0.5 }}
+                      >
+                        <Chip
+                          label={getCategoryDisplayName(activity.category)}
                           color={getCategoryColor(activity.category)}
-                          size="small" 
-                          sx={{ fontSize: '0.7rem' }} 
+                          size="small"
+                          sx={{ fontSize: "0.7rem" }}
                         />
                       </Typography>
                     </>
