@@ -65,7 +65,7 @@ export enum EventCategory {
   UNIVERSITY = "University",
   FACULTY = "Faculty",
   COLLEGE = "College",
-  ASSOCIATION = "Association",
+  CLUB = "Club",
 }
 
 export type EventStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled";
@@ -107,5 +107,5 @@ export interface MeritRecord {
   description: string;
   date: string;
   isVerified?: boolean; // Optional - verification not required
-  meritType?: string; // Type of merit entry (e.g., 'Event Participation', 'Achievement', 'Service')
+  meritType?: string; // Type of merit entry: "University Merit", "Faculty Merit", "College Merit", "Club Merit"
 }

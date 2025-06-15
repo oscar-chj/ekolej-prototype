@@ -71,13 +71,13 @@ function getRankIcon(rank: number): string {
 }
 
 interface LeaderboardTableProps {
-  sortBy: "total" | "university" | "faculty" | "college" | "association";
+  sortBy: "total" | "university" | "faculty" | "college" | "club";
   currentUserId?: string;
 }
 
 function getCurrentUserRanking(
   currentUserId: string,
-  sortBy: "total" | "university" | "faculty" | "college" | "association"
+  sortBy: "total" | "university" | "faculty" | "college" | "club"
 ) {
   const sortedData = DataService.getLeaderboardData(sortBy);
   const userIndex = sortedData.findIndex((entry) => entry.id === currentUserId);
@@ -97,9 +97,8 @@ function getCurrentUserRanking(
       break;
     case "college":
       points = userEntry.collegeMerit;
-      break;
-    case "association":
-      points = userEntry.associationMerit;
+      break;    case "club":
+      points = userEntry.clubMerit;
       break;
   }
 
@@ -108,7 +107,7 @@ function getCurrentUserRanking(
 
 interface CurrentUserRankingProps {
   currentUserId: string;
-  sortBy: "total" | "university" | "faculty" | "college" | "association";
+  sortBy: "total" | "university" | "faculty" | "college" | "club";
   isStudent: boolean;
 }
 
@@ -121,13 +120,12 @@ function CurrentUserRanking({
 
   const ranking = getCurrentUserRanking(currentUserId, sortBy);
   if (!ranking) return null;
-
   const categoryNames = {
     total: "Overall",
     university: "University Merit",
     faculty: "Faculty Merit",
     college: "College Merit",
-    association: "Association Merit",
+    club: "Club Merit",
   };
 
   return (
@@ -176,12 +174,11 @@ function LeaderboardTable({
             <TableCell sx={{ width: 220, minWidth: 220 }}>Student</TableCell>
             <TableCell sx={{ width: 150, minWidth: 150 }}>Faculty</TableCell>
             <TableCell sx={{ width: 100, minWidth: 100 }}>Year</TableCell>
-            <TableCell align="right" sx={{ width: 140, minWidth: 140 }}>
-              {sortBy === "total" && "Total Points"}
+            <TableCell align="right" sx={{ width: 140, minWidth: 140 }}>              {sortBy === "total" && "Total Points"}
               {sortBy === "university" && "University Merit"}
               {sortBy === "faculty" && "Faculty Merit"}
               {sortBy === "college" && "College Merit"}
-              {sortBy === "association" && "Association Merit"}
+              {sortBy === "club" && "Club Merit"}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -205,9 +202,8 @@ function LeaderboardTable({
                 break;
               case "college":
                 points = entry.collegeMerit;
-                break;
-              case "association":
-                points = entry.associationMerit;
+                break;              case "club":
+                points = entry.clubMerit;
                 break;
             }
 
@@ -383,10 +379,9 @@ export default function Leaderboard() {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
-
   const sortByOptions: Array<
-    "total" | "university" | "faculty" | "college" | "association"
-  > = ["total", "university", "faculty", "college", "association"];
+    "total" | "university" | "faculty" | "college" | "club"
+  > = ["total", "university", "faculty", "college", "club"];
 
   const currentSortBy = sortByOptions[selectedTab];
   const isStudent = currentUserRole === UserRole.STUDENT;
@@ -421,7 +416,7 @@ export default function Leaderboard() {
             <Tab label="University Merit" />
             <Tab label="Faculty Merit" />
             <Tab label="College Merit" />
-            <Tab label="Association Merit" />
+            <Tab label="Club Merit" />
           </Tabs>
         </Box>
 
@@ -436,10 +431,9 @@ export default function Leaderboard() {
         </TabPanel>
         <TabPanel value={selectedTab} index={3}>
           <LeaderboardTable sortBy="college" currentUserId={currentUserId} />
-        </TabPanel>
-        <TabPanel value={selectedTab} index={4}>
+        </TabPanel>        <TabPanel value={selectedTab} index={4}>
           <LeaderboardTable
-            sortBy="association"
+            sortBy="club"
             currentUserId={currentUserId}
           />
         </TabPanel>

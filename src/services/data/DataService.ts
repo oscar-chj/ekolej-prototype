@@ -116,7 +116,7 @@ export class DataService {
       universityMerit: 0,
       facultyMerit: 0,
       collegeMerit: 0,
-      associationMerit: 0,
+      clubMerit: 0,
       recentActivities: 0,
       rank: 1,
       totalStudents: students.length,
@@ -129,7 +129,6 @@ export class DataService {
 
     meritRecords.forEach((record: MeritRecord) => {
       summary.totalPoints += record.points;
-
       switch (record.category) {
         case EventCategory.UNIVERSITY:
           summary.universityMerit += record.points;
@@ -140,8 +139,8 @@ export class DataService {
         case EventCategory.COLLEGE:
           summary.collegeMerit += record.points;
           break;
-        case EventCategory.ASSOCIATION:
-          summary.associationMerit += record.points;
+        case EventCategory.CLUB:
+          summary.clubMerit += record.points;
           break;
       }
     });
@@ -191,12 +190,7 @@ export class DataService {
    * Generate leaderboard data from merit records
    */
   static getLeaderboardData(
-    sortBy:
-      | "total"
-      | "university"
-      | "faculty"
-      | "college"
-      | "association" = "total"
+    sortBy: "total" | "university" | "faculty" | "college" | "club" = "total"
   ) {
     const leaderboardData = students.map((student: Student) => {
       const meritRecords = this.getStudentMeritRecords(student.id);
@@ -211,7 +205,7 @@ export class DataService {
         universityMerit: 0,
         facultyMerit: 0,
         collegeMerit: 0,
-        associationMerit: 0,
+        clubMerit: 0,
       };
 
       meritRecords.forEach((record: MeritRecord) => {
@@ -227,8 +221,8 @@ export class DataService {
           case EventCategory.COLLEGE:
             data.collegeMerit += record.points;
             break;
-          case EventCategory.ASSOCIATION:
-            data.associationMerit += record.points;
+          case EventCategory.CLUB:
+            data.clubMerit += record.points;
             break;
         }
       });
@@ -246,10 +240,8 @@ export class DataService {
         return leaderboardData.sort((a, b) => b.facultyMerit - a.facultyMerit);
       case "college":
         return leaderboardData.sort((a, b) => b.collegeMerit - a.collegeMerit);
-      case "association":
-        return leaderboardData.sort(
-          (a, b) => b.associationMerit - a.associationMerit
-        );
+      case "club":
+        return leaderboardData.sort((a, b) => b.clubMerit - a.clubMerit);
       default:
         return leaderboardData.sort((a, b) => b.totalPoints - a.totalPoints);
     }

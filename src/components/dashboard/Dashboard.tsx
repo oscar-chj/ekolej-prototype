@@ -19,7 +19,7 @@ interface MeritSummary {
   universityMerit: number;
   facultyMerit: number;
   collegeMerit: number;
-  associationMerit: number;
+  clubMerit: number;
   recentActivities: number;
   rank: number;
   totalStudents: number;
@@ -138,11 +138,12 @@ export default function Dashboard() {
       </Grid>
       {/* Points Breakdown */}
       <Box sx={{ mb: 4 }}>
+        {" "}
         <PointsBreakdown
-          academicPoints={meritSummary.universityMerit}
-          cocurricularPoints={meritSummary.facultyMerit}
-          communityPoints={meritSummary.collegeMerit}
-          associationPoints={meritSummary.associationMerit}
+          universityMerit={meritSummary.universityMerit}
+          facultyMerit={meritSummary.facultyMerit}
+          collegeMerit={meritSummary.collegeMerit}
+          clubMerit={meritSummary.clubMerit}
         />
       </Box>
       {/* Recent Activities and Upcoming Events */}

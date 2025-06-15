@@ -34,10 +34,10 @@ export interface MeritEvent {
 export interface MeritSummary {
   totalPoints: number;
   targetPoints: number;
-  academicPoints: number; // International/National/University Merit
-  cocurricularPoints: number; // Faculty Merit
-  communityPoints: number; // College Merit
-  associationPoints: number; // Association/Club Merit
+  universityMerit: number;
+  facultyMerit: number;
+  collegeMerit: number;
+  clubMerit: number;
   recentActivities: MeritActivity[];
   upcomingEvents: MeritEvent[];
 }

@@ -8,47 +8,47 @@ import { memo } from "react";
  * Props for the PointsBreakdown component
  */
 interface PointsBreakdownProps {
-  academicPoints: number;
-  cocurricularPoints: number;
-  communityPoints: number;
-  associationPoints: number;
+  universityMerit: number;
+  facultyMerit: number;
+  collegeMerit: number;
+  clubMerit: number;
 }
 
 /**
  * Component displaying a breakdown of merit points by category
  */
 const PointsBreakdown = memo(function PointsBreakdown({
-  academicPoints,
-  cocurricularPoints,
-  communityPoints,
-  associationPoints,
+  universityMerit,
+  facultyMerit,
+  collegeMerit,
+  clubMerit,
 }: PointsBreakdownProps) {
   // Define points categories with their respective properties
   const pointsCategories = [
     {
       type: "University Merit",
-      points: academicPoints,
+      points: universityMerit,
       icon: <School />,
       color: "#1976d2", // Primary blue
       bgColor: "#e3f2fd", // Light blue background
     },
     {
       type: "Faculty Merit",
-      points: cocurricularPoints,
+      points: facultyMerit,
       icon: <TrendingUp />,
       color: "#7b1fa2", // Purple
       bgColor: "#f3e5f5", // Light purple background
     },
     {
       type: "College Merit",
-      points: communityPoints,
+      points: collegeMerit,
       icon: <Groups />,
       color: "#388e3c", // Green
       bgColor: "#e8f5e8", // Light green background
     },
     {
-      type: "Association Merit",
-      points: associationPoints,
+      type: "Club Merit",
+      points: clubMerit,
       icon: <TrendingUp />,
       color: "#f57c00", // Orange
       bgColor: "#fff3e0", // Light orange background

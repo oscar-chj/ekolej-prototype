@@ -2,14 +2,9 @@
 
 import { DRAWER_WIDTH } from "@/lib/constants";
 import authService from "@/services/auth/authService";
-import {
-  Menu as MenuIcon,
-  NotificationsOutlined,
-  PersonOutline,
-} from "@mui/icons-material";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import {
   AppBar,
-  Avatar,
   Box,
   Container,
   Drawer,
@@ -18,9 +13,8 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Chip,
 } from "@mui/material";
-import { memo, useState, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 
 /**
@@ -43,7 +37,7 @@ const DashboardLayout = memo(function DashboardLayout({
   title = "Dashboard",
 }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [currentUserName, setCurrentUserName] = useState<string>("User");
+  const [, setCurrentUserName] = useState<string>("User");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   useEffect(() => {
@@ -148,25 +142,6 @@ const DashboardLayout = memo(function DashboardLayout({
             <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
               {title}
             </Typography>
-            {/* Current User Indicator */}
-            <Chip
-              avatar={
-                <Avatar sx={{ bgcolor: "primary.main" }}>
-                  <PersonOutline />
-                </Avatar>
-              }
-              label={currentUserName}
-              variant="outlined"
-              size="small"
-              sx={{ mr: 2, display: { xs: "none", sm: "flex" } }}
-            />
-            <IconButton
-              color="inherit"
-              aria-label="notifications"
-              size="medium"
-            >
-              <NotificationsOutlined />
-            </IconButton>
           </Toolbar>
         </AppBar>
 

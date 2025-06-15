@@ -15,7 +15,7 @@ interface MeritSummary {
   universityMerit: number;
   facultyMerit: number;
   collegeMerit: number;
-  associationMerit: number;
+  clubMerit: number;
   recentActivities: number;
 }
 
@@ -33,7 +33,7 @@ class MeritService {
           universityMerit: 0,
           facultyMerit: 0,
           collegeMerit: 0,
-          associationMerit: 0,
+          clubMerit: 0,
           recentActivities: 0,
         },
       };

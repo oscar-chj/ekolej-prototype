@@ -144,7 +144,6 @@ export default function AdminMeritUpload({
 
     return validatedEntries;
   };
-
   const handleFileUpload = (
     uploadEvent: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -153,78 +152,98 @@ export default function AdminMeritUpload({
       setIsProcessing(true);
       // Simulate file processing with validation
       setTimeout(() => {
-        // Use enhanced sample data with validation
+        // Get the merit type based on the selected event's category
+        let eventMeritType = "University Merit"; // Default
+        if (selectedEvent) {
+          switch (selectedEvent.category) {
+            case "University":
+              eventMeritType = "University Merit";
+              break;
+            case "Faculty":
+              eventMeritType = "Faculty Merit";
+              break;
+            case "College":
+              eventMeritType = "College Merit";
+              break;
+            case "Club":
+              eventMeritType = "Club Merit";
+              break;
+          }
+        }
+
+        // Use sample data with the correct merit type and event points
+        const eventPoints = selectedEvent?.points || 6;
         const rawEntries = [
           {
             studentId: "223001",
             studentName: "Ahmad Abdullah",
-            points: 15,
-            meritType: "Academic Excellence",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223002",
             studentName: "Sarah Lee",
-            points: 20,
-            meritType: "Research Presentation",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223003",
             studentName: "Raj Kumar",
-            points: 10,
-            meritType: "Community Service",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223004",
             studentName: "Li Wei",
-            points: 8,
-            meritType: "Event Participation",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223005",
             studentName: "Fatimah Zahra",
-            points: 12,
-            meritType: "Leadership Activity",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223006",
             studentName: "Chong Wei",
-            points: 6,
-            meritType: "Volunteer Work",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "INVALID001",
             studentName: "Unknown Student",
-            points: 5,
-            meritType: "Event Participation",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223007",
             studentName: "Siti Aishah",
-            points: 25,
-            meritType: "Academic Achievement",
+            points: eventPoints + 10, // Points exceed event maximum - will be invalid
+            meritType: eventMeritType,
           },
           {
             studentId: "223008",
             studentName: "John Smith",
-            points: 14,
-            meritType: "Workshop Attendance",
+            points: eventPoints,
+            meritType: eventMeritType,
           },
           {
             studentId: "223002",
             studentName: "Sarah Lee",
-            points: 10,
-            meritType: "Event Participation",
+            points: eventPoints,
+            meritType: eventMeritType,
           }, // Duplicate
           {
             studentId: "223009",
             studentName: "Priya Sharma",
             points: -5,
-            meritType: "Invalid Points",
+            meritType: eventMeritType,
           }, // Negative points
           {
             studentId: "223010",
             studentName: "Test Student",
-            points: 8,
+            points: eventPoints,
             meritType: "",
           }, // Empty merit type
         ];

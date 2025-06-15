@@ -299,12 +299,12 @@ export default function MeritReports({
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Points earned:{" "}
               {records
-                .filter((r) => r.category === EventCategory.ASSOCIATION)
+                .filter((r) => r.category === EventCategory.CLUB)
                 .reduce((sum, r) => sum + r.points, 0)}{" "}
               points
             </Typography>
             {renderMeritRecords(
-              records.filter((r) => r.category === EventCategory.ASSOCIATION)
+              records.filter((r) => r.category === EventCategory.CLUB)
             )}
           </TabPanel>
         </CardContent>

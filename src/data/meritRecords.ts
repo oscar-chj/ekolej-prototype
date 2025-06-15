@@ -13,6 +13,7 @@ export const meritRecords: MeritRecord[] = [
     points: 100,
     description: "Participated in International Student Exchange Program",
     date: "2025-05-15",
+    meritType: "University Merit",
   },
   {
     id: "2",
@@ -22,6 +23,7 @@ export const meritRecords: MeritRecord[] = [
     points: 90,
     description: "Won Faculty Innovation Challenge",
     date: "2025-05-20",
+    meritType: "Faculty Merit",
   },
   {
     id: "3",
@@ -31,15 +33,17 @@ export const meritRecords: MeritRecord[] = [
     points: 60,
     description: "Participated in Campus Blood Donation Drive",
     date: "2025-05-10",
+    meritType: "College Merit",
   },
   {
     id: "4",
     studentId: "1",
     eventId: "14",
-    category: EventCategory.ASSOCIATION,
+    category: EventCategory.CLUB,
     points: 30,
     description: "Performed in Drama Club Annual Performance",
     date: "2025-05-25",
+    meritType: "Club Merit",
   },
   {
     id: "5",
@@ -49,6 +53,7 @@ export const meritRecords: MeritRecord[] = [
     points: 100,
     description: "Participated in International Student Exchange Program",
     date: "2025-05-15",
+    meritType: "University Merit",
   },
   {
     id: "6",
@@ -58,6 +63,7 @@ export const meritRecords: MeritRecord[] = [
     points: 90,
     description: "Won Faculty Innovation Challenge",
     date: "2025-05-20",
+    meritType: "Faculty Merit",
   },
   {
     id: "7",
@@ -67,15 +73,17 @@ export const meritRecords: MeritRecord[] = [
     points: 60,
     description: "Participated in Campus Blood Donation Drive",
     date: "2025-05-10",
+    meritType: "College Merit",
   },
   {
     id: "8",
     studentId: "3",
     eventId: "14",
-    category: EventCategory.ASSOCIATION,
+    category: EventCategory.CLUB,
     points: 30,
     description: "Performed in Drama Club Annual Performance",
     date: "2025-05-25",
+    meritType: "Club Merit",
   },
   // Merit records for student admins
   {
@@ -86,6 +94,7 @@ export const meritRecords: MeritRecord[] = [
     points: 85,
     description: "Led University Orientation Committee",
     date: "2025-04-10",
+    meritType: "University Merit",
   },
   {
     id: "10",
@@ -95,6 +104,7 @@ export const meritRecords: MeritRecord[] = [
     points: 75,
     description: "Mentored junior students in Information Systems",
     date: "2025-05-01",
+    meritType: "Faculty Merit",
   },
   {
     id: "11",
@@ -103,6 +113,7 @@ export const meritRecords: MeritRecord[] = [
     points: 50,
     description: "Organized College Merit System Workshop",
     date: "2025-05-10",
+    meritType: "College Merit",
   },
   {
     id: "12",
@@ -112,13 +123,15 @@ export const meritRecords: MeritRecord[] = [
     points: 70,
     description: "Represented university in Inter-University Hackathon",
     date: "2025-04-20",
+    meritType: "University Merit",
   },
   {
     id: "13",
     studentId: "admin2",
-    category: EventCategory.ASSOCIATION,
+    category: EventCategory.CLUB,
     points: 40,
     description: "Led Software Engineering Society technical workshop",
     date: "2025-05-12",
+    meritType: "Club Merit",
   },
 ];

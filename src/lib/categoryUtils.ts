@@ -14,7 +14,7 @@ export const getCategoryColor = (
       return "primary"; // Blue for faculty-level events
     case EventCategory.COLLEGE:
       return "success"; // Green for college-level events
-    case EventCategory.ASSOCIATION:
+    case EventCategory.CLUB:
       return "warning"; // Orange for club/association events
     default:
       return "primary";
@@ -39,7 +39,7 @@ export const getCategoryFullName = (category: EventCategory): string => {
       return "Faculty Merit";
     case EventCategory.COLLEGE:
       return "College Merit";
-    case EventCategory.ASSOCIATION:
+    case EventCategory.CLUB:
       return "Association/Club Merit";
     default:
       return "Unknown Category";
