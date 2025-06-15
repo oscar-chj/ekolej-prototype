@@ -16,7 +16,8 @@ import {
 } from "@mui/material";
 
 interface MeritSummaryData {
-  totalPoints: number;  universityMerit: number;
+  totalPoints: number;
+  universityMerit: number;
   facultyMerit: number;
   collegeMerit: number;
   clubMerit: number;
@@ -429,12 +430,13 @@ export default function MeritSummary({
           category={EventCategory.COLLEGE}
           points={meritData.collegeMerit}
           targetPoints={30}
-        />        <CategoryCard
+        />
+        <CategoryCard
           category={EventCategory.CLUB}
           points={meritData.clubMerit}
           targetPoints={20}
         />
-      </Box>{" "}
+      </Box>
       {/* Quick Stats */}
       <Box
         sx={{

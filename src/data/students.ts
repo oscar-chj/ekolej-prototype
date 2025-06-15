@@ -47,7 +47,7 @@ export const students: Student[] = [
     program: "Software Engineering",
     totalMeritPoints: 0, // Will be calculated dynamically from events
     enrollmentDate: "2023-09-01",
-    profileImage: "/images/avatars/ahmad.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
   {
@@ -60,7 +60,7 @@ export const students: Student[] = [
     program: "Artificial Intelligence",
     totalMeritPoints: 0, // Will be calculated dynamically from events
     enrollmentDate: "2022-09-01",
-    profileImage: "/images/avatars/sarah.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
   {
@@ -85,7 +85,7 @@ export const students: Student[] = [
     program: "Business Administration",
     totalMeritPoints: 0,
     enrollmentDate: "2021-09-01",
-    profileImage: "/images/avatars/li.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
   {
@@ -110,7 +110,7 @@ export const students: Student[] = [
     program: "Chemistry",
     totalMeritPoints: 0,
     enrollmentDate: "2023-09-01",
-    profileImage: "/images/avatars/chong.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
   {
@@ -135,7 +135,7 @@ export const students: Student[] = [
     program: "Cybersecurity",
     totalMeritPoints: 0,
     enrollmentDate: "2024-09-01",
-    profileImage: "/images/avatars/john.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
   {
@@ -160,7 +160,7 @@ export const students: Student[] = [
     program: "Finance",
     totalMeritPoints: 0,
     enrollmentDate: "2023-09-01",
-    profileImage: "/images/avatars/tan.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.STUDENT,
   },
 
@@ -175,7 +175,7 @@ export const students: Student[] = [
     program: "Information Systems",
     totalMeritPoints: 0,
     enrollmentDate: "2021-09-01",
-    profileImage: "/images/avatars/amirah.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.ADMIN,
   },
   {
@@ -188,7 +188,7 @@ export const students: Student[] = [
     program: "Software Engineering",
     totalMeritPoints: 0,
     enrollmentDate: "2022-09-01",
-    profileImage: "/images/avatars/marcus.jpg",
+    profileImage: "/default-avatar.png",
     role: UserRole.ADMIN,
   },
 ];

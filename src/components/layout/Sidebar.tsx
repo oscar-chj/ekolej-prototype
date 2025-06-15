@@ -1,12 +1,11 @@
 "use client";
 
-import authService from "@/services/auth/authService";
-import { UserRole } from "@/types/auth.types";
 import { mainNavigationItems } from "@/data/navigationData";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { getIconComponent } from "@/lib/iconUtils";
+import { UserRole } from "@/types/auth.types";
 import { Logout } from "@mui/icons-material";
 import {
-  Avatar,
   Box,
   Divider,
   List,
@@ -20,7 +19,8 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { memo, useState, useEffect } from "react";
+import { memo, useMemo } from "react";
+import ProfileAvatar from "@/components/common/ProfileAvatar";
 
 /**
  * Sidebar component props
@@ -34,38 +34,17 @@ interface SidebarProps {
  */
 const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
   const pathname = usePathname();
-  const [userProfile, setUserProfile] = useState({
-    name: "User",
-    role: UserRole.STUDENT,
-    avatar: "/default-avatar.png",
-    studentId: "000000",
-    faculty: "Loading...",
-    year: "0",
-  });
+  const { student, isLoading } = useUserProfile();
 
-  useEffect(() => {
-    // Get current user profile from authentication
-    const getCurrentUserProfile = async () => {
-      try {
-        const user = await authService.getCurrentUser();
-        if (user) {
-          setUserProfile({
-            name: user.name,
-            role: user.role,
-            avatar: user.profileImage || "/default-avatar.png",
-            studentId: user.studentId || "000000",
-            faculty: user.faculty || "Unknown Faculty",
-            year: user.year || "0",
-          });
-        }
-      } catch (error) {
-        console.error("Error getting current user profile:", error);
-        // Keep default values
-      }
-    };
-
-    getCurrentUserProfile();
-  }, []);
+  // Memoize user profile object to prevent unnecessary re-renders
+  const userProfile = useMemo(() => ({
+    name: student?.name || (isLoading ? "Loading..." : "User"),
+    role: student?.role || UserRole.STUDENT,
+    avatar: student?.profileImage || "/default-avatar.png",
+    studentId: student?.studentId || (isLoading ? "..." : "000000"),
+    faculty: student?.faculty || (isLoading ? "Loading..." : "Unknown Faculty"),
+    year: student?.year?.toString() || (isLoading ? "..." : "0"),
+  }), [student, isLoading]);
 
   // Filter navigation items based on user role
   const visibleNavItems = mainNavigationItems.filter(
@@ -89,11 +68,14 @@ const Sidebar = memo(function Sidebar({ onItemClick }: SidebarProps) {
             alignItems: "center",
             mb: 2,
           }}
-        >
-          <Avatar
-            sx={{ width: 80, height: 80, mb: 1.5 }}
-            alt={userProfile.name}
+        >          <ProfileAvatar
             src={userProfile.avatar}
+            alt={userProfile.name}
+            sx={{ 
+              width: 80, 
+              height: 80, 
+              mb: 1.5,
+            }}
           />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {userProfile.name}

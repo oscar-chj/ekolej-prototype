@@ -5,6 +5,7 @@ import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useUserStore } from "@/stores/userStore";
 
 /**
  * Component that handles the logout process and provides visual feedback
@@ -12,10 +13,14 @@ import { useEffect, useState } from "react";
 export default function LogoutComponent() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const clearUserProfile = useUserStore((state) => state.clearUserProfile);
 
   useEffect(() => {
     const handleLogout = async () => {
       try {
+        // Clear the Zustand store first
+        clearUserProfile();
+
         // Call the server logout action
         const result = await logout();
 
@@ -56,7 +61,7 @@ export default function LogoutComponent() {
     return () => {
       // Any cleanup code if needed
     };
-  }, [router]);
+  }, [router, clearUserProfile]);
 
   return (
     <Box

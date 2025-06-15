@@ -181,7 +181,7 @@ const UpcomingEvents = memo(function UpcomingEvents({
                                     : "success.main",
                               }}
                             >
-                              {event.registeredCount}/{event.capacity}
+                              {event.registeredCount}/{event.capacity}{" "}
                               registered
                             </Typography>
                           )}

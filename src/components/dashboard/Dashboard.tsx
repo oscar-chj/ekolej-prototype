@@ -2,83 +2,30 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { ErrorDisplay, LoadingDisplay } from "@/components/ui/ErrorDisplay";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import DataService from "@/services/data/DataService";
-import authService from "@/services/auth/authService";
-import { Event, Student } from "@/types/api.types";
 import { Box, Grid, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import MeritSummaryCard from "./MeritSummaryCard";
 import PointsBreakdown from "./PointsBreakdown";
+import ProgressInsights from "./ProgressInsights";
 import RecentActivities from "./RecentActivities";
 import UpcomingEvents from "./UpcomingEvents";
-import ProgressInsights from "./ProgressInsights";
-
-interface MeritSummary {
-  totalPoints: number;
-  targetPoints: number;
-  universityMerit: number;
-  facultyMerit: number;
-  collegeMerit: number;
-  clubMerit: number;
-  recentActivities: number;
-  rank: number;
-  totalStudents: number;
-  progressPercentage: number;
-  targetAchieved: boolean;
-  remainingPoints: number;
-  exceededPoints: number;
-}
-
-interface DashboardData {
-  student: Student;
-  meritSummary: MeritSummary;
-  upcomingEvents: Event[];
-  totalRegistrations: number;
-  recentActivities: number;
-}
 
 export default function Dashboard() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    // Fetch data from centralized DataService
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Get current authenticated user, initialize if none
-        let currentUser = await authService.getCurrentUser();
-        if (!currentUser) {
-          // For prototype: initialize with default user (Ahmad Abdullah)
-          currentUser = await authService.initializeWithUser("1");
-          if (!currentUser) {
-            setError("User authentication failed");
-            return;
-          }
-        }
+  const { student, meritSummary, isLoading, error, refresh } = useUserProfile();
 
-        // Get data from DataService using authenticated user's ID
-        const summary = DataService.getDashboardSummary(currentUser.id);
+  // Get additional dashboard data using useMemo to prevent unnecessary recalculations
+  const dashboardExtras = useMemo(() => {
+    if (!student) return null;
 
-        // Only set data if student exists
-        if (summary.student) {
-          setDashboardData(summary as DashboardData);
-        } else {
-          setError("Student not found");
-        }
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
-        setError("Failed to load dashboard data");
-      } finally {
-        setIsLoading(false);
-      }
+    const summary = DataService.getDashboardSummary(student.id);
+    return {
+      upcomingEvents: summary.upcomingEvents,
+      totalRegistrations: summary.totalRegistrations,
+      recentActivities: summary.recentActivities,
     };
-
-    fetchData();
-  }, []);
+  }, [student]);
 
   if (isLoading) {
     return (
@@ -88,7 +35,7 @@ export default function Dashboard() {
     );
   }
 
-  if (error || !dashboardData) {
+  if (error || !student || !meritSummary) {
     return (
       <DashboardLayout title="Merit Dashboard">
         <ErrorDisplay
@@ -96,13 +43,11 @@ export default function Dashboard() {
             error || "Unable to load dashboard data. Please try again later."
           }
           showRetry
-          onRetry={() => window.location.reload()}
+          onRetry={refresh}
         />
       </DashboardLayout>
     );
   }
-
-  const { meritSummary, upcomingEvents } = dashboardData;
 
   return (
     <DashboardLayout title="Merit Dashboard">
@@ -114,6 +59,7 @@ export default function Dashboard() {
           Track your merit points and upcoming activities
         </Typography>
       </Box>
+
       {/* Merit Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -127,7 +73,6 @@ export default function Dashboard() {
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          {/* Progress Insights and Action Buttons */}
           <ProgressInsights
             targetAchieved={meritSummary.targetAchieved}
             remainingPoints={meritSummary.remainingPoints}
@@ -136,9 +81,9 @@ export default function Dashboard() {
           />
         </Grid>
       </Grid>
+
       {/* Points Breakdown */}
       <Box sx={{ mb: 4 }}>
-        {" "}
         <PointsBreakdown
           universityMerit={meritSummary.universityMerit}
           facultyMerit={meritSummary.facultyMerit}
@@ -146,14 +91,14 @@ export default function Dashboard() {
           clubMerit={meritSummary.clubMerit}
         />
       </Box>
+
       {/* Recent Activities and Upcoming Events */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <RecentActivities studentId={dashboardData.student.id} />
+          <RecentActivities studentId={student.id} />
         </Grid>
-
         <Grid size={{ xs: 12, md: 5 }}>
-          <UpcomingEvents events={upcomingEvents || []} />
+          <UpcomingEvents events={dashboardExtras?.upcomingEvents || []} />
         </Grid>
       </Grid>
     </DashboardLayout>
