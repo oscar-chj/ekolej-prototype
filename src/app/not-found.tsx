@@ -1,7 +1,6 @@
 "use client";
 
 import { Box, Button, Container, Paper, Typography } from "@mui/material";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -44,19 +43,10 @@ export default function NotFound() {
             >
               404
             </Typography>
-            <Image
-              src="/globe.svg"
-              alt="Student Merit Management System Logo"
-              width={60}
-              height={60}
-              priority
-            />
           </Box>
-
           <Typography variant="h4" component="h2" sx={{ mb: 3 }}>
             Page Not Found
           </Typography>
-
           <Typography
             variant="body1"
             color="text.secondary"
@@ -65,7 +55,6 @@ export default function NotFound() {
             The page you&apos;re looking for doesn&apos;t exist or has been
             moved. Please check the URL or return to the homepage.
           </Typography>
-
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               component={Link}
