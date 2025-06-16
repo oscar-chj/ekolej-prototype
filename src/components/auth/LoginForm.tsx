@@ -1,6 +1,7 @@
 "use client";
 
 import { FormError } from "@/components/ui/ErrorDisplay";
+import GlobeIcon from "@/components/common/GlobeIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { useFormState } from "@/hooks/useFormState";
 import { AUTH_COOKIE_EXPIRES_DAYS, AUTH_COOKIE_NAME } from "@/lib/constants";
@@ -18,7 +19,6 @@ import {
   Typography,
 } from "@mui/material";
 import Cookies from "js-cookie";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -224,12 +224,14 @@ export default function LoginForm({
 function AppLogo() {
   return (
     <Box sx={{ mb: 4, textAlign: "center" }}>
-      <Image
-        src="/globe.png"
-        alt="Merit System Logo"
+      <GlobeIcon
         width={80}
         height={80}
-        priority
+        sx={{
+          display: "block",
+          margin: "0 auto",
+          mb: 1,
+        }}
       />
       <Typography variant="h4" component="h1" sx={{ mt: 2, fontWeight: 700 }}>
         Merit System
