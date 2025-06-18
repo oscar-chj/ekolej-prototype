@@ -719,38 +719,69 @@ export default function AdminMeritUpload({
         Successfully processed {validEntries.length} merit entries for{" "}
         <strong>{selectedEvent?.title}</strong>
       </Typography>
+      <Box
+        sx={{
+          mt: 3,
+          p: 3,
+          backgroundColor: "grey.50",
+          borderRadius: 2,
+          maxWidth: 600,
+          mx: "auto",
+        }}
+      >
+        <Typography
+          variant="body1"
+          gutterBottom
+          sx={{ textAlign: "center", fontWeight: 600, mb: 2 }}
+        >
+          Upload Summary:
+        </Typography>
 
-      <Box sx={{ mt: 3, p: 2, backgroundColor: "grey.50", borderRadius: 1 }}>
-        <Typography variant="body2" gutterBottom>
-          <strong>Upload Summary:</strong>
-        </Typography>
-        <Typography variant="body2">
-          • Total Participants:{" "}
-          {validEntries.filter((e) => e.role === "Participant").length}
-        </Typography>
-        <Typography variant="body2">
-          • Total Organizers:{" "}
-          {validEntries.filter((e) => e.role === "Organizer").length}
-        </Typography>
-        <Typography variant="body2">
-          • Total points awarded:{" "}
-          {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography variant="body2">• Merit Type:</Typography>
-          <Chip
-            label={meritWeightage.meritType}
-            size="small"
-            color={getMeritTypeColor(meritWeightage.meritType)}
-            sx={{
-              fontWeight: 500,
-            }}
-          />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Typography variant="body2">
+            Total Participants:{" "}
+            <strong>
+              {validEntries.filter((e) => e.role === "Participant").length}
+            </strong>
+          </Typography>
+          <Typography variant="body2">
+            Total Organizers:{" "}
+            <strong>
+              {validEntries.filter((e) => e.role === "Organizer").length}
+            </strong>
+          </Typography>
+          <Typography variant="body2">
+            Total points awarded:{" "}
+            <strong>
+              {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
+            </strong>
+          </Typography>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="body2">Merit Type:</Typography>
+            <Chip
+              label={meritWeightage.meritType}
+              size="small"
+              color={getMeritTypeColor(meritWeightage.meritType)}
+              sx={{ fontWeight: 500 }}
+            />
+          </Box>
+
+          <Typography variant="body2">
+            Event: <strong>{selectedEvent?.title}</strong>
+          </Typography>
+          <Typography variant="body2">
+            Date: <strong>{selectedEvent?.date}</strong>
+          </Typography>
         </Box>
-        <Typography variant="body2">• Event: {selectedEvent?.title}</Typography>
-        <Typography variant="body2">• Date: {selectedEvent?.date}</Typography>
       </Box>
-
       <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>
         <Button variant="contained" href="/dashboard">
           Back to Dashboard
