@@ -4,13 +4,16 @@ import { ErrorDisplay, LoadingDisplay } from "@/components/ui/ErrorDisplay";
 import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
 import { formatDate } from "@/lib/dateUtils";
 import EventListService from "@/services/event/eventListService";
-import { Event } from "@/types/api.types";
+import { Event, EventCategory } from "@/types/api.types";
 import {
   AccessTime,
+  Clear,
   Event as EventIcon,
+  FilterList,
   LocationOn,
   Person,
   Refresh,
+  Search,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -20,9 +23,21 @@ import {
   Card,
   CardContent,
   Chip,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   Tab,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -175,6 +190,13 @@ interface EventListProps {
   showHeader?: boolean;
 }
 
+interface FilterState {
+  dateFrom: string;
+  dateTo: string;
+  category: EventCategory | "";
+  organizer: string;
+}
+
 export default function EventList({
   onRefresh,
   showHeader = true,
@@ -184,6 +206,22 @@ export default function EventList({
   const [events, setEvents] = useState<Event[]>([]);
   const [tabValue, setTabValue] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    dateFrom: "",
+    dateTo: "",
+    category: "",
+    organizer: "",
+  });
+  const [appliedFilters, setAppliedFilters] = useState<FilterState>({
+    dateFrom: "",
+    dateTo: "",
+    category: "",
+    organizer: "",
+  });
 
   const fetchEvents = async (forceRefresh = false) => {
     try {
@@ -225,12 +263,114 @@ export default function EventList({
     setTabValue(newValue);
   };
 
+  // Search function
+  const searchEvents = (eventsList: Event[], searchTerm: string): Event[] => {
+    if (!searchTerm.trim()) return eventsList;
+
+    const searchLower = searchTerm.toLowerCase();
+    return eventsList.filter(
+      (event) =>
+        event.title.toLowerCase().includes(searchLower) ||
+        event.description.toLowerCase().includes(searchLower) ||
+        event.organizer.toLowerCase().includes(searchLower) ||
+        event.location.toLowerCase().includes(searchLower)
+    );
+  };
+
+  // Filter function
+  const filterEvents = (eventsList: Event[], filters: FilterState): Event[] => {
+    return eventsList.filter((event) => {
+      // Date range filter
+      if (filters.dateFrom) {
+        const eventDate = new Date(event.date);
+        const fromDate = new Date(filters.dateFrom);
+        if (eventDate < fromDate) return false;
+      }
+
+      if (filters.dateTo) {
+        const eventDate = new Date(event.date);
+        const toDate = new Date(filters.dateTo);
+        if (eventDate > toDate) return false;
+      }
+
+      // Category filter
+      if (filters.category && event.category !== filters.category) {
+        return false;
+      }
+
+      // Organizer filter
+      if (
+        filters.organizer &&
+        !event.organizer.toLowerCase().includes(filters.organizer.toLowerCase())
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Apply search and filters to events
+  const processedEvents = filterEvents(
+    searchEvents(events, searchTerm),
+    appliedFilters
+  );
+
   // Filter events by status
-  const upcomingEvents = events.filter((event) => event.status === "Upcoming");
-  const ongoingEvents = events.filter((event) => event.status === "Ongoing");
-  const completedEvents = events.filter(
+  const upcomingEvents = processedEvents.filter(
+    (event) => event.status === "Upcoming"
+  );
+  const ongoingEvents = processedEvents.filter(
+    (event) => event.status === "Ongoing"
+  );
+  const completedEvents = processedEvents.filter(
     (event) => event.status === "Completed"
   );
+
+  // Handle filter dialog
+  const handleFilterDialogOpen = () => {
+    setFilters(appliedFilters);
+    setFilterDialogOpen(true);
+  };
+
+  const handleFilterDialogClose = () => {
+    setFilterDialogOpen(false);
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setFilterDialogOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      dateFrom: "",
+      dateTo: "",
+      category: "" as EventCategory | "",
+      organizer: "",
+    };
+    setFilters(emptyFilters);
+    setAppliedFilters(emptyFilters);
+    setSearchTerm("");
+    setFilterDialogOpen(false);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
+  // Get unique organizers for filter dropdown
+  const uniqueOrganizers = Array.from(
+    new Set(events.map((event) => event.organizer))
+  ).sort();
+
+  // Check if any filters are active
+  const hasActiveFilters =
+    searchTerm.trim() !== "" ||
+    appliedFilters.dateFrom !== "" ||
+    appliedFilters.dateTo !== "" ||
+    appliedFilters.category !== "" ||
+    appliedFilters.organizer !== "";
 
   if (isLoading) {
     return <LoadingDisplay message="Loading events..." />;
@@ -270,6 +410,119 @@ export default function EventList({
             </Button>
           </Box>
 
+          {/* Search and Filter Controls */}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <TextField
+                fullWidth
+                placeholder="Search events by name, description, organizer, or location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchTerm && (
+                    <InputAdornment position="end">
+                      <IconButton onClick={clearSearch} size="small">
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ flexGrow: 1 }}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<FilterList />}
+                onClick={handleFilterDialogOpen}
+                sx={{ minWidth: 120 }}
+              >
+                Filters
+              </Button>
+            </Box>
+
+            {/* Active Filters Display */}
+            <Collapse in={hasActiveFilters}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mr: 1 }}
+                >
+                  Active filters:
+                </Typography>
+                {searchTerm && (
+                  <Chip
+                    label={`Search: "${searchTerm}"`}
+                    onDelete={clearSearch}
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+                {appliedFilters.dateFrom && (
+                  <Chip
+                    label={`From: ${appliedFilters.dateFrom}`}
+                    onDelete={() =>
+                      setAppliedFilters((prev) => ({ ...prev, dateFrom: "" }))
+                    }
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+                {appliedFilters.dateTo && (
+                  <Chip
+                    label={`To: ${appliedFilters.dateTo}`}
+                    onDelete={() =>
+                      setAppliedFilters((prev) => ({ ...prev, dateTo: "" }))
+                    }
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+                {appliedFilters.category && (
+                  <Chip
+                    label={`Category: ${getCategoryDisplayName(
+                      appliedFilters.category
+                    )}`}
+                    onDelete={() =>
+                      setAppliedFilters((prev) => ({ ...prev, category: "" }))
+                    }
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+                {appliedFilters.organizer && (
+                  <Chip
+                    label={`Organizer: ${appliedFilters.organizer}`}
+                    onDelete={() =>
+                      setAppliedFilters((prev) => ({ ...prev, organizer: "" }))
+                    }
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+                <Button
+                  size="small"
+                  onClick={handleClearFilters}
+                  color="secondary"
+                >
+                  Clear All
+                </Button>
+              </Box>
+            </Collapse>
+          </Box>
+
           {/* Cache Status Indicator */}
           <Alert severity="info" sx={{ mb: 2 }}>
             <Typography variant="body2">
@@ -297,6 +550,105 @@ export default function EventList({
       <TabPanel value={tabValue} index={2}>
         <EventCardList events={completedEvents} />
       </TabPanel>
+
+      {/* Filter Dialog */}
+      <Dialog
+        open={filterDialogOpen}
+        onClose={handleFilterDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Filter Events</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
+            {/* Date Range */}
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Date Range
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  type="date"
+                  label="From Date"
+                  value={filters.dateFrom}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      dateFrom: e.target.value,
+                    }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+                <TextField
+                  type="date"
+                  label="To Date"
+                  value={filters.dateTo}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, dateTo: e.target.value }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+              </Box>
+            </Box>
+
+            {/* Category */}
+            <FormControl fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={filters.category}
+                label="Category"
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    category: e.target.value as EventCategory | "",
+                  }))
+                }
+              >
+                <MenuItem value="">
+                  <em>All Categories</em>
+                </MenuItem>
+                {Object.values(EventCategory).map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {getCategoryDisplayName(category)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Organizer */}
+            <FormControl fullWidth>
+              <InputLabel>Organizer</InputLabel>
+              <Select
+                value={filters.organizer}
+                label="Organizer"
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, organizer: e.target.value }))
+                }
+              >
+                <MenuItem value="">
+                  <em>All Organizers</em>
+                </MenuItem>
+                {uniqueOrganizers.map((organizer) => (
+                  <MenuItem key={organizer} value={organizer}>
+                    {organizer}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClearFilters} color="secondary">
+            Clear All
+          </Button>
+          <Button onClick={handleFilterDialogClose}>Cancel</Button>
+          <Button onClick={handleApplyFilters} variant="contained">
+            Apply Filters
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
