@@ -62,18 +62,20 @@ export const useUserStore = create<UserStore>()(
         set({ isLoading: true, error: null });
         try {
           // Get current authenticated user
-          let currentUser = await authService.getCurrentUser();
+          const currentUser = await authService.getCurrentUser();
           if (!currentUser) {
-            currentUser = await authService.initializeWithUser("1");
-            if (!currentUser) {
-              throw new Error("User authentication failed");
-            }
+            // Don't fallback to a hardcoded user - this was causing admin users to become Ahmad Abdullah
+            throw new Error(
+              "No authenticated user found. Please log in again."
+            );
           }
 
           // Get full student data using the user ID
           const studentData = DataService.getStudentById(currentUser.id);
           if (!studentData) {
-            throw new Error("Student data not found");
+            throw new Error(
+              `Student data not found for user ID: ${currentUser.id}`
+            );
           } // Get merit summary
           const meritSummary = DataService.getStudentMeritSummary(
             currentUser.id
@@ -100,22 +102,24 @@ export const useUserStore = create<UserStore>()(
         }
       },
 
-      // Force refresh user profile
+      // Refresh user profile (force reload without cache)
       refreshUserProfile: async () => {
         set({ isLoading: true, error: null });
         try {
-          let currentUser = await authService.getCurrentUser();
+          const currentUser = await authService.getCurrentUser();
           if (!currentUser) {
-            currentUser = await authService.initializeWithUser("1");
-            if (!currentUser) {
-              throw new Error("User authentication failed");
-            }
+            // Don't fallback to a hardcoded user - this was causing admin users to become Ahmad Abdullah
+            throw new Error(
+              "No authenticated user found. Please log in again."
+            );
           }
 
           // Get full student data using the user ID
           const studentData = DataService.getStudentById(currentUser.id);
           if (!studentData) {
-            throw new Error("Student data not found");
+            throw new Error(
+              `Student data not found for user ID: ${currentUser.id}`
+            );
           }
 
           const meritSummary = DataService.getStudentMeritSummary(
@@ -159,20 +163,21 @@ export const useUserStore = create<UserStore>()(
           isLoading: true,
           error: null,
         });
-
         try {
-          let currentUser = await authService.getCurrentUser();
+          const currentUser = await authService.getCurrentUser();
           if (!currentUser) {
-            currentUser = await authService.initializeWithUser("1");
-            if (!currentUser) {
-              throw new Error("User authentication failed");
-            }
+            // Don't fallback to a hardcoded user - this was causing admin users to become Ahmad Abdullah
+            throw new Error(
+              "No authenticated user found. Please log in again."
+            );
           }
 
           // Get full student data using the user ID
           const studentData = DataService.getStudentById(currentUser.id);
           if (!studentData) {
-            throw new Error("Student data not found");
+            throw new Error(
+              `Student data not found for user ID: ${currentUser.id}`
+            );
           }
 
           const meritSummary = DataService.getStudentMeritSummary(
