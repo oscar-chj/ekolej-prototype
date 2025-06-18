@@ -1,18 +1,15 @@
 "use client";
 
+import { students } from "@/data/students";
 import { getCategoryColor, getCategoryDisplayName } from "@/lib/categoryUtils";
 import DataService from "@/services/data/DataService";
-import { students } from "@/data/students";
 import { Event } from "@/types/api.types";
 import {
   ArrowBack,
   Check,
   CheckCircle,
-  CloudUpload,
-  Download,
   Error,
   Event as EventIcon,
-  RadioButtonUnchecked,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -21,8 +18,11 @@ import {
   Card,
   CardContent,
   Chip,
+  FormControl,
   LinearProgress,
+  MenuItem,
   Paper,
+  Select,
   Step,
   StepLabel,
   Stepper,
@@ -32,42 +32,62 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-interface CSVMeritEntry {
+interface ParticipantMeritEntry {
   studentId: string;
   studentName: string;
   points: number;
-  meritType?: string;
-  remarks?: string;
+  meritType: string;
+  role: "Participant" | "Organizer";
   isValid: boolean;
   status: "valid" | "invalid";
   errors?: string[];
   errorMessage?: string;
 }
 
+interface MeritWeightage {
+  participantPoints: number;
+  organizerPoints: number;
+  meritType: string;
+  maxPointsThreshold: number;
+}
+
 interface AdminMeritUploadProps {
   eventId?: string;
   onComplete?: (uploadData: {
-    validEntries: CSVMeritEntry[];
+    validEntries: ParticipantMeritEntry[];
     event: Event;
   }) => void;
 }
 
-const steps = ["Select Event", "Upload CSV", "Review Data", "Submit"];
+const steps = [
+  "Select Event",
+  "Set Weightages",
+  "Review Participants",
+  "Submit",
+];
 
 export default function AdminMeritUpload({
   eventId,
   onComplete,
 }: AdminMeritUploadProps) {
   const [activeStep, setActiveStep] = useState(0);
-  const [csvData, setCsvData] = useState<CSVMeritEntry[]>([]);
+  const [participantData, setParticipantData] = useState<
+    ParticipantMeritEntry[]
+  >([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [completedEvents, setCompletedEvents] = useState<Event[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [meritWeightage, setMeritWeightage] = useState<MeritWeightage>({
+    participantPoints: 5,
+    organizerPoints: 8,
+    meritType: "University",
+    maxPointsThreshold: 20,
+  });
 
   useEffect(() => {
     // Get completed events for selection
@@ -81,17 +101,92 @@ export default function AdminMeritUpload({
       setSelectedEvent(event || null);
       if (event) {
         setActiveStep(1); // Skip event selection if eventId is provided
+        updateMeritWeightageForEvent(event);
       }
     }
   }, [eventId]);
-  // Validate CSV entries against actual student data
-  const validateCSVEntries = (
+
+  // Update merit weightage based on event category
+  const updateMeritWeightageForEvent = (event: Event) => {
+    let eventMeritType = "University";
+    let defaultParticipantPoints = 5;
+    let defaultOrganizerPoints = 8;
+    let maxThreshold = 20;
+
+    switch (event.category) {
+      case "University":
+        eventMeritType = "University";
+        defaultParticipantPoints = 8;
+        defaultOrganizerPoints = 12;
+        maxThreshold = 25;
+        break;
+      case "Faculty":
+        eventMeritType = "Faculty";
+        defaultParticipantPoints = 6;
+        defaultOrganizerPoints = 10;
+        maxThreshold = 20;
+        break;
+      case "College":
+        eventMeritType = "College";
+        defaultParticipantPoints = 4;
+        defaultOrganizerPoints = 7;
+        maxThreshold = 15;
+        break;
+      case "Club":
+        eventMeritType = "Club";
+        defaultParticipantPoints = 3;
+        defaultOrganizerPoints = 5;
+        maxThreshold = 10;
+        break;
+    }
+
+    setMeritWeightage({
+      participantPoints: defaultParticipantPoints,
+      organizerPoints: defaultOrganizerPoints,
+      meritType: eventMeritType,
+      maxPointsThreshold: maxThreshold,
+    });
+  };
+
+  // Get participants for the selected event
+  const getEventParticipants = (): ParticipantMeritEntry[] => {
+    if (!selectedEvent) return [];
+
+    // Get registrations for this event
+    const allRegistrations = DataService.getRegistrations();
+    const eventRegistrations = allRegistrations.filter(
+      (reg) => reg.eventId === selectedEvent.id && reg.status === "Attended"
+    );
+
+    // Create participant entries
+    const participants: ParticipantMeritEntry[] = [];
+
+    eventRegistrations.forEach((registration) => {
+      const student = students.find((s) => s.id === registration.studentId);
+      if (student) {
+        participants.push({
+          studentId: student.studentId,
+          studentName: student.name,
+          points: meritWeightage.participantPoints,
+          meritType: meritWeightage.meritType,
+          role: "Participant",
+          isValid: true,
+          status: "valid",
+        });
+      }
+    });
+
+    return validateParticipantEntries(participants);
+  };
+
+  // Validate participant entries
+  const validateParticipantEntries = (
     entries: Omit<
-      CSVMeritEntry,
+      ParticipantMeritEntry,
       "isValid" | "status" | "errors" | "errorMessage"
     >[]
-  ): CSVMeritEntry[] => {
-    const validatedEntries: CSVMeritEntry[] = [];
+  ): ParticipantMeritEntry[] => {
+    const validatedEntries: ParticipantMeritEntry[] = [];
     const seenStudentIds = new Set<string>();
 
     entries.forEach((entry) => {
@@ -105,18 +200,18 @@ export default function AdminMeritUpload({
         isValid = false;
       }
 
-      // Check for duplicate entries in the same upload
+      // Check for duplicate entries
       if (seenStudentIds.has(entry.studentId)) {
-        errors.push("Duplicate entry for student in this upload");
+        errors.push("Duplicate entry for student");
         isValid = false;
       } else {
         seenStudentIds.add(entry.studentId);
       }
 
-      // Validate points against event maximum
-      if (selectedEvent && entry.points > selectedEvent.points) {
+      // Validate points against threshold
+      if (entry.points > meritWeightage.maxPointsThreshold) {
         errors.push(
-          `Points exceed maximum allowed for event (${selectedEvent.points})`
+          `Points exceed maximum threshold (${meritWeightage.maxPointsThreshold})`
         );
         isValid = false;
       }
@@ -124,12 +219,6 @@ export default function AdminMeritUpload({
       // Validate points are positive
       if (entry.points <= 0) {
         errors.push("Points must be positive");
-        isValid = false;
-      }
-
-      // Validate merit type is not empty
-      if (!entry.meritType || entry.meritType.trim() === "") {
-        errors.push("Merit type is required");
         isValid = false;
       }
 
@@ -144,116 +233,41 @@ export default function AdminMeritUpload({
 
     return validatedEntries;
   };
-  const handleFileUpload = (
-    uploadEvent: React.ChangeEvent<HTMLInputElement>
+
+  const handleEventSelect = (event: Event) => {
+    setSelectedEvent(event);
+    updateMeritWeightageForEvent(event);
+    setActiveStep(1);
+  };
+
+  const handleWeightageNext = () => {
+    setIsProcessing(true);
+    // Generate participant data based on event registrations
+    setTimeout(() => {
+      const participants = getEventParticipants();
+      setParticipantData(participants);
+      setIsProcessing(false);
+      setActiveStep(2);
+    }, 1000);
+  };
+
+  const handleRoleChange = (
+    index: number,
+    newRole: "Participant" | "Organizer"
   ) => {
-    const file = uploadEvent.target.files?.[0];
-    if (file) {
-      setIsProcessing(true);
-      // Simulate file processing with validation
-      setTimeout(() => {
-        // Get the merit type based on the selected event's category
-        let eventMeritType = "University Merit"; // Default
-        if (selectedEvent) {
-          switch (selectedEvent.category) {
-            case "University":
-              eventMeritType = "University Merit";
-              break;
-            case "Faculty":
-              eventMeritType = "Faculty Merit";
-              break;
-            case "College":
-              eventMeritType = "College Merit";
-              break;
-            case "Club":
-              eventMeritType = "Club Merit";
-              break;
-          }
-        }
+    const updatedData = [...participantData];
+    updatedData[index] = {
+      ...updatedData[index],
+      role: newRole,
+      points:
+        newRole === "Participant"
+          ? meritWeightage.participantPoints
+          : meritWeightage.organizerPoints,
+    };
 
-        // Use sample data with the correct merit type and event points
-        const eventPoints = selectedEvent?.points || 6;
-        const rawEntries = [
-          {
-            studentId: "223001",
-            studentName: "Ahmad Abdullah",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223002",
-            studentName: "Sarah Lee",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223003",
-            studentName: "Raj Kumar",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223004",
-            studentName: "Li Wei",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223005",
-            studentName: "Fatimah Zahra",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223006",
-            studentName: "Chong Wei",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "INVALID001",
-            studentName: "Unknown Student",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223007",
-            studentName: "Siti Aishah",
-            points: eventPoints + 10, // Points exceed event maximum - will be invalid
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223008",
-            studentName: "John Smith",
-            points: eventPoints,
-            meritType: eventMeritType,
-          },
-          {
-            studentId: "223002",
-            studentName: "Sarah Lee",
-            points: eventPoints,
-            meritType: eventMeritType,
-          }, // Duplicate
-          {
-            studentId: "223009",
-            studentName: "Priya Sharma",
-            points: -5,
-            meritType: eventMeritType,
-          }, // Negative points
-          {
-            studentId: "223010",
-            studentName: "Test Student",
-            points: eventPoints,
-            meritType: "",
-          }, // Empty merit type
-        ];
-
-        const validatedData = validateCSVEntries(rawEntries);
-        setCsvData(validatedData);
-        setIsProcessing(false);
-        setActiveStep(2); // Move to review step
-      }, 2000);
-    }
+    // Re-validate the updated entry
+    const revalidated = validateParticipantEntries(updatedData);
+    setParticipantData(revalidated);
   };
 
   const handleSubmitMerit = () => {
@@ -273,14 +287,12 @@ export default function AdminMeritUpload({
     }, 1500);
   };
 
-  const validEntries = csvData.filter((entry) => entry.status === "valid");
-  const invalidEntries = csvData.filter((entry) => entry.status === "invalid");
-
-  const downloadTemplate = () => {
-    // In a real app, this would download a CSV template
-    alert("CSV template download started (demo functionality)");
-  };
-
+  const validEntries = participantData.filter(
+    (entry) => entry.status === "valid"
+  );
+  const invalidEntries = participantData.filter(
+    (entry) => entry.status === "invalid"
+  );
   const getStatusColor = (status: string): "success" | "error" | "default" => {
     switch (status) {
       case "valid":
@@ -289,6 +301,20 @@ export default function AdminMeritUpload({
         return "error";
       default:
         return "default";
+    }
+  };
+  const getMeritTypeColor = (meritType: string) => {
+    switch (meritType) {
+      case "University":
+        return "error"; // Red for university merit (consistent with categoryUtils)
+      case "Faculty":
+        return "primary"; // Blue for faculty merit
+      case "College":
+        return "success"; // Green for college merit
+      case "Club":
+        return "warning"; // Orange for club merit
+      default:
+        return "default"; // Default gray
     }
   };
   const renderEventStep = () => (
@@ -330,7 +356,15 @@ export default function AdminMeritUpload({
                     {selectedEvent?.id === event.id ? (
                       <CheckCircle color="primary" />
                     ) : (
-                      <RadioButtonUnchecked color="action" />
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: "50%",
+                          border: "2px solid",
+                          borderColor: "action.disabled",
+                        }}
+                      />
                     )}
                   </Box>
                   <Box sx={{ flexGrow: 1 }}>
@@ -342,14 +376,11 @@ export default function AdminMeritUpload({
                         mb: 1,
                       }}
                     >
-                      <Typography variant="h6">{event.title}</Typography>
+                      <Typography variant="h6">{event.title}</Typography>{" "}
                       <Chip
                         label={getCategoryDisplayName(event.category)}
-                        sx={{
-                          backgroundColor: getCategoryColor(event.category),
-                          color: "white",
-                        }}
                         size="small"
+                        color={getCategoryColor(event.category)}
                       />
                     </Box>
                     <Typography
@@ -384,83 +415,133 @@ export default function AdminMeritUpload({
 
       <Button
         variant="contained"
-        onClick={() => setActiveStep(1)}
+        onClick={() => handleEventSelect(selectedEvent!)}
         size="large"
         disabled={!selectedEvent}
       >
-        Proceed to Upload
+        Proceed to Set Weightages
       </Button>
     </Box>
   );
-  const renderUploadStep = () => (
+
+  const renderWeightageStep = () => (
     <Box>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => setActiveStep(0)}
-          sx={{ mr: 2 }}
-        >
-          Back to Event Selection
-        </Button>
-        <Typography variant="h6">Upload Merit Data (CSV)</Typography>
-      </Box>
+      <Typography variant="h6" gutterBottom>
+        Set Merit Point Weightages
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        Configure the merit points for different roles in the selected event
+      </Typography>
 
       {selectedEvent && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Uploading merit data for: <strong>{selectedEvent.title}</strong>
-          <br />
-          Please upload a CSV file with columns: StudentID, StudentName, Points,
-          MeritType
-        </Alert>
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <EventIcon color="primary" />
+              <Box>
+                <Typography variant="h6">{selectedEvent.title}</Typography>
+                <Chip
+                  label={getCategoryDisplayName(selectedEvent.category)}
+                  size="small"
+                  color={getCategoryColor(selectedEvent.category)}
+                />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
       )}
 
-      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-        <Button
-          variant="outlined"
-          startIcon={<Download />}
-          onClick={downloadTemplate}
-        >
-          Download CSV Template
-        </Button>
-      </Box>
-
-      <Paper
-        sx={{
-          p: 4,
-          textAlign: "center",
-          border: "2px dashed #ccc",
-          cursor: "pointer",
-          "&:hover": { borderColor: "primary.main" },
-        }}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <CloudUpload sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
-        <Typography variant="h6" gutterBottom>
-          Click to upload CSV file
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          Merit Configuration
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Or drag and drop your CSV file here
-        </Typography>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          style={{ display: "none" }}
-          onChange={handleFileUpload}
-        />
-      </Paper>
 
-      {isProcessing && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="body2" gutterBottom>
-            Processing CSV file...
-          </Typography>
-          <LinearProgress />
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+              <Typography variant="body2">Merit Type:</Typography>
+              <Chip
+                label={meritWeightage.meritType}
+                size="small"
+                color={getMeritTypeColor(meritWeightage.meritType)}
+                sx={{
+                  fontWeight: 500,
+                }}
+              />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Based on event category: {selectedEvent?.category}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+            <TextField
+              label="Participant Points"
+              type="number"
+              value={meritWeightage.participantPoints}
+              onChange={(e) =>
+                setMeritWeightage({
+                  ...meritWeightage,
+                  participantPoints: parseInt(e.target.value) || 0,
+                })
+              }
+              inputProps={{ min: 1, max: meritWeightage.maxPointsThreshold }}
+              sx={{ minWidth: 200 }}
+            />
+
+            <TextField
+              label="Organizer Points"
+              type="number"
+              value={meritWeightage.organizerPoints}
+              onChange={(e) =>
+                setMeritWeightage({
+                  ...meritWeightage,
+                  organizerPoints: parseInt(e.target.value) || 0,
+                })
+              }
+              inputProps={{ min: 1, max: meritWeightage.maxPointsThreshold }}
+              sx={{ minWidth: 200 }}
+            />
+
+            <TextField
+              label="Max Points Threshold"
+              type="number"
+              value={meritWeightage.maxPointsThreshold}
+              onChange={(e) =>
+                setMeritWeightage({
+                  ...meritWeightage,
+                  maxPointsThreshold: parseInt(e.target.value) || 1,
+                })
+              }
+              inputProps={{ min: 1 }}
+              sx={{ minWidth: 200 }}
+            />
+          </Box>
+          <Alert severity="info">
+            Participants will receive {meritWeightage.participantPoints} points,
+            while organizers will receive {meritWeightage.organizerPoints}{" "}
+            points. Maximum threshold is set to{" "}
+            {meritWeightage.maxPointsThreshold} points.
+          </Alert>
         </Box>
-      )}
+
+        <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+          <Button startIcon={<ArrowBack />} onClick={() => setActiveStep(0)}>
+            Back to Event Selection
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleWeightageNext}
+            disabled={isProcessing}
+          >
+            {isProcessing
+              ? "Loading Participants..."
+              : "Next: Review Participants"}
+          </Button>
+        </Box>
+      </Paper>
     </Box>
   );
-  const renderReviewStep = () => (
+  const renderParticipantReviewStep = () => (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Button
@@ -468,19 +549,21 @@ export default function AdminMeritUpload({
           onClick={() => setActiveStep(1)}
           sx={{ mr: 2 }}
         >
-          Back to Upload
+          Back to Weightages
         </Button>
-        <Typography variant="h6">Review Merit Data</Typography>
+        <Typography variant="h6">Review Participants & Assign Roles</Typography>
       </Box>
+
       {selectedEvent && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Reviewing merit data for: <strong>{selectedEvent.title}</strong>
+          Reviewing participants for: <strong>{selectedEvent.title}</strong>
         </Alert>
       )}
+
       <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
         <Chip
           label={`${validEntries.length} Valid Entries`}
-          color="secondary" // green
+          color="success"
           icon={<Check />}
         />
         <Chip
@@ -489,32 +572,34 @@ export default function AdminMeritUpload({
           icon={<Error />}
         />
       </Box>
+
       {invalidEntries.length > 0 && (
         <Alert severity="warning" sx={{ mb: 3 }}>
           {invalidEntries.length} entries have validation errors. Only valid
           entries will be processed.
         </Alert>
       )}
+
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Student ID</TableCell>
               <TableCell>Student Name</TableCell>
-              <TableCell>Faculty</TableCell>
-              <TableCell align="right">Points</TableCell>
+              <TableCell>Role</TableCell>
               <TableCell>Merit Type</TableCell>
+              <TableCell>Points</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Validation Details</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {csvData.map((entry, index) => {
+            {participantData.map((entry, index) => {
               const student = students.find(
                 (s) => s.studentId === entry.studentId
               );
               return (
-                <TableRow key={index}>
+                <TableRow key={`${entry.studentId}-${index}`}>
                   <TableCell>{entry.studentId}</TableCell>
                   <TableCell>
                     <Box>
@@ -523,52 +608,68 @@ export default function AdminMeritUpload({
                       </Typography>
                       {student && (
                         <Typography variant="caption" color="text.secondary">
-                          Year {student.year} • {student.program}
+                          {student.faculty} • Year {student.year}
                         </Typography>
                       )}
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" color="text.secondary">
-                      {student ? student.faculty : "Unknown"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography
-                      variant="body2"
-                      color={entry.isValid ? "text.primary" : "error.main"}
-                      fontWeight={entry.isValid ? "normal" : "bold"}
-                    >
-                      {entry.points}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{entry.meritType || "Not specified"}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Chip
-                        label={entry.status}
-                        color={getStatusColor(entry.status)}
-                        size="small"
-                      />
-                    </Box>
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <Select
+                        value={entry.role}
+                        onChange={(e) =>
+                          handleRoleChange(
+                            index,
+                            e.target.value as "Participant" | "Organizer"
+                          )
+                        }
+                        disabled={!entry.isValid}
+                      >
+                        <MenuItem value="Participant">Participant</MenuItem>
+                        <MenuItem value="Organizer">Organizer</MenuItem>
+                      </Select>
+                    </FormControl>
                   </TableCell>
                   <TableCell>
-                    {entry.isValid ? (
-                      <Typography variant="caption" color="success.main">
-                        ✓ All validations passed
-                      </Typography>
-                    ) : (
+                    {" "}
+                    <Chip
+                      label={entry.meritType}
+                      size="small"
+                      color={getMeritTypeColor(entry.meritType)}
+                      sx={{
+                        fontWeight: 500,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={entry.points}
+                      size="small"
+                      color={entry.isValid ? "primary" : "default"}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={entry.status}
+                      size="small"
+                      color={getStatusColor(entry.status)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {!entry.isValid && entry.errors && (
                       <Box>
-                        {entry.errors?.map((error, errorIndex) => (
-                          <Typography
-                            key={errorIndex}
-                            variant="caption"
-                            color="error.main"
-                            display="block"
-                          >
-                            • {error}
-                          </Typography>
-                        ))}
+                        {entry.errors.map(
+                          (error: string, errorIndex: number) => (
+                            <Typography
+                              key={errorIndex}
+                              variant="caption"
+                              color="error"
+                              sx={{ display: "block" }}
+                            >
+                              • {error}
+                            </Typography>
+                          )
+                        )}
                       </Box>
                     )}
                   </TableCell>
@@ -578,9 +679,16 @@ export default function AdminMeritUpload({
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <Button variant="outlined" onClick={() => setActiveStep(1)}>
-          Upload Different File
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setParticipantData([]);
+            setActiveStep(1);
+          }}
+        >
+          Reset
         </Button>
         <Button
           variant="contained"
@@ -588,12 +696,13 @@ export default function AdminMeritUpload({
           disabled={validEntries.length === 0 || isProcessing}
         >
           {isProcessing
-            ? "Processing..."
-            : `Submit ${validEntries.length} Valid Entries`}
+            ? "Submitting..."
+            : `Submit Merit for ${validEntries.length} Participants`}
         </Button>
       </Box>
     </Box>
   );
+
   const renderCompletionStep = () => (
     <Box sx={{ textAlign: "center" }}>
       <Check
@@ -616,51 +725,62 @@ export default function AdminMeritUpload({
           <strong>Upload Summary:</strong>
         </Typography>
         <Typography variant="body2">
-          • Valid entries processed: {validEntries.length}
+          • Total Participants:{" "}
+          {validEntries.filter((e) => e.role === "Participant").length}
+        </Typography>
+        <Typography variant="body2">
+          • Total Organizers:{" "}
+          {validEntries.filter((e) => e.role === "Organizer").length}
         </Typography>
         <Typography variant="body2">
           • Total points awarded:{" "}
           {validEntries.reduce((sum, entry) => sum + entry.points, 0)}
         </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="body2">• Merit Type:</Typography>
+          <Chip
+            label={meritWeightage.meritType}
+            size="small"
+            color={getMeritTypeColor(meritWeightage.meritType)}
+            sx={{
+              fontWeight: 500,
+            }}
+          />
+        </Box>
         <Typography variant="body2">• Event: {selectedEvent?.title}</Typography>
         <Typography variant="body2">• Date: {selectedEvent?.date}</Typography>
       </Box>
 
-      <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "center" }}>
+      <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button variant="contained" href="/dashboard">
+          Back to Dashboard
+        </Button>
         <Button
           variant="outlined"
           onClick={() => {
             setActiveStep(0);
-            setCsvData([]);
             setSelectedEvent(null);
+            setParticipantData([]);
           }}
         >
           Upload Merit for Another Event
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setActiveStep(2);
-          }}
-        >
-          View Upload Details
         </Button>
       </Box>
     </Box>
   );
 
-  const renderStepContent = () => {
-    switch (activeStep) {
+  const getStepContent = (step: number) => {
+    switch (step) {
       case 0:
         return renderEventStep();
       case 1:
-        return renderUploadStep();
+        return renderWeightageStep();
       case 2:
-        return renderReviewStep();
+        return renderParticipantReviewStep();
       case 3:
         return renderCompletionStep();
       default:
-        return null;
+        return renderEventStep();
     }
   };
 
@@ -669,8 +789,8 @@ export default function AdminMeritUpload({
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
           <strong>Admin Feature:</strong> This component allows merit
-          administrators to upload and assign merit points to students based on
-          event participation.
+          administrators to assign merit points to event participants with
+          role-based weightages instead of CSV uploads.
         </Typography>
       </Alert>
 
@@ -684,7 +804,9 @@ export default function AdminMeritUpload({
             ))}
           </Stepper>
 
-          {renderStepContent()}
+          {isProcessing && <LinearProgress sx={{ mb: 3 }} />}
+
+          {getStepContent(activeStep)}
         </CardContent>
       </Card>
     </Box>
