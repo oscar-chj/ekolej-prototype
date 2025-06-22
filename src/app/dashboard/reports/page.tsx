@@ -7,21 +7,20 @@ import { useEffect, useState } from "react";
 
 export default function MeritReportsPage() {
   const [studentId, setStudentId] = useState<string>("1"); // Default fallback
+
   useEffect(() => {
-    // Get current user ID from authentication, initialize if needed
+    // Get current user ID from authentication
     const getCurrentUser = async () => {
       try {
-        let user = await authService.getCurrentUser();
-        if (!user) {
-          // For prototype: initialize with default user (Ahmad Abdullah)
-          user = await authService.initializeWithUser("1");
-        }
+        const user = await authService.getCurrentUser();
         if (user) {
           setStudentId(user.id);
+        } else {
+          console.warn("No authenticated user found in reports page");
+          // Don't fallback to default user - this causes admin to become user 1
         }
       } catch (error) {
         console.error("Error getting current user:", error);
-        // Keep default value of "1"
       }
     };
 

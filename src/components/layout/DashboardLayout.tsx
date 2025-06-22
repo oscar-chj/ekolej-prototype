@@ -39,18 +39,16 @@ const DashboardLayout = memo(function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [, setCurrentUserName] = useState<string>("User");
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  useEffect(() => {
-    // Get current user name for display, initialize if needed
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));  useEffect(() => {
+    // Get current user name for display
     const getCurrentUserName = async () => {
       try {
-        let user = await authService.getCurrentUser();
-        if (!user) {
-          // For prototype: initialize with default user (Ahmad Abdullah)
-          user = await authService.initializeWithUser("1");
-        }
+        const user = await authService.getCurrentUser();
         if (user) {
           setCurrentUserName(user.name);
+        } else {
+          console.warn("No authenticated user found in DashboardLayout");
+          // Don't fallback to default user - this causes admin to become user 1
         }
       } catch (error) {
         console.error("Error getting current user name:", error);
