@@ -19,15 +19,13 @@ export default function MeritsPage() {
       try {
         setIsLoading(true);
         // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Get current authenticated user, initialize if none
-        let currentUser = await authService.getCurrentUser();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Get current authenticated user
+        const currentUser = await authService.getCurrentUser();
         if (!currentUser) {
-          // For prototype: initialize with default user (Ahmad Abdullah)
-          currentUser = await authService.initializeWithUser("1");
-          if (!currentUser) {
-            setError("User authentication failed");
-            return;
-          }
+          setError("No authenticated user found. Please log in again.");
+          return;
         }
 
         // Get merit data from centralized service using authenticated user's ID

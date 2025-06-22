@@ -35,6 +35,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ParticipantMeritEntry {
@@ -75,6 +76,7 @@ export default function AdminMeritUpload({
   eventId,
   onComplete,
 }: AdminMeritUploadProps) {
+  const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const [participantData, setParticipantData] = useState<
     ParticipantMeritEntry[]
@@ -781,9 +783,11 @@ export default function AdminMeritUpload({
             Date: <strong>{selectedEvent?.date}</strong>
           </Typography>
         </Box>
-      </Box>
-      <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>
-        <Button variant="contained" href="/dashboard">
+      </Box>      <Box sx={{ mt: 4, display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button 
+          variant="contained" 
+          onClick={() => router.push("/dashboard")}
+        >
           Back to Dashboard
         </Button>
         <Button

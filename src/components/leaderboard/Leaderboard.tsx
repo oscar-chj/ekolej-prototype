@@ -353,23 +353,20 @@ export default function Leaderboard() {
   const [currentUserId, setCurrentUserId] = useState<string>("1"); // Default fallback
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>(
     UserRole.STUDENT
-  );
-  useEffect(() => {
-    // Get current user ID and role from authentication, initialize if needed
+  );  useEffect(() => {
+    // Get current user ID and role from authentication
     const getCurrentUser = async () => {
       try {
-        let user = await authService.getCurrentUser();
-        if (!user) {
-          // For prototype: initialize with default user (Ahmad Abdullah)
-          user = await authService.initializeWithUser("1");
-        }
+        const user = await authService.getCurrentUser();
         if (user) {
           setCurrentUserId(user.id);
           setCurrentUserRole(user.role);
+        } else {
+          console.warn("No authenticated user found in leaderboard");
+          // Don't fallback to default user - this causes admin to become user 1
         }
       } catch (error) {
         console.error("Error getting current user:", error);
-        // Keep default values
       }
     };
 
