@@ -41,7 +41,19 @@ async function main() {
       image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sysadmin",
     },
   });
-  console.log(`✅ Created ${2} admin users`);
+
+  // Add personal admin (for production)
+  await prisma.user.create({
+    data: {
+      name: "Chung Hao Jun",
+      email: "haojchung@gmail.com",
+      emailVerified: true,
+      role: UserRole.ADMIN,
+      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=haojchung",
+    },
+  });
+
+  console.log(`✅ Created ${3} admin users`);
 
   // Create Student Users
   console.log("👨‍🎓 Creating student users...");
