@@ -143,17 +143,51 @@ yarn start
 
 - Ensure `DATABASE_URL` and any auth related environment variables are set in the target environment.
 
+## Architecture & Project Structure
+
+The application follows a **Layered Service-Oriented Architecture** to ensure clean separation of concerns and high performance.
+
+### Layers
+
+1.  **Service Layer (`src/lib/services/`)**
+    *   The core business logic of the application.
+    *   Directly interacts with **Prisma** to perform database operations.
+    *   Centralizes validation and data transformation logic.
+    *   *Examples: `meritService.ts`, `eventService.ts`, `leaderboardService.ts`*
+
+2.  **Server Actions (`src/app/actions/`)**
+    *   Thin wrappers around the Service Layer used for mutations.
+    *   Handle authentication checks and Next.js cache revalidation (`revalidatePath`).
+    *   Called directly from React Client Components.
+
+3.  **API Routes (`src/app/api/`)**
+    *   Thin wrappers around the Service Layer that expose functionality via REST endpoints.
+    *   Enables external client access and standard HTTP interactions.
+
+4.  **Client Services (`src/services/`)**
+    *   An abstraction layer for Client Components to interact with API Routes.
+    *   Implements **Request Deduplication**: Prevents redundant concurrent API calls by caching in-flight promises.
+    *   Implements **In-Memory Caching**: Shared data fetching across independent components.
+
+5.  **Modular UI Components (`src/components/`)**
+    *   UI is broken down into small, single-responsibility components.
+    *   Complex logic is extracted into custom hooks (e.g., `src/components/events/useEvents.ts`).
+
+### Directory Overview
+
+- `src/app/` - Next.js pages and API routes.
+- `src/app/actions/` - Server Actions for client-side mutations.
+- `src/components/` - Modular UI components organized by feature.
+- `src/lib/services/` - Server-side service layer (Database logic).
+- `src/services/` - Client-side service layer (API abstraction + deduplication).
+- `src/hooks/` - Global shared React hooks.
+- `prisma/` - Database schema and migrations.
+
 ## Troubleshooting
 
-- "Cannot connect to database": verify `DATABASE_URL`, database service is running, and credentials are correct. If using Docker, confirm the DB container is healthy.
-- "Prisma client not found": run `yarn db:generate` and ensure the project imports the generated client path.
-- Migration conflicts: check `prisma/migrations` and resolve by resetting the dev DB (`yarn db:migrate:reset` or similar) only if safe.
+- "Cannot connect to database": verify `DATABASE_URL`, database service is running, and credentials are correct.
+- "Prisma client not found": run `yarn db:generate`.
+- Request Deduplication issues: The client services clear their cache every 100ms; ensure components aren't assuming long-term persistence in the service layer.
 
-## Project structure (high level)
-
-- `app/` - Next.js app router pages and components
-- `src/` - React components, hooks, services, and utilities
-- `prisma/` - Prisma schema, seed and migrations
-- `generated/prisma` - Generated Prisma client (do not edit manually)
-
+---
 For more details, explore the code under `src/` and `app/`.

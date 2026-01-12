@@ -1,37 +1,27 @@
 import { auth } from "@/auth";
-import { prisma } from "../../../../../prisma/prisma";
+import { userService } from "@/lib/services/userService";
 import { NextResponse } from "next/server";
-import { User, UserRole } from "@/types/api.types";
+import { UserRole } from "@/types/api.types";
 
-/**
- * GET /api/students/me
- * Get current authenticated user's data
- */
 export async function GET() {
   try {
-    // Get current authenticated user
     const session = await auth();
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find user in database
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    const result = await userService.getCurrentUser(session.user.email);
 
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 404 });
+    }
+
+    const user = result.data;
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "User profile not found" }, { status: 404 });
     }
 
-    // Return user data with actual role from database
-    const userData: User = {
+    const userData = {
       id: user.id,
       name: user.name ?? "",
       email: user.email,
@@ -53,9 +43,7 @@ export async function GET() {
       data: userData,
     });
   } catch (error) {
-    // TODO: Implement proper error handling/display
-    // eslint-disable-next-line no-console
-    console.error("Error fetching student data:", error);
+    console.error("Error in GET /api/students/me:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch student data" },
       { status: 500 }

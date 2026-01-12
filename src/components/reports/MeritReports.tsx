@@ -83,7 +83,7 @@ export default function MeritReports({
         });
 
         if (response.success && response.data) {
-          setRecords(response.data.records);
+          setRecords(response.data.records || []);
         }
       } catch (error) {
         // TODO: Implement proper error handling/display
@@ -118,7 +118,7 @@ export default function MeritReports({
   };
 
   const renderMeritRecords = (meritRecords: MeritRecord[]) => {
-    if (meritRecords.length === 0) {
+    if (!meritRecords || meritRecords.length === 0) {
       return (
         <Alert severity="info" sx={{ mt: 2 }}>
           No merit records found for this category.
@@ -252,7 +252,7 @@ export default function MeritReports({
   };
 
   // Calculate totals based on provided records
-  const totalPoints = records.reduce((sum, record) => sum + record.points, 0);
+  const totalPoints = (records || []).reduce((sum, record) => sum + record.points, 0);
 
   return (
     <Box sx={{ width: "100%" }}>

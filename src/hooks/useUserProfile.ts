@@ -4,6 +4,8 @@ import { Student } from "@/types/api.types";
 import { MeritSummary } from "@/types/merit.types";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import studentService from "@/services/student/studentService";
+import meritService from "@/services/merit/meritService";
 
 interface UseUserProfileReturn {
   student: Student | null;
@@ -26,7 +28,7 @@ export function useUserProfile(): UseUserProfileReturn {
 
   const fetchUserProfile = async () => {
     if (!session?.user?.email) {
-      setIsLoading(false);
+      if (status !== "loading") setIsLoading(false);
       return;
     }
 
@@ -34,29 +36,22 @@ export function useUserProfile(): UseUserProfileReturn {
       setIsLoading(true);
       setError(null);
 
-      // Fetch student data
-      const studentResponse = await fetch("/api/students/me");
+      // Fetch student data using deduplicated service
+      const studentResponse = await studentService.getCurrentStudent();
 
-      if (!studentResponse.ok) {
-        throw new Error("Failed to fetch student data");
-      }
-      const studentData = await studentResponse.json();
+      if (studentResponse.success && studentResponse.data) {
+        setStudent(studentResponse.data);
 
-      if (studentData.success && studentData.data) {
-        setStudent(studentData.data);
+        // Fetch merit summary using deduplicated service
+        const meritResponse = await meritService.getStudentMeritSummary(studentResponse.data.id);
 
-        // Fetch merit summary
-        const meritResponse = await fetch(
-          `/api/merits/summary?studentId=${studentData.data.id}`
-        );
-        if (meritResponse.ok) {
-          const meritData = await meritResponse.json();
-          if (meritData.success && meritData.data) {
-            setMeritSummary(meritData.data);
-          }
+        if (meritResponse.success && meritResponse.data) {
+          // Wrap in summary object to match the component's expected MeritSummary type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setMeritSummary(meritResponse.data as any);
         }
       } else {
-        throw new Error(studentData.error || "Failed to load profile");
+        throw new Error(studentResponse.error || "Failed to load profile");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load profile");

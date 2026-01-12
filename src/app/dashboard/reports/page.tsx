@@ -5,15 +5,22 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 export default function MeritReportsPage() {
-  const [studentId, setStudentId] = useState<string>("1"); // Default fallback
-  const { data: session } = useSession();
+  const [studentId, setStudentId] = useState<string>("");
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Get current user ID from NextAuth session
     if (session?.user?.id) {
       setStudentId(session.user.id);
     }
   }, [session]);
+
+  if (status === "loading") {
+    return <div>Loading session...</div>;
+  }
+
+  if (!studentId) {
+    return <div>Unable to load your profile. Please log in again.</div>;
+  }
 
   const handleDownloadReport = () => {
     // In production, this would generate and download a PDF report
