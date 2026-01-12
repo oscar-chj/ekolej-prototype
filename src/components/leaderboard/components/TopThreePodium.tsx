@@ -61,7 +61,7 @@ export function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string
                                 >{student.name.charAt(0)}</Avatar>
                                 <Typography variant="h6" fontWeight="bold" noWrap>{student.name}</Typography>
                                 <Typography variant="body2" color="text.secondary" gutterBottom noWrap>
-                                    {student.faculty} • Year {student.year}
+                                    {student.faculty} • Year {student.year ?? 1}
                                 </Typography>
                                 <Typography variant="h4" color="primary" fontWeight="bold">{student.totalPoints}</Typography>
                                 <Typography variant="caption" color="text.secondary">Total Points</Typography>

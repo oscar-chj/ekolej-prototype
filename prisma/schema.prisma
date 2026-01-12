@@ -50,7 +50,7 @@ model User {
   // Student-specific fields
   studentId         String?             @unique
   faculty           String?
-  year              Int?
+  year              Int?                @default(1)
   program           String?
   totalMeritPoints  Int                 @default(0)
   enrollmentDate    DateTime?

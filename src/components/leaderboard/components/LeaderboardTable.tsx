@@ -109,7 +109,7 @@ export function LeaderboardTable({
                                                 <Typography variant="body2" fontWeight="bold" noWrap>{entry.name}</Typography>
                                                 {isCurrentUser && <Chip label="You" size="small" color="primary" sx={{ height: 18 }} />}
                                             </Box>
-                                            <Typography variant="caption" color="text.secondary" noWrap>{entry.faculty} • Year {entry.year}</Typography>
+                                            <Typography variant="caption" color="text.secondary" noWrap>{entry.faculty} • Year {entry.year ?? 1}</Typography>
                                         </Box>
                                         <Typography variant="h6" color="primary" fontWeight="bold" sx={{ minWidth: 50, textAlign: "right" }}>
                                             {points}
@@ -166,7 +166,7 @@ export function LeaderboardTable({
                                     </Box>
                                 </TableCell>
                                 <TableCell>{entry.faculty}</TableCell>
-                                <TableCell><Chip label={`Year ${entry.year}`} size="small" variant="outlined" /></TableCell>
+                                <TableCell><Chip label={`Year ${entry.year ?? 1}`} size="small" variant="outlined" /></TableCell>
                                 <TableCell align="right">
                                     <Typography variant="h6" color="primary" fontWeight="bold">{points}</Typography>
                                 </TableCell>
