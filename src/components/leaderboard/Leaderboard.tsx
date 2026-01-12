@@ -15,13 +15,13 @@ export default function Leaderboard() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTab, setSelectedTab] = useState(0);
-  const [currentUserId, setCurrentUserId] = useState<string>("1");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>("");
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>(UserRole.STUDENT);
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (session?.user?.id) {
-      setCurrentUserId(session.user.id);
+    if (session?.user?.email) {
+      setCurrentUserEmail(session.user.email);
       setCurrentUserRole((session.user.role as UserRole) ?? UserRole.STUDENT);
     }
   }, [session]);
@@ -46,12 +46,12 @@ export default function Leaderboard() {
       </Box>
 
       <CurrentUserRanking
-        currentUserId={currentUserId}
+        currentUserEmail={currentUserEmail}
         sortBy={currentSortBy}
         isStudent={isStudent}
       />
 
-      <TopThreePodium currentUserId={currentUserId} />
+      <TopThreePodium currentUserEmail={currentUserEmail} />
 
       <Paper>
         {isMobile ? (
@@ -88,7 +88,7 @@ export default function Leaderboard() {
         )}
 
         <Box sx={{ p: isMobile ? 0 : 3 }}>
-          <LeaderboardTable sortBy={currentSortBy} currentUserId={currentUserId} />
+          <LeaderboardTable sortBy={currentSortBy} currentUserEmail={currentUserEmail} />
         </Box>
       </Paper>
     </Box>

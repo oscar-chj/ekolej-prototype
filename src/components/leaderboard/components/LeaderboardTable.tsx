@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { getLeaderboardAction } from "@/app/actions/leaderboardActions";
 import {
     Avatar, Box, Chip, Divider, List, ListItem, Paper, Skeleton,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Typography, useMediaQuery, useTheme
 } from "@mui/material";
-import { getLeaderboardAction } from "@/app/actions/leaderboardActions";
+import { useEffect, useRef, useState } from "react";
 
 export interface LeaderboardEntry {
     id: string;
     studentId: string;
+    email: string;
     name: string;
     faculty: string;
     year: number;
@@ -23,7 +24,7 @@ export interface LeaderboardEntry {
 
 interface LeaderboardTableProps {
     sortBy: "total" | "university" | "faculty" | "college" | "club";
-    currentUserId?: string;
+    currentUserEmail?: string;
 }
 
 export function getRankColor(rank: number): string {
@@ -46,7 +47,7 @@ export function getRankIcon(rank: number): string {
 
 export function LeaderboardTable({
     sortBy,
-    currentUserId = "1",
+    currentUserEmail = "",
 }: LeaderboardTableProps) {
     const cacheRef = useRef<Record<string, LeaderboardEntry[]>>({});
     const [sortedData, setSortedData] = useState<LeaderboardEntry[]>([]);
@@ -93,12 +94,23 @@ export function LeaderboardTable({
                     {displayData.map((entry, index) => {
                         const actualIndex = sortedData.findIndex((item) => item.id === entry.id);
                         const displayRank = actualIndex + 1;
-                        const isCurrentUser = entry.id === currentUserId;
+                        const isCurrentUser = entry.email === currentUserEmail;
                         const points = getPointsByCategory(entry, sortBy);
 
                         return (
                             <React.Fragment key={entry.id}>
-                                <ListItem sx={{ py: 2, px: 2, ...(isCurrentUser && { bgcolor: "primary.lighter", borderLeft: "4px solid", borderColor: "primary.main" }) }}>
+                                <ListItem
+                                    sx={{
+                                        py: 2,
+                                        px: 2,
+                                        ...(isCurrentUser && {
+                                            bgcolor: "primary.50",
+                                            borderLeft: "4px solid",
+                                            borderColor: "primary.main",
+                                            boxShadow: "0 0 8px rgba(25, 118, 210, 0.2)"
+                                        })
+                                    }}
+                                >
                                     <Box sx={{ display: "flex", width: "100%", alignItems: "center", gap: 2 }}>
                                         <Typography variant="h6" sx={{ color: getRankColor(displayRank), fontWeight: "bold", minWidth: 40 }}>
                                             {getRankIcon(displayRank)}
@@ -143,11 +155,22 @@ export function LeaderboardTable({
                     {displayData.map((entry) => {
                         const actualIndex = sortedData.findIndex((item) => item.id === entry.id);
                         const displayRank = actualIndex + 1;
-                        const isCurrentUser = entry.id === currentUserId;
+                        const isCurrentUser = entry.email === currentUserEmail;
                         const points = getPointsByCategory(entry, sortBy);
 
                         return (
-                            <TableRow key={entry.id} sx={{ "&:nth-of-type(odd)": { backgroundColor: "action.hover" }, ...(isCurrentUser && { border: "2px solid", borderColor: "primary.main" }) }}>
+                            <TableRow
+                                key={entry.id}
+                                sx={{
+                                    "&:nth-of-type(odd)": { backgroundColor: "action.hover" },
+                                    ...(isCurrentUser && {
+                                        backgroundColor: "primary.50",
+                                        border: "2px solid",
+                                        borderColor: "primary.main",
+                                        boxShadow: "0 0 8px rgba(25, 118, 210, 0.2)"
+                                    })
+                                }}
+                            >
                                 <TableCell>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         <Typography variant="h6" sx={{ color: getRankColor(displayRank), fontWeight: "bold" }}>
@@ -250,3 +273,4 @@ function renderDesktopSkeleton() {
 }
 
 import React from "react"; // for React.Fragment
+

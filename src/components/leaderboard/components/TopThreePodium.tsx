@@ -5,7 +5,7 @@ import { Avatar, Box, Card, CardContent, Chip, Skeleton, Typography } from "@mui
 import { getLeaderboardAction } from "@/app/actions/leaderboardActions";
 import { LeaderboardEntry, getRankColor } from "./LeaderboardTable";
 
-export function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string }) {
+export function TopThreePodium({ currentUserEmail = "" }: { currentUserEmail?: string }) {
     const [top3, setTop3] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const cacheRef = useRef<LeaderboardEntry[] | null>(null);
@@ -43,7 +43,7 @@ export function TopThreePodium({ currentUserId = "1" }: { currentUserId?: string
             <Typography variant="h5" gutterBottom fontWeight="bold">🏆 Top Performers</Typography>
             <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap" }}>
                 {top3.map((student, index) => {
-                    const isCurrentUser = student.id === currentUserId;
+                    const isCurrentUser = student.email === currentUserEmail;
                     return (
                         <Card
                             key={student.id}

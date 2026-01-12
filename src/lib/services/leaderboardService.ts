@@ -14,6 +14,7 @@ export class LeaderboardService {
                 select: {
                     id: true,
                     studentId: true,
+                    email: true,
                     name: true,
                     faculty: true,
                     year: true,
@@ -45,6 +46,7 @@ export class LeaderboardService {
                 return {
                     id: student.id,
                     studentId: student.studentId,
+                    email: student.email,
                     name: student.name,
                     faculty: student.faculty,
                     year: student.year,
@@ -74,6 +76,31 @@ export class LeaderboardService {
             // Count students with more points than this one
             const student = await prisma.user.findUnique({
                 where: { id: studentId },
+                select: { totalMeritPoints: true }
+            });
+
+            if (!student) return { success: false, error: "Student not found" };
+
+            const rank = await prisma.user.count({
+                where: {
+                    role: 'STUDENT',
+                    totalMeritPoints: {
+                        gt: student.totalMeritPoints
+                    }
+                }
+            });
+
+            return { success: true, data: { rank: rank + 1, totalPoints: student.totalMeritPoints } };
+        } catch (error) {
+            console.error("Error fetching student rank:", error);
+            return { success: false, error: "Failed to fetch student rank" };
+        }
+    }
+
+    async getStudentRankByEmail(email: string) {
+        try {
+            const student = await prisma.user.findUnique({
+                where: { email },
                 select: { totalMeritPoints: true }
             });
 

@@ -6,6 +6,6 @@ export async function getLeaderboardAction(sortBy: 'total' | 'university' | 'fac
     return await leaderboardService.getLeaderboard(sortBy);
 }
 
-export async function getStudentRankAction(studentId: string) {
-    return await leaderboardService.getStudentRank(studentId);
+export async function getStudentRankAction(email: string) {
+    return await leaderboardService.getStudentRankByEmail(email);
 }

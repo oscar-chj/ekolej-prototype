@@ -5,13 +5,13 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 import { getStudentRankAction } from "@/app/actions/leaderboardActions";
 
 interface CurrentUserRankingProps {
-    currentUserId: string;
+    currentUserEmail: string;
     sortBy: "total" | "university" | "faculty" | "college" | "club";
     isStudent: boolean;
 }
 
 export function CurrentUserRanking({
-    currentUserId,
+    currentUserEmail,
     sortBy,
     isStudent,
 }: CurrentUserRankingProps) {
@@ -26,15 +26,12 @@ export function CurrentUserRanking({
 
         const fetchRanking = async () => {
             try {
-                const result = await getStudentRankAction(currentUserId);
+                const result = await getStudentRankAction(currentUserEmail);
                 if (result.success && result.data) {
-                    // Since getStudentRankAction only returns rank and totalPoints, 
-                    // we might need to adjust based on category if we want category-specific rank
-                    // For now, let's just show the overall rank if that's what's available
                     setRanking({
                         rank: result.data.rank,
                         points: result.data.totalPoints,
-                        total: 100, // This should probably be total student count
+                        total: 100,
                     });
                 }
             } catch (error) {
@@ -43,7 +40,7 @@ export function CurrentUserRanking({
         };
 
         fetchRanking();
-    }, [currentUserId, sortBy, isStudent]);
+    }, [currentUserEmail, sortBy, isStudent]);
 
     if (!isStudent || !ranking) return null;
 
