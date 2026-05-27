@@ -1,5 +1,7 @@
 import { prisma } from "../../../prisma/prisma";
 import { Event, EventCategory, EventStatus } from "@/types/api.types";
+import { eventBroker } from "../events";
+import { ActivityAction } from "../../../generated/prisma/client";
 
 export class EventService {
     async getEvents(
@@ -172,6 +174,20 @@ export class EventService {
                 data: { eventId, studentId: userId, status: registrationStatus },
             });
 
+            // Emit registration completed/waitlisted event to broker
+            eventBroker.emit(ActivityAction.REGISTRATION_COMPLETED, {
+                actorId: userId,
+                studentId: userId,
+                eventId: eventId,
+                registrationId: registrationStatus === "WAITLISTED" ? "WAITLISTED" : registration.id,
+                eventTitle: event.title,
+                eventCategory: event.category as string,
+                eventPoints: event.points,
+                eventDate: event.date instanceof Date ? event.date.toLocaleDateString() : String(event.date),
+                eventTime: event.time,
+                eventLocation: event.location,
+            });
+
             return { success: true, data: registration };
         } catch (error) {
             console.error("Error in registerForEvent:", error);
@@ -188,9 +204,30 @@ export class EventService {
             if (!registration) return { success: false, error: "Registration not found" };
             if (registration.status === "ATTENDED") return { success: false, error: "Cannot cancel after attendance marked" };
 
+            const event = await prisma.event.findUnique({
+                where: { id: eventId },
+            });
+
+            if (!event) return { success: false, error: "Event not found" };
+
+            const student = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { name: true, email: true },
+            });
+
             await prisma.eventRegistration.delete({ where: { id: registration.id } });
 
-            // Handle waitlist
+            // Emit registration cancelled event to broker
+            eventBroker.emit(ActivityAction.REGISTRATION_CANCELLED, {
+                actorId: userId,
+                studentId: userId,
+                eventId: eventId,
+                eventTitle: event.title,
+                eventDate: event.date instanceof Date ? event.date.toLocaleDateString() : String(event.date),
+                wasPromotedFromWaitlist: false,
+            });
+
+            // Handle waitlist promotion
             if (registration.status === "REGISTERED") {
                 const nextInWaitlist = await prisma.eventRegistration.findFirst({
                     where: { eventId, status: "WAITLISTED" },
@@ -201,6 +238,20 @@ export class EventService {
                     await prisma.eventRegistration.update({
                         where: { id: nextInWaitlist.id },
                         data: { status: "REGISTERED" },
+                    });
+
+                    // Emit waitlist promotion (registration completed) event to broker
+                    eventBroker.emit(ActivityAction.REGISTRATION_COMPLETED, {
+                        actorId: "system",
+                        studentId: nextInWaitlist.studentId,
+                        eventId: eventId,
+                        registrationId: nextInWaitlist.id,
+                        eventTitle: event.title,
+                        eventCategory: event.category as string,
+                        eventPoints: event.points,
+                        eventDate: event.date instanceof Date ? event.date.toLocaleDateString() : String(event.date),
+                        eventTime: event.time,
+                        eventLocation: event.location,
                     });
                 }
             }

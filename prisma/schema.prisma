@@ -46,6 +46,7 @@ model User {
   emailVerified     Boolean             @default(false)
   image             String?
   role              UserRole            @default(STUDENT)
+  emailSubscribed   Boolean             @default(true)
   
   // Student-specific fields
   studentId         String?             @unique
@@ -62,6 +63,7 @@ model User {
   // Relations
   registrations     EventRegistration[]
   meritRecords      MeritRecord[]
+  activityLogs      ActivityLog[]
   
   @@index([email])
   @@index([studentId])
@@ -90,6 +92,7 @@ model Event {
   // Relations
   registrations   EventRegistration[]
   meritRecords    MeritRecord[]
+  activityLogs    ActivityLog[]
   
   @@index([category])
   @@index([status])
@@ -143,4 +146,33 @@ model MeritRecord {
   @@index([eventId])
   @@index([category])
   @@index([date])
+}
+
+// Activity logging models
+enum ActivityAction {
+  MERIT_ADDED
+  MERIT_UPDATED
+  MERIT_DELETED
+  REGISTRATION_COMPLETED
+  REGISTRATION_CANCELLED
+  EVENT_CREATED
+  EVENT_STATUS_CHANGED
+}
+
+model ActivityLog {
+  id          String         @id @default(cuid())
+  actorId     String         // User ID of who performed the action (e.g. system, admin, student)
+  action      ActivityAction
+  studentId   String?        // Associated student (if applicable)
+  eventId     String?        // Associated event (if applicable)
+  details     Json           // JSON payload containing context (e.g. points, change delta, description)
+  createdAt   DateTime       @default(now())
+
+  // Relations
+  student     User?          @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  event       Event?         @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([eventId])
+  @@index([createdAt])
 }
