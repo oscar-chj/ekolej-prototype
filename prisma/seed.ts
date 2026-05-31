@@ -5,7 +5,7 @@ import {
   EventCategory,
   EventStatus,
   RegistrationStatus,
-} from "../generated/prisma";
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
