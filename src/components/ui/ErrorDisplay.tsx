@@ -1,5 +1,5 @@
+import { ErrorOutlined, Refresh } from "@mui/icons-material";
 import { Alert, Box, Button, Typography } from "@mui/material";
-import { ErrorOutline, Refresh } from "@mui/icons-material";
 import { ReactNode } from "react";
 
 interface ErrorDisplayProps {
@@ -22,7 +22,7 @@ export function ErrorDisplay({
 }: ErrorDisplayProps) {
   return (
     <Box sx={{ textAlign: "center", py: 4 }}>
-      <ErrorOutline sx={{ fontSize: 48, color: "error.main", mb: 2 }} />
+      <ErrorOutlined sx={{ fontSize: 48, color: "error.main", mb: 2 }} />
       <Typography variant="h6" color="error" gutterBottom>
         {title}
       </Typography>
