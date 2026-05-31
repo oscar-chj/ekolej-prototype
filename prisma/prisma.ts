@@ -2,11 +2,36 @@ import { PrismaClient } from "./generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  pgPool?: Pool;
+};
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
+const dbUrl = process.env.DATABASE_URL || "";
+const isAccelerate =
+  dbUrl.startsWith("prisma://") || dbUrl.startsWith("prisma+postgres://");
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+let prismaInstance: PrismaClient;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (isAccelerate) {
+  prismaInstance =
+    globalForPrisma.prisma ?? new PrismaClient({ accelerateUrl: dbUrl });
+} else {
+  const pool = globalForPrisma.pgPool ?? new Pool({ connectionString: dbUrl });
+  prismaInstance =
+    globalForPrisma.prisma ??
+    (() => {
+      const adapter = new PrismaPg(pool);
+      return new PrismaClient({ adapter });
+    })();
+
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.pgPool = pool;
+  }
+}
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prismaInstance;
+}
+
+export const prisma = prismaInstance;
