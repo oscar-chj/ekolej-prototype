@@ -2,6 +2,30 @@
 
 import React from 'react';
 
+// 1.initialise interface
+export interface EmailEntryProp {
+  date: Date;
+  name: string;
+  description: string;
+  status: string;
+}
+
+// 2.mock dataset
+export const SAMPLE_DATA: EmailEntryProp[] = [
+  {
+    date: new Date(),
+    name: "Test Entry 1",
+    description: "This is a sample description for the first email entry.",
+    status: "Pending",
+  },
+  {
+    date: new Date(),
+    name: "Test Entry 2",
+    description: "This is a sample description for the second email entry.",
+    status: "Completed",
+  },
+];
+
 export default function EmailLogsPage() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#fcf8fa', padding: '48px 24px', display: 'flex', justifyContent: 'center', alignItems: 'start' }}>
