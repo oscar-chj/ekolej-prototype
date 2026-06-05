@@ -1,59 +1,44 @@
 "use client";
 
-import React from 'react';
 
-//Test email services by using button
-import { useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
+
 import { sendEmailAction } from "@/app/actions/emailAction";
-import { emailService } from "@/services/email/emailService";
+import { fetchLogsAction } from "@/app/actions/emailAction";
 
 // 1.initialise interface
-export interface EmailEntryProp {
-  date: Date;
-  name: string;
-  description: string;
+export interface EmailLog {
+  id: string;
+  recipient: string;
   status: string;
+  description: string;
+  createdAt: Date;
 }
 
-// 2.mock dataset
-export const SAMPLE_DATA: EmailEntryProp[] = [
-  {
-    date: new Date('2026-06-06T12:11:32Z'),
-    name: "Alex Rivers",
-    description: "New Event Added: Annual Science Fair",
-    status: "Delivered",
-  },
-  {
-    date: new Date('2026-06-06T11:05:32Z'),
-    name: "Jordan Lee",
-    description: "Event Reminder: Robotics Workshop",
-    status: "Bounced",
-  },
-  {
-    date: new Date('2026-06-05T09:00:00Z'),
-    name: "System Admin",
-    description: "Server Maintenance Alert",
-    status: "Pending",
-  },
-];
-
 export default function EmailLogsPage() {
-  const [mounted, setMounted] = React.useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [logs, setLogs] = useState<EmailLog[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  const handleTestSend = () => {
-    startTransition(async () => {
-     
-      await sendEmailAction("tester@upm.edu.my", "Test Subject", "Hello World!");
-      alert("Email logged successfully!");
+  useEffect(() => {
+      setMounted(true);
+      fetchLogsAction().then((data) => setLogs(data));
+    }, []);
     
-    });
-  };
+  const handleTestSend = () => {
+      startTransition(async () => {
+        await sendEmailAction("tester@upm.edu.my", "Test Subject", "Hello World!");
+        alert("Email logged successfully!");
+        const updatedLogs = await fetchLogsAction(); 
+        setLogs(updatedLogs); 
+      });
+    };
 
 
-  React.useEffect(() => {
+  {/*React.useEffect(() => {
     setMounted(true);
-  }, []);
+  }, []);*/}
+
     return (
       
       <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#fcf8fa', padding: '48px 24px', display: 'flex', justifyContent: 'center', alignItems: 'start' }}>
@@ -148,50 +133,51 @@ export default function EmailLogsPage() {
                   </tr>
                 </thead>
                 <tbody style={{ color: '#1b1b1d' }}>
-                  {SAMPLE_DATA.map((item, index) => (
-                    <tr key={index} style={{ borderBottom: '1px solid #c6c6cd' }}>
-                    
-                    <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                      <div style={{ fontWeight: '600' }}>
-                        {mounted ? item.date.toLocaleDateString() : 'Loading...'}
-                      </div>
-                      <div style={{ color: '#45464d', fontSize: '11px', marginTop: '4px' }}>
-                        {mounted ? item.date.toLocaleTimeString() : ''}
-                      </div>
-                    </td>
-                                          
-                      <td style={{ padding: '20px 24px' }}>
-                        <div style={{ fontWeight: '600' }}>{item.name}</div>
-                        <div style={{ color: '#45464d', fontSize: '13px', marginTop: '4px' }}>{item.description}</div>
-                      </td>
-                      
-                      <td style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
-                        <span style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          padding: '4px 12px', 
-                          borderRadius: '9999px', 
-                          fontSize: '12px', 
-                          fontWeight: '600',
-                          // 根據狀態設定顏色
-                          backgroundColor: item.status.toLowerCase() === 'delivered' ? '#e6f4ea' : 
-                                          item.status.toLowerCase() === 'bounced' ? '#fce8e6' : '#fff8e6',
-                          color: item.status.toLowerCase() === 'delivered' ? '#137333' : 
-                                item.status.toLowerCase() === 'bounced' ? '#c5221f' : '#b06000',
-                          border: item.status.toLowerCase() === 'delivered' ? '1px solid #ceead6' : 
-                                  item.status.toLowerCase() === 'bounced' ? '1px solid #fad2cf' : '1px solid #ffe599'
-                        }}>
-                          {item.status}
-                        </span>
-                      </td>
-                      
-                      <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>
-                          Resend
-                        </span>
-                      </td>
+                  {logs.length > 0 ? (
+                    logs.map((item: any, index: number) => (
+                      <tr key={index} style={{ borderBottom: '1px solid #c6c6cd' }}>
+                        <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontWeight: '600' }}>
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </div>
+                          <div style={{ color: '#45464d', fontSize: '11px', marginTop: '4px' }}>
+                            {new Date(item.createdAt).toLocaleTimeString()}
+                          </div>
+                        </td>
+                        
+                        <td style={{ padding: '20px 24px' }}>
+                          <div style={{ fontWeight: '600' }}>{item.recipient}</div>
+                          <div style={{ color: '#45464d', fontSize: '13px', marginTop: '4px' }}>{item.description}</div>
+                        </td>
+                        
+                        <td style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
+                          <span style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            padding: '4px 12px', 
+                            borderRadius: '9999px', 
+                            fontSize: '12px', 
+                            fontWeight: '600',
+                            backgroundColor: item.status.toLowerCase() === 'delivered' ? '#e6f4ea' : '#fce8e6',
+                            color: item.status.toLowerCase() === 'delivered' ? '#137333' : '#c5221f',
+                            border: item.status.toLowerCase() === 'delivered' ? '1px solid #ceead6' : '1px solid #fad2cf'
+                          }}>
+                            {item.status}
+                          </span>
+                        </td>
+                        
+                        <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>
+                            Resend
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} style={{ padding: '20px', textAlign: 'center' }}>No logs found.</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
