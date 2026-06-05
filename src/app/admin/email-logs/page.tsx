@@ -1,6 +1,10 @@
 "use client";
 
 import React from 'react';
+
+//Test email services by using button
+import { useTransition } from 'react';
+import { sendEmailAction } from "@/app/actions/emailAction";
 import { emailService } from "@/services/email/emailService";
 
 // 1.initialise interface
@@ -35,6 +39,17 @@ export const SAMPLE_DATA: EmailEntryProp[] = [
 
 export default function EmailLogsPage() {
   const [mounted, setMounted] = React.useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleTestSend = () => {
+    startTransition(async () => {
+     
+      await sendEmailAction("tester@upm.edu.my", "Test Subject", "Hello World!");
+      alert("Email logged successfully!");
+    
+    });
+  };
+
 
   React.useEffect(() => {
     setMounted(true);
@@ -111,6 +126,14 @@ export default function EmailLogsPage() {
           <div style={{ backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', width: '100%' }}>
             <div style={{ padding: '16px 24px', borderBottom: '1px solid #c6c6cd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fcf8fa' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1b1b1d', margin: 0 }}>Recent Deliveries</h3>
+            {/*Test email service  */}
+            <button 
+                onClick={handleTestSend} 
+                disabled={isPending}
+                style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#000000', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                  {isPending ? "Sending..." : "Test Send Email"}
+              </button>
               <span style={{ fontSize: '12px', color: '#45464d', cursor: 'pointer' }}>🔄 Refresh</span>
             </div>
             
