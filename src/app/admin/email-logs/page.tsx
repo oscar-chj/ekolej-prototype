@@ -34,10 +34,12 @@ export default function EmailLogsPage() {
       });
     };
 
-
-  {/*React.useEffect(() => {
-    setMounted(true);
-  }, []);*/}
+  const handleResend = async (item: EmailLog) => {
+      await sendEmailAction(item.recipient, `Resend: ${item.description}`, "Resending email...");
+      alert("Resent successfully!");
+      const updatedLogs = await fetchLogsAction();
+      setLogs(updatedLogs);
+};
 
     return (
       
@@ -167,8 +169,11 @@ export default function EmailLogsPage() {
                         </td>
                         
                         <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                          <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>
-                            Resend
+                          <span 
+                              onClick={() => handleResend(item)} // 綁定 click 事件
+                              style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                              Resend
                           </span>
                         </td>
                       </tr>
