@@ -31,13 +31,12 @@ export async function notifyUser({ userId, type, payload }: NotifyUserInput) {
   // 3. Send email
   const result = await sendEmail({ to: user.email, ...template });
 
-  // 4. Log notification to DB (feeds Cai Yun's notification log UI)
-  await prisma.notification.create({
+  // 4. Log to EmailLog table (matches Cai Yun's UI)
+  await prisma.emailLog.create({
     data: {
-      userId,
-      type,
-      message: template.subject,
-      status: result.success ? 'SENT' : 'FAILED',
+      recipient: user.email,
+      status: result ? 'SENT' : 'FAILED',
+      description: template.subject,
     },
   });
 
