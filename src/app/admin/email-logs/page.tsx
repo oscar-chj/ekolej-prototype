@@ -1,7 +1,4 @@
 "use client";
-if (typeof window === 'undefined') {
-  (global as any).localStorage = { getItem: () => null, setItem: () => {} };
-}
 
 import React, { useState, useEffect, useTransition } from 'react';
 import { sendEmailAction } from "@/app/actions/emailAction";
