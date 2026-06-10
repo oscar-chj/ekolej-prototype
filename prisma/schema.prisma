@@ -1,18 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// ---------EmailLog model---------
-model EmailLog {
-  id          String   @id @default(cuid())
-  recipient   String
-  status      String
-  description String
-  createdAt   DateTime @default(now())
-}
-
 generator client {
-  provider = "prisma-client-js"
-  output   = "./generated/client"
+  provider = "prisma-client"
+  output = "./generated/prisma"
 }
 
 datasource db {
