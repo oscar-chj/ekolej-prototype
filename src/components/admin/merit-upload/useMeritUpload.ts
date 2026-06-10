@@ -71,7 +71,6 @@ export function useMeritUpload(eventId?: string, onComplete?: (data: { validEntr
             };
             fetchEvent();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eventId]);
 
     const updateMeritWeightageForEvent = (event: Event) => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // send emails
 //emailService
 import { emailLogService } from "./emailLogService";
@@ -6,7 +5,7 @@ import { emailLogService } from "./emailLogService";
 export const emailService = {
   sendEmail: async (to: string, subject: string, body: string) => {
     try {
-      console.log(`[Mock Email] Sending to ${to}: ${subject}\nBody: ${body}`);
+      console.log(`[Mock Email] Sending to ${to}: ${subject}`);
       await emailLogService.createLog({
         recipient: to,
         status: 'Delivered',
