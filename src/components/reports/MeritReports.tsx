@@ -83,7 +83,7 @@ export default function MeritReports({
         });
 
         if (response.success && response.data) {
-          setRecords(response.data.records);
+          setRecords(response.data.records || []);
         }
       } catch (error) {
         // TODO: Implement proper error handling/display
@@ -118,7 +118,7 @@ export default function MeritReports({
   };
 
   const renderMeritRecords = (meritRecords: MeritRecord[]) => {
-    if (meritRecords.length === 0) {
+    if (!meritRecords || meritRecords.length === 0) {
       return (
         <Alert severity="info" sx={{ mt: 2 }}>
           No merit records found for this category.
@@ -154,11 +154,11 @@ export default function MeritReports({
                     <Box sx={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
                       <Typography
                         variant="body2"
-                        fontWeight="bold"
                         gutterBottom
                         sx={{
                           wordBreak: "break-word",
                           overflowWrap: "break-word",
+                          fontWeight: "bold",
                         }}
                       >
                         {record.description}
@@ -185,8 +185,7 @@ export default function MeritReports({
                     <Typography
                       variant="h6"
                       color="primary"
-                      fontWeight="bold"
-                      sx={{ ml: 2, flexShrink: 0 }}
+                      sx={{ ml: 2, flexShrink: 0, fontWeight: "bold" }}
                     >
                       +{record.points}
                     </Typography>
@@ -221,7 +220,12 @@ export default function MeritReports({
                 }}
               >
                 <TableCell>
-                  <Typography variant="body2" fontWeight="medium">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "medium",
+                    }}
+                  >
                     {record.description}
                   </Typography>
                 </TableCell>
@@ -239,7 +243,13 @@ export default function MeritReports({
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="h6" color="primary" fontWeight="bold">
+                  <Typography
+                    variant="h6"
+                    color="primary"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
                     +{record.points}
                   </Typography>
                 </TableCell>
@@ -252,7 +262,10 @@ export default function MeritReports({
   };
 
   // Calculate totals based on provided records
-  const totalPoints = records.reduce((sum, record) => sum + record.points, 0);
+  const totalPoints = (records || []).reduce(
+    (sum, record) => sum + record.points,
+    0,
+  );
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -263,7 +276,12 @@ export default function MeritReports({
             <Typography variant="h6" color="primary" gutterBottom>
               Total Points Earned
             </Typography>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               {totalPoints}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -277,7 +295,12 @@ export default function MeritReports({
             <Typography variant="h6" color="success.main" gutterBottom>
               Records Count
             </Typography>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               {records.length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -291,7 +314,12 @@ export default function MeritReports({
             <Typography variant="h6" color="text.secondary" gutterBottom>
               Progress to Target
             </Typography>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
               {Math.round((totalPoints / targetPoints) * 100)}%
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -376,7 +404,7 @@ export default function MeritReports({
             points
           </Typography>
           {renderMeritRecords(
-            records.filter((r) => r.category === EventCategory.UNIVERSITY)
+            records.filter((r) => r.category === EventCategory.UNIVERSITY),
           )}
         </TabPanel>
 
@@ -392,7 +420,7 @@ export default function MeritReports({
             points
           </Typography>
           {renderMeritRecords(
-            records.filter((r) => r.category === EventCategory.FACULTY)
+            records.filter((r) => r.category === EventCategory.FACULTY),
           )}
         </TabPanel>
 
@@ -408,7 +436,7 @@ export default function MeritReports({
             points
           </Typography>
           {renderMeritRecords(
-            records.filter((r) => r.category === EventCategory.COLLEGE)
+            records.filter((r) => r.category === EventCategory.COLLEGE),
           )}
         </TabPanel>
 
@@ -424,7 +452,7 @@ export default function MeritReports({
             points
           </Typography>
           {renderMeritRecords(
-            records.filter((r) => r.category === EventCategory.CLUB)
+            records.filter((r) => r.category === EventCategory.CLUB),
           )}
         </TabPanel>
       </Paper>

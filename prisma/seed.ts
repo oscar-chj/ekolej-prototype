@@ -1,13 +1,18 @@
 /* eslint-disable no-console */
+import { PrismaPg } from "@prisma/adapter-pg";
 import {
-  PrismaClient,
-  UserRole,
   EventCategory,
   EventStatus,
+  PrismaClient,
   RegistrationStatus,
-} from "../generated/prisma";
+  UserRole,
+} from "./generated/prisma/client";
+import { Pool } from "pg";
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🌱 Starting database seed...");
@@ -41,7 +46,19 @@ async function main() {
       image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sysadmin",
     },
   });
-  console.log(`✅ Created ${2} admin users`);
+
+  // Add personal admin (for production)
+  await prisma.user.create({
+    data: {
+      name: "Chung Hao Jun",
+      email: "haojchung@gmail.com",
+      emailVerified: true,
+      role: UserRole.ADMIN,
+      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=haojchung",
+    },
+  });
+
+  console.log(`✅ Created ${3} admin users`);
 
   // Create Student Users
   console.log("👨‍🎓 Creating student users...");
@@ -278,10 +295,10 @@ async function main() {
   // Create Event Registrations and Merit Records
   console.log("📝 Creating event registrations and merit records...");
   const completedEvents = events.filter(
-    (e) => e.status === EventStatus.COMPLETED
+    (e) => e.status === EventStatus.COMPLETED,
   );
   const upcomingEvents = events.filter(
-    (e) => e.status === EventStatus.UPCOMING
+    (e) => e.status === EventStatus.UPCOMING,
   );
   let registrationCount = 0;
   let meritCount = 0;
@@ -298,7 +315,7 @@ async function main() {
           eventId: event.id,
           studentId: student.id,
           registrationDate: new Date(
-            event.date.getTime() - 7 * 24 * 60 * 60 * 1000
+            event.date.getTime() - 7 * 24 * 60 * 60 * 1000,
           ), // Registered a week before
           status: RegistrationStatus.ATTENDED,
           attendanceMarked: true,
@@ -450,14 +467,14 @@ async function main() {
       where: { role: UserRole.ADMIN },
     })} admins, ${await prisma.user.count({
       where: { role: UserRole.STUDENT },
-    })} students)`
+    })} students)`,
   );
   console.log(
     `📅 Total Events: ${eventCount} (${await prisma.event.count({
       where: { status: EventStatus.UPCOMING },
     })} upcoming, ${await prisma.event.count({
       where: { status: EventStatus.COMPLETED },
-    })} completed)`
+    })} completed)`,
   );
   console.log(`📝 Total Registrations: ${registrationCountTotal}`);
   console.log(`🏆 Total Merit Records: ${meritCountTotal}`);
