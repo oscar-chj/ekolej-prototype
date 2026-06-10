@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Enums
@@ -154,4 +155,13 @@ model Notification {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model EmailLog {
+  id          String   @id @default(cuid())
+  recipient   String
+  subject     String
+  description String
+  status      String   @default("SENT")
+  createdAt   DateTime @default(now())
 }
