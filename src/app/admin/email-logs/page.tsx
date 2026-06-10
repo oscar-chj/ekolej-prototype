@@ -1,13 +1,70 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
+import { sendEmailAction } from "@/app/actions/emailAction";
+import { fetchLogsAction, countLogsAction } from "@/app/actions/emailAction";
+
+// 1.initialise interface
+export interface EmailLog {
+  id: string;
+  recipient: string;
+  status: string;
+  description: string;
+  createdAt: Date;
+}
+
+const pageSize = 10;
 
 export default function EmailLogsPage() {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Statuses");
+  const [timeframe, setTimeframe] = useState("Last 24 Hours");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [mounted, setMounted] = useState(false);
+  const [logs, setLogs] = useState<EmailLog[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isPending, startTransition] = useTransition();
+
+  const loadLogs = async (page = currentPage) => {
+    const [data, count] = await Promise.all([
+      fetchLogsAction(statusFilter, search, page),
+      countLogsAction(statusFilter, search),
+    ]);
+    setLogs(data);
+    setTotalCount(count);
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    loadLogs(1);
+  }, []);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    loadLogs(newPage);
+  };
+
+  const handleTestSend = () => {
+    startTransition(async () => {
+      await sendEmailAction("tester@upm.edu.my", "Test Subject", "Hello World!");
+      alert("Email logged successfully!");
+      setCurrentPage(1);
+      await loadLogs(1);
+    });
+  };
+
+  const handleResend = async (item: EmailLog) => {
+    await sendEmailAction(item.recipient, `Resend: ${item.description}`, "Resending email...");
+    alert("Resent successfully!");
+    setCurrentPage(1);
+    await loadLogs(1);
+  };
+
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#fcf8fa', padding: '48px 24px', display: 'flex', justifyContent: 'center', alignItems: 'start' }}>
       {/* Central Content Box */}
       <div style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        
+
         {/* Brand Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '4px', backgroundColor: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -24,23 +81,37 @@ export default function EmailLogsPage() {
               Detailed audit trail of transactional email events for Student Merit Management System.
             </p>
           </div>
-          <div style={{ width: '320px', flexShrink: 0 }}>
-            <input 
-              type="text" 
-              style={{ width: '100%', height: '42px', backgroundColor: '#f6f3f5', border: '1px solid #c6c6cd', borderRadius: '8px', padding: '0 16px', fontSize: '14px', color: '#1b1b1d', boxSizing: 'border-box' }} 
-              placeholder="Search by email..." 
-            />
-          </div>
+  <div style={{ width: '320px', flexShrink: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && loadLogs()}
+        placeholder="Search by email..."
+        style={{ flex: 1, height: '42px', padding: '0 16px', borderRadius: '8px', border: '1px solid #c6c6cd' }}
+      />
+      <button
+        onClick={() => { setCurrentPage(1); loadLogs(1); }}
+        style={{ height: '42px', width: '42px', backgroundColor: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', flexShrink: 0 }}
+      >
+        🔍
+      </button>
+    </div>
+  </div>
         </div>
 
         {/* Filters Panel Container - Forced to remain in ONE single row */}
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', alignItems: 'end', width: '100%' }}>
-            
+
             {/* Status Selector Box */}
             <div style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#45464d', paddingLeft: '4px' }}>Status</label>
-              <select style={{ width: '100%', height: '42px', backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '8px', padding: '0 12px', fontSize: '14px', color: '#1b1b1d', appearance: 'auto', boxSizing: 'border-box' }}>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ width: '100%', height: '42px', backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '8px', padding: '0 12px', fontSize: '14px', color: '#1b1b1d', appearance: 'auto', boxSizing: 'border-box' }}
+              >
                 <option>All Statuses</option>
                 <option>Delivered</option>
                 <option>Sent</option>
@@ -53,7 +124,11 @@ export default function EmailLogsPage() {
             {/* Timeframe Selector Box */}
             <div style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#45464d', paddingLeft: '4px' }}>Timeframe</label>
-              <select style={{ width: '100%', height: '42px', backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '8px', padding: '0 12px', fontSize: '14px', color: '#1b1b1d', appearance: 'auto', boxSizing: 'border-box' }}>
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value)}
+                style={{ width: '100%', height: '42px', backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '8px', padding: '0 12px', fontSize: '14px', color: '#1b1b1d', appearance: 'auto', boxSizing: 'border-box' }}
+              >
                 <option>Last 24 Hours</option>
                 <option>Last 7 Days</option>
                 <option>Last 30 Days</option>
@@ -62,7 +137,10 @@ export default function EmailLogsPage() {
 
             {/* Apply Filters Button Block */}
             <div style={{ flexShrink: 0 }}>
-              <button style={{ height: '42px', backgroundColor: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', letterSpacing: '0.05em', padding: '0 32px', boxSizing: 'border-box' }}>
+              <button
+                onClick={() => { setCurrentPage(1); loadLogs(1); }}
+                style={{ height: '42px', backgroundColor: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', letterSpacing: '0.05em', padding: '0 32px', boxSizing: 'border-box' }}
+              >
                 APPLY FILTERS
               </button>
             </div>
@@ -74,9 +152,17 @@ export default function EmailLogsPage() {
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #c6c6cd', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', width: '100%' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #c6c6cd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fcf8fa' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1b1b1d', margin: 0 }}>Recent Deliveries</h3>
-            <span style={{ fontSize: '12px', color: '#45464d', cursor: 'pointer' }}>🔄 Refresh</span>
+            {/*Test email service*/}
+            <button
+              onClick={handleTestSend}
+              disabled={isPending}
+              style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#000000', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              {isPending ? "Sending..." : "Test Send Email"}
+            </button>
+            <span onClick={() => loadLogs(currentPage)} style={{ fontSize: '12px', color: '#45464d', cursor: 'pointer' }}>🔄 Refresh</span>
           </div>
-          
+
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
@@ -88,58 +174,87 @@ export default function EmailLogsPage() {
                 </tr>
               </thead>
               <tbody style={{ color: '#1b1b1d' }}>
-                <tr style={{ borderBottom: '1px solid #c6c6cd' }}>
-                  <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                    <div style={{ fontWeight: '600' }}>Oct 24, 2026</div>
-                    <div style={{ color: '#45464d', fontSize: '11px', marginTop: '4px' }}>14:22:15 UTC</div>
-                  </td>
-                  <td style={{ padding: '20px 24px' }}>
-                    <div style={{ fontWeight: '600' }}>alex.rivers@university.edu</div>
-                    <div style={{ color: '#45464d', fontSize: '13px', marginTop: '4px' }}>New Event Added: Annual Science Fair</div>
-                  </td>
-                  <td style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', backgroundColor: '#e6f4ea', color: '#137333', border: '1px solid #ceead6' }}>
-                      Delivered
-                    </span>
-                  </td>
-                  <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Resend</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                    <div style={{ fontWeight: '600' }}>Oct 24, 2026</div>
-                    <div style={{ color: '#45464d', fontSize: '11px', marginTop: '4px' }}>11:05:32 UTC</div>
-                  </td>
-                  <td style={{ padding: '20px 24px' }}>
-                    <div style={{ fontWeight: '600' }}>jordan.lee@university.edu</div>
-                    <div style={{ color: '#45464d', fontSize: '13px', marginTop: '4px' }}>Event Reminder: Robotics Workshop</div>
-                  </td>
-                  <td style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: '600', backgroundColor: '#fce8e6', color: '#c5221f', border: '1px solid #fad2cf' }}>
-                      Bounced
-                    </span>
-                  </td>
-                  <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Resend</span>
-                  </td>
-                </tr>
+                {logs.length > 0 ? (
+                  logs.map((item: any, index: number) => (
+                    <tr key={index} style={{ borderBottom: '1px solid #c6c6cd' }}>
+                      <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontWeight: '600' }}>
+                          {new Date(item.createdAt).toLocaleDateString()}
+                        </div>
+                        <div style={{ color: '#45464d', fontSize: '11px', marginTop: '4px' }}>
+                          {new Date(item.createdAt).toLocaleTimeString()}
+                        </div>
+                      </td>
+
+                      <td style={{ padding: '20px 24px' }}>
+                        <div style={{ fontWeight: '600' }}>{item.recipient}</div>
+                        <div style={{ color: '#45464d', fontSize: '13px', marginTop: '4px' }}>{item.description}</div>
+                      </td>
+
+                      <td style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          backgroundColor: item.status.toLowerCase() === 'delivered' ? '#e6f4ea' : '#fce8e6',
+                          color: item.status.toLowerCase() === 'delivered' ? '#137333' : '#c5221f',
+                          border: item.status.toLowerCase() === 'delivered' ? '1px solid #ceead6' : '1px solid #fad2cf'
+                        }}>
+                          {item.status}
+                        </span>
+                      </td>
+
+                      <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <span
+                          onClick={() => handleResend(item)}
+                          style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                          Resend
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '20px', textAlign: 'center' }}>No logs found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
 
           {/* Pagination Footer */}
           <div style={{ padding: '16px 24px', borderTop: '1px solid #c6c6cd', backgroundColor: '#fcf8fa', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#45464d' }}>
-            <span style={{ fontWeight: '500' }}>Showing 1 to 2 of 482 email logs</span>
+            <span style={{ fontWeight: '500' }}>
+              Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} email logs
+            </span>
             <div style={{ display: 'flex', gap: '6px' }}>
-              <button style={{ padding: '4px 10px', borderRadius: '4px', border: '1px solid #c6c6cd', backgroundColor: '#ffffff', opacity: '0.4', cursor: 'not-allowed' }} disabled>&lt;</button>
-              <button style={{ padding: '4px 12px', borderRadius: '4px', backgroundColor: '#000000', color: '#ffffff', fontWeight: '600', border: 'none' }}>1</button>
-              <button style={{ padding: '4px 12px', borderRadius: '4px', border: '1px solid #c6c6cd', backgroundColor: '#ffffff', cursor: 'pointer' }}>2</button>
-              <button style={{ padding: '4px 10px', borderRadius: '4px', border: '1px solid #c6c6cd', backgroundColor: '#ffffff', cursor: 'pointer' }}>&gt;</button>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{ padding: '4px 10px', borderRadius: '4px', border: '1px solid #c6c6cd', backgroundColor: '#ffffff', opacity: currentPage === 1 ? '0.4' : '1', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+              >&lt;</button>
+
+              {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  style={{ padding: '4px 12px', borderRadius: '4px', backgroundColor: currentPage === page ? '#000000' : '#ffffff', color: currentPage === page ? '#ffffff' : '#1b1b1d', fontWeight: currentPage === page ? '600' : '400', border: currentPage === page ? 'none' : '1px solid #c6c6cd', cursor: 'pointer' }}
+                >{page}</button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+                style={{ padding: '4px 10px', borderRadius: '4px', border: '1px solid #c6c6cd', backgroundColor: '#ffffff', opacity: currentPage >= Math.ceil(totalCount / pageSize) ? '0.4' : '1', cursor: currentPage >= Math.ceil(totalCount / pageSize) ? 'not-allowed' : 'pointer' }}
+              >&gt;</button>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );
