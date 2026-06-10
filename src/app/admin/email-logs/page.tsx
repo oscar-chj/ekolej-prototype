@@ -20,7 +20,6 @@ export default function EmailLogsPage() {
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [timeframe, setTimeframe] = useState("Last 24 Hours");
   const [currentPage, setCurrentPage] = useState(1);
-  const [mounted, setMounted] = useState(false);
   const [logs, setLogs] = useState<EmailLog[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -35,8 +34,8 @@ export default function EmailLogsPage() {
   };
 
   useEffect(() => {
-    setMounted(true);
     loadLogs(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePageChange = (newPage: number) => {
@@ -175,7 +174,7 @@ export default function EmailLogsPage() {
               </thead>
               <tbody style={{ color: '#1b1b1d' }}>
                 {logs.length > 0 ? (
-                  logs.map((item: any, index: number) => (
+                  logs.map((item: EmailLog, index: number) => (
                     <tr key={index} style={{ borderBottom: '1px solid #c6c6cd' }}>
                       <td style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: '13px', whiteSpace: 'nowrap' }}>
                         <div style={{ fontWeight: '600' }}>
