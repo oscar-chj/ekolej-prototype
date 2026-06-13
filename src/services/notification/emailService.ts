@@ -13,7 +13,9 @@ export async function sendEmail(
 ): Promise<{ success: boolean; error?: string }> {
   const { error } = await resend.emails.send({
     from: 'SMMS <onboarding@resend.dev>',
-    ...payload,
+    to: 'delivered@resend.dev',
+    subject: payload.subject,
+    html: payload.html,
   });
 
   if (error) {
