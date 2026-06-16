@@ -1,9 +1,13 @@
-'use server';
+"use server";
 
-import { sendEmail } from '@/services/notification/emailService';
-import { prisma } from '@/lib/prisma';
+import { sendEmail } from "@/services/notification/emailService";
+import { prisma } from "../../../prisma/prisma";
 
-export async function sendEmailAction(recipient: string, subject: string, body: string) {
+export async function sendEmailAction(
+  recipient: string,
+  subject: string,
+  body: string,
+) {
   const result = await sendEmail({ to: recipient, subject, html: body });
 
   await prisma.emailLog.create({
@@ -11,7 +15,7 @@ export async function sendEmailAction(recipient: string, subject: string, body: 
       recipient,
       subject,
       description: subject,
-      status: result.success ? 'SENT' : 'FAILED',
+      status: result.success ? "SENT" : "FAILED",
     },
   });
 
@@ -20,7 +24,7 @@ export async function sendEmailAction(recipient: string, subject: string, body: 
 
 export async function resendEmailAction(logId: string) {
   const log = await prisma.emailLog.findUnique({ where: { id: logId } });
-  if (!log) return { success: false, error: 'Log not found' };
+  if (!log) return { success: false, error: "Log not found" };
 
   const result = await sendEmail({
     to: log.recipient,
@@ -33,7 +37,7 @@ export async function resendEmailAction(logId: string) {
       recipient: log.recipient,
       subject: `[Resent] ${log.subject}`,
       description: log.description,
-      status: result.success ? 'SENT' : 'FAILED',
+      status: result.success ? "SENT" : "FAILED",
     },
   });
 
@@ -42,6 +46,6 @@ export async function resendEmailAction(logId: string) {
 
 export async function fetchLogsAction() {
   return await prisma.emailLog.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
 }
