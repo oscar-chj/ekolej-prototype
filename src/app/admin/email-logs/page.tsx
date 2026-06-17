@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { fetchLogsAction, resendEmailAction } from '@/app/actions/emailAction';
 
 interface EmailEntryProp {
+  id: string;
   date: string;
   time: string;
   recipient: string;
@@ -10,18 +12,13 @@ interface EmailEntryProp {
   status: 'Delivered' | 'Sent' | 'Bounced' | 'Complained' | 'Filtered';
 }
 
-const SAMPLE_DATA: EmailEntryProp[] = [
-  { date: 'Oct 24, 2026', time: '14:22:15 UTC', recipient: 'alex.rivers@university.edu', description: 'New Event Added: Annual Science Fair', status: 'Delivered' },
-  { date: 'Oct 24, 2026', time: '11:05:32 UTC', recipient: 'jordan.lee@university.edu', description: 'Event Reminder: Robotics Workshop', status: 'Bounced' },
-  { date: 'Oct 23, 2026', time: '09:14:00 UTC', recipient: 'sam.tan@university.edu', description: 'Merit Points Updated', status: 'Delivered' },
-  { date: 'Oct 23, 2026', time: '08:30:45 UTC', recipient: 'priya.nair@university.edu', description: 'Event Registration Confirmed: Hackathon 2026', status: 'Sent' },
-  { date: 'Oct 22, 2026', time: '17:55:10 UTC', recipient: 'wei.lim@university.edu', description: 'New Event Added: Cultural Night', status: 'Delivered' },
-  { date: 'Oct 22, 2026', time: '16:40:22 UTC', recipient: 'farah.aziz@university.edu', description: 'Event Reminder: Career Fair', status: 'Complained' },
-  { date: 'Oct 21, 2026', time: '13:10:05 UTC', recipient: 'ravi.kumar@university.edu', description: 'Merit Points Updated', status: 'Filtered' },
-  { date: 'Oct 21, 2026', time: '10:25:33 UTC', recipient: 'mei.chen@university.edu', description: 'Event Registration Confirmed: Sports Day', status: 'Delivered' },
-  { date: 'Oct 20, 2026', time: '15:05:50 UTC', recipient: 'john.doe@university.edu', description: 'New Event Added: Tech Talk', status: 'Sent' },
-  { date: 'Oct 20, 2026', time: '09:00:00 UTC', recipient: 'lisa.wong@university.edu', description: 'Event Reminder: Annual Science Fair', status: 'Bounced' },
-];
+function mapStatus(raw: string): EmailEntryProp['status'] {
+  const map: Record<string, EmailEntryProp['status']> = {
+    SENT: 'Sent', DELIVERED: 'Delivered', FAILED: 'Bounced',
+    BOUNCED: 'Bounced', COMPLAINED: 'Complained', FILTERED: 'Filtered',
+  };
+  return map[raw.toUpperCase()] ?? 'Sent';
+}
 
 const ITEMS_PER_PAGE = 5;
 
@@ -38,8 +35,31 @@ export default function EmailLogsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [searchQuery, setSearchQuery] = useState('');
+  const [logs, setLogs] = useState<EmailEntryProp[]>([]);
+  const [resending, setResending] = useState<string | null>(null);
 
-  const filtered = SAMPLE_DATA.filter(entry => {
+  const loadLogs = useCallback(async () => {
+    const raw = await fetchLogsAction();
+    setLogs(raw.map(r => ({
+      id: r.id,
+      date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      time: new Date(r.createdAt).toLocaleTimeString('en-US', { hour12: false }) + ' UTC',
+      recipient: r.recipient,
+      description: r.description,
+      status: mapStatus(r.status),
+    })));
+  }, []);
+
+  useEffect(() => { loadLogs(); }, [loadLogs, refreshKey]);
+
+  const handleResend = async (id: string) => {
+    setResending(id);
+    await resendEmailAction(id);
+    await loadLogs();
+    setResending(null);
+  };
+
+  const filtered = logs.filter(entry => {
     const matchStatus = statusFilter === 'All Statuses' || entry.status === statusFilter;
     const matchSearch = entry.recipient.toLowerCase().includes(searchQuery.toLowerCase());
     return matchStatus && matchSearch;
@@ -153,7 +173,10 @@ export default function EmailLogsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '20px 24px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <span style={{ color: '#000000', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>Resend</span>
+                      <span
+                        onClick={() => handleResend(entry.id)}
+                        style={{ color: resending === entry.id ? '#999' : '#000000', fontWeight: '600', cursor: resending === entry.id ? 'not-allowed' : 'pointer', textDecoration: 'underline' }}
+                      >{resending === entry.id ? 'Sending...' : 'Resend'}</span>
                     </td>
                   </tr>
                 ))}

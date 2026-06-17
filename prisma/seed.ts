@@ -22,6 +22,7 @@ async function main() {
   await prisma.meritRecord.deleteMany({});
   await prisma.eventRegistration.deleteMany({});
   await prisma.event.deleteMany({});
+  await prisma.emailLog.deleteMany({});
   await prisma.user.deleteMany({});
   console.log("✅ Cleaned existing data");
 
@@ -454,6 +455,54 @@ async function main() {
   }
   console.log(`✅ Created ${additionalMerits.length} additional merit records`);
 
+  // Create sample email logs so the admin email log page has realistic data
+  console.log("📧 Creating sample email logs...");
+  const sampleEmailLogs = [
+    {
+      recipient: "ahmad.hafiz@student.upm.edu.my",
+      subject: "Welcome to SMMS",
+      description: "Welcome email sent after account creation",
+      status: "SENT",
+      createdAt: new Date("2026-06-10T09:00:00.000Z"),
+    },
+    {
+      recipient: "siti.nurhaliza@student.upm.edu.my",
+      subject: "Event registration confirmed",
+      description: "Confirmation for UPM Innovation Summit 2025 registration",
+      status: "SENT",
+      createdAt: new Date("2026-06-11T11:30:00.000Z"),
+    },
+    {
+      recipient: "azmi.yusof@student.upm.edu.my",
+      subject: "Merit points awarded",
+      description:
+        "Merit points notification for Leadership Training Camp attendance",
+      status: "SENT",
+      createdAt: new Date("2026-06-12T15:45:00.000Z"),
+    },
+    {
+      recipient: "lee.weiming@student.upm.edu.my",
+      subject: "Password reset attempt",
+      description: "Delivery failed due to temporary provider error",
+      status: "FAILED",
+      createdAt: new Date("2026-06-13T08:20:00.000Z"),
+    },
+    {
+      recipient: "haojchung@gmail.com",
+      subject: "Admin digest",
+      description: "Weekly admin summary of events and merit activity",
+      status: "SENT",
+      createdAt: new Date("2026-06-14T07:00:00.000Z"),
+    },
+  ];
+
+  for (const emailLog of sampleEmailLogs) {
+    await prisma.emailLog.create({
+      data: emailLog,
+    });
+  }
+  console.log(`✅ Created ${sampleEmailLogs.length} sample email logs`);
+
   // Summary
   console.log("\n📊 Seed Summary:");
   console.log("================");
@@ -461,6 +510,7 @@ async function main() {
   const eventCount = await prisma.event.count();
   const registrationCountTotal = await prisma.eventRegistration.count();
   const meritCountTotal = await prisma.meritRecord.count();
+  const emailLogCountTotal = await prisma.emailLog.count();
 
   console.log(
     `👥 Total Users: ${userCount} (${await prisma.user.count({
@@ -478,6 +528,7 @@ async function main() {
   );
   console.log(`📝 Total Registrations: ${registrationCountTotal}`);
   console.log(`🏆 Total Merit Records: ${meritCountTotal}`);
+  console.log(`📧 Total Email Logs: ${emailLogCountTotal}`);
 
   console.log("\n🎉 Database seeded successfully!");
 }
