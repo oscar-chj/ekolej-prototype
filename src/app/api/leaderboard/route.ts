@@ -1,95 +1,20 @@
-import { prisma } from "../../../../prisma/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { leaderboardService } from "@/lib/services/leaderboardService";
 
-/**
- * GET /api/leaderboard
- * Get leaderboard data
- * Query params:
- *   - sortBy (optional, default: "total") - "total" | "university" | "faculty" | "college" | "club"
- */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const sortBy = searchParams.get("sortBy") || "total";
+    const sortBy = (searchParams.get("sortBy") || "total") as "total" | "university" | "faculty" | "college" | "club";
 
-    // Get all students
-    const students = await prisma.user.findMany({
-      where: { role: "STUDENT" },
-      include: {
-        meritRecords: {
-          select: {
-            category: true,
-            points: true,
-          },
-        },
-      },
-    });
+    const result = await leaderboardService.getLeaderboard(sortBy);
 
-    // Calculate points for each student
-    const leaderboardData = students.map((student) => {
-      const data = {
-        id: student.id,
-        studentId: student.studentId || "",
-        name: student.name,
-        faculty: student.faculty || "",
-        year: student.year || 0,
-        totalPoints: 0,
-        universityMerit: 0,
-        facultyMerit: 0,
-        collegeMerit: 0,
-        clubMerit: 0,
-      };
-
-      student.meritRecords.forEach((record) => {
-        const category = record.category as string;
-        data.totalPoints += record.points;
-
-        switch (category) {
-          case "UNIVERSITY":
-            data.universityMerit += record.points;
-            break;
-          case "FACULTY":
-            data.facultyMerit += record.points;
-            break;
-          case "COLLEGE":
-            data.collegeMerit += record.points;
-            break;
-          case "CLUB":
-            data.clubMerit += record.points;
-            break;
-        }
-      });
-
-      return data;
-    });
-
-    // Sort based on the requested criteria
-    const sortedData = [...leaderboardData];
-    switch (sortBy) {
-      case "university":
-        sortedData.sort((a, b) => b.universityMerit - a.universityMerit);
-        break;
-      case "faculty":
-        sortedData.sort((a, b) => b.facultyMerit - a.facultyMerit);
-        break;
-      case "college":
-        sortedData.sort((a, b) => b.collegeMerit - a.collegeMerit);
-        break;
-      case "club":
-        sortedData.sort((a, b) => b.clubMerit - a.clubMerit);
-        break;
-      default:
-        sortedData.sort((a, b) => b.totalPoints - a.totalPoints);
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: sortedData,
-    });
+    return NextResponse.json(result);
   } catch (error) {
-    // TODO: Implement proper error handling/display
-    // eslint-disable-next-line no-console
-    console.error("Error fetching leaderboard:", error);
+    console.error("Error in GET /api/leaderboard:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch leaderboard" },
       { status: 500 }

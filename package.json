@@ -21,14 +21,17 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@types/js-cookie": "^3.0.6",
     "js-cookie": "^3.0.5",
     "next": "15.3.6",
     "next-auth": "^5.0.0-beta.30",
-    "prisma": "^6.19.0",
+    "pg": "^8.21.0",
+    "prisma": "^7.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.12.4",
     "zod": "^3.25.64",
     "zustand": "^5.0.5"
   },
@@ -42,9 +45,7 @@
     "eslint-config-next": "15.3.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

@@ -8,33 +8,33 @@ import { authConfig } from "./auth.config";
 const devProviders =
   process.env.NODE_ENV !== "production"
     ? [
-        CredentialsProvider({
-          id: "dev-backdoor",
-          name: "Dev Backdoor",
-          credentials: {
-            email: {
-              label: "Email",
-              type: "email",
-              placeholder: "dev@example.com",
-            },
+      CredentialsProvider({
+        id: "dev-backdoor",
+        name: "Dev Backdoor",
+        credentials: {
+          email: {
+            label: "Email",
+            type: "email",
+            placeholder: "dev@example.com",
           },
-          async authorize(credentials) {
-            if (!credentials?.email) return null;
+        },
+        async authorize(credentials) {
+          if (!credentials?.email) return null;
 
-            // Create or find user in database via server action
-            const user = await saveDevUser(credentials.email as string);
+          // Create or find user in database via server action
+          const user = await saveDevUser(credentials.email as string);
 
-            if (!user) return null;
+          if (!user) return null;
 
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              image: user.image,
-            };
-          },
-        }),
-      ]
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          };
+        },
+      }),
+    ]
     : [];
 
 export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
@@ -91,15 +91,18 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           return false; // Deny sign-in if no email
         }
 
-        // Only allow emails from UPM domains
+        // Only allow emails from UPM domains or specific admin emails
         const email = profile.email.toLowerCase();
         const allowedDomains = ["upm.edu.my", "student.upm.edu.my"];
+        const allowedAdminEmails = ["haojchung@gmail.com"];
+
         const isAllowedDomain = allowedDomains.some((domain) =>
           email.endsWith(`@${domain}`)
         );
+        const isAllowedAdmin = allowedAdminEmails.includes(email);
 
-        if (!isAllowedDomain) {
-          return false; // Deny sign-in for non-UPM emails
+        if (!isAllowedDomain && !isAllowedAdmin) {
+          return false; // Deny sign-in for non-UPM emails and non-whitelisted admins
         }
 
         // Save user to database via server action
